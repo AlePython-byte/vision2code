@@ -1,0 +1,96 @@
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #f6f5f0;
+  --color-ink: #20211f;
+  --color-muted: #676963;
+  --color-line: #d2d3ca;
+  --color-accent: #b52d21;
+  --color-tint: #eeeee7;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --spacing: 0.25rem;
+  --radius-sm: 2px;
+  --text-display: clamp(2.5rem, 4vw, 4rem);
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --border-width: 1px;
+  --border-structural: var(--border-width) solid var(--color-ink);
+  --border-subtle: var(--border-width) solid var(--color-line);
+  --motion-fast: 140ms;
+  --motion-ease: ease-out;
+}
+
+@layer base {
+  body { margin: 0; min-width: 320px; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--color-ink); color: var(--color-canvas); }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+}
+
+@layer components {
+  .application-shell { @apply flex min-h-dvh flex-col; }
+  .app-header { @apply flex min-h-20 items-center justify-between gap-6 px-8; border-bottom: var(--border-structural); }
+  .brand { @apply flex items-center gap-4 text-xl font-semibold tracking-tight; }
+  .brand-mark { @apply flex size-10 items-center justify-center bg-ink font-mono text-sm text-canvas; }
+  .utility-label { @apply flex gap-3 font-mono text-xs; }
+  .shell-body { @apply grid flex-1; grid-template-columns: 208px minmax(0, 1fr); }
+  .navigation { @apply flex flex-col py-8; border-right: var(--border-structural); }
+  .eyebrow { @apply font-mono text-xs font-normal uppercase tracking-widest; }
+  .navigation-label { @apply mb-6 px-6 text-muted; }
+  .navigation-item { @apply flex items-center gap-3 bg-tint px-6 py-4 text-sm font-medium; border-left: 3px solid var(--color-accent); transition: background-color var(--motion-fast) var(--motion-ease); }
+  .navigation-item:hover { background: var(--color-line); }
+  .nav-arrow { @apply ml-auto; }
+  .navigation-note { @apply mt-auto px-6 pt-12 text-xs leading-relaxed text-muted; }
+  .workspace { @apply flex min-w-0 flex-col gap-10 p-10; }
+  .workspace-heading { @apply flex flex-wrap items-end justify-between gap-6; }
+  h1 { font-size: var(--text-display); @apply font-medium leading-none tracking-tighter; }
+  .workspace-intro { @apply max-w-64 text-sm leading-relaxed text-muted; }
+  .workspace-frame { @apply flex flex-1 flex-col; border: var(--border-structural); }
+  .frame-header { @apply flex flex-wrap items-center justify-between gap-3 px-6 py-4; border-bottom: var(--border-subtle); }
+  .empty-workspace { @apply flex min-h-80 flex-1 flex-col items-start justify-center gap-5 p-10; }
+  .structure-mark { @apply mb-3 grid h-16 w-20 grid-cols-3 gap-1; }
+  .structure-mark span { border: var(--border-subtle); }
+  .structure-mark span:first-child { @apply bg-ink; border-color: var(--color-ink); }
+  .structure-mark span:last-child { @apply border-accent; }
+  h3 { @apply text-2xl font-medium tracking-tight; }
+  .empty-description { @apply max-w-96 text-sm leading-relaxed text-muted; }
+  .frame-footer { @apply flex items-center gap-3 px-6 py-4 font-mono text-xs; border-top: var(--border-subtle); }
+  .status-dot { @apply size-2 shrink-0 bg-ink; border-radius: var(--radius-sm); }
+  .app-footer { @apply flex flex-wrap justify-between gap-2 px-8 py-3 font-mono text-xs text-muted; border-top: var(--border-structural); }
+  .skip-link { @apply fixed left-4 top-4 z-10 -translate-y-24 bg-ink px-4 py-3 text-canvas; }
+  .skip-link:focus { @apply translate-y-0; }
+}
+
+@media (max-width: 900px) {
+  .shell-body { grid-template-columns: 168px minmax(0, 1fr); }
+  .workspace { @apply gap-8 p-6; }
+  .empty-workspace { @apply p-6; }
+  .navigation-item, .navigation-label, .navigation-note { @apply px-4; }
+}
+
+@media (max-width: 640px) {
+  .app-header { @apply flex-wrap gap-3 px-4 py-4; }
+  .shell-body { @apply flex flex-col; }
+  .navigation { @apply py-0; border-right: 0; border-bottom: var(--border-structural); }
+  .navigation-label, .navigation-note { display: none; }
+  .navigation-item { @apply px-4 py-3; }
+  .workspace { @apply p-4; }
+  .intro-break { display: none; }
+  .app-footer { @apply px-4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-fast: 0ms; }
+}
