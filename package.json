@@ -2,12 +2,13 @@
   "name": "vision2code",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["desktop"],
+  "workspaces": ["desktop", "packages/contracts"],
   "engines": { "node": ">=22.12.0" },
   "scripts": {
     "dev": "npm run dev --workspace @vision2code/desktop",
     "build": "npm run build --workspace @vision2code/desktop",
-    "typecheck": "npm run typecheck --workspace @vision2code/desktop",
+    "typecheck": "npm run typecheck --workspace @vision2code/contracts && npm run typecheck --workspace @vision2code/desktop",
+    "test": "npm run test --workspace @vision2code/contracts && npm run test --workspace @vision2code/desktop",
     "desktop:dev": "npm run tauri --workspace @vision2code/desktop -- dev",
     "desktop:build": "npm run tauri --workspace @vision2code/desktop -- build",
     "check:rust": "cargo check --manifest-path desktop/src-tauri/Cargo.toml"

@@ -16,11 +16,12 @@
         "width": 1280,
         "height": 820,
         "minWidth": 720,
-        "minHeight": 540
+        "minHeight": 540,
+        "dragDropEnabled": false
       }
     ],
     "security": {
-      "csp": "default-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' asset: http://asset.localhost; connect-src ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' blob: asset: http://asset.localhost; connect-src ipc: http://ipc.localhost"
     }
   },
   "bundle": {
