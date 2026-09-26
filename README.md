@@ -1,6 +1,6 @@
 # Vision2Code
 
-A desktop workspace for translating interface screenshots into frontend code. The current milestone supports local screenshot selection, validation, image preview, and output-stack selection. Code generation and backend integration are not implemented.
+A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and a standardized HTTP boundary. The desktop does not call the backend yet; no AI provider, external AI API call, or code generation is implemented.
 
 ## Requirements
 
@@ -29,7 +29,9 @@ npm run check:rust
 npm run desktop:build
 ```
 
-`build` compiles the contracts package, validates the desktop TypeScript configurations, and builds the frontend. The desktop `predev` and `pretypecheck` scripts build contracts automatically, including when invoked by Tauri. `check:rust` checks the native project. `desktop:build` also creates native release bundles and requires the platform packaging prerequisites. Tests use the built-in Node.js test runner and TypeScript stripping; no test framework is installed.
+`build` compiles the contracts package, validates the desktop TypeScript configurations, and builds the frontend. The desktop `predev` and `pretypecheck` scripts build contracts automatically, including when invoked by Tauri. `check:rust` checks the native project. `desktop:build` also creates native release bundles and requires the platform packaging prerequisites. Desktop and contract tests use the built-in Node.js test runner and TypeScript stripping; no test framework is installed.
+
+The root `npm test` command runs the complete repository test suite: contracts, desktop, and server. Use `npm run server:test` to run only the backend suite.
 
 ## Structure
 
@@ -44,7 +46,14 @@ desktop/
     styles/theme.css             Design tokens and responsive shell styling
   tests/                         File validation and decoder lifecycle tests
   src-tauri/                     Minimal native runner, window configuration, icons
-packages/contracts/              Zod output-stack schema, inferred type, and tests
+packages/contracts/              Zod output-stack and API error schemas, types, and tests
+server/
+  src/
+    health/                      Health endpoint and feature module
+    http/                        Request IDs, global error filter, and Zod pipe
+    ai/                          Provider-agnostic interface only
+    configuration.ts             Validated startup configuration
+  tests/                         HTTP integration and boundary unit tests
 ```
 
 The frontend uses React, strict TypeScript, Vite, and Tailwind CSS 4 through `@tailwindcss/vite`. The official Tauri React/TypeScript scaffold is the starting point. IBM Plex Sans and IBM Plex Mono are bundled locally through Fontsource; no remote fonts are requested.
@@ -53,7 +62,51 @@ The shell follows a restrained typographic direction: off-white canvas, near-bla
 
 Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. No custom Rust commands, plugins, or native permissions are enabled. The production content security policy permits local assets and `blob:` images for in-memory previews. The scaffold's default bundle icons are retained as development placeholders.
 
-There is no router, global state library, or backend. Screenshot state and output-stack selection stay inside the screenshot feature. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`. It builds JavaScript and declarations for consumption by the desktop and a future ESM backend; it contains no browser dependencies or speculative schemas.
+There is no frontend router or global state library. Screenshot state and output-stack selection stay inside the screenshot feature. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope and request ID validation. It builds JavaScript and declarations consumed by the desktop and ESM backend; it contains no browser dependencies or speculative AI schemas.
+
+## Backend foundation
+
+The NestJS server is the future boundary between the desktop and external AI providers. It currently exposes only `GET /api/v1/health`:
+
+```json
+{ "status": "ok", "service": "vision2code-api" }
+```
+
+Run from the repository root:
+
+```sh
+npm install
+npm run server:dev
+```
+
+The development command compiles contracts and the server, then starts it at `http://localhost:3000`. It does not watch source files; restart the command after edits. The server binds to `127.0.0.1` for local development. Optionally copy `server/.env.example` to `server/.env` to change `PORT`. Node loads that file; existing process environment values take precedence. The default is 3000, and invalid ports fail startup. Actual `.env` files and variants are ignored by Git; `.env.example` is the non-secret template.
+
+```sh
+npm run server:build
+npm run server:test
+```
+
+Server TypeScript is strict and emits ESM using the existing compiler. Tests compile TypeScript before running Node's built-in test runner; no Nest CLI, Jest, Supertest, or extra test framework is needed. Integration tests start the real Nest application on an ephemeral loopback port and use Node fetch. Error-filter tests invoke the filter directly; no production test routes exist.
+
+`AppModule` imports `HealthModule`. Bootstrap applies the `api/v1` prefix, request ID middleware, explicit CORS policy, and global exception filter. The middleware runs before CORS and body parsing. Every application HTTP response includes `X-Request-Id`. Incoming IDs must be 1–128 ASCII letters, digits, dots, underscores, colons, or hyphens, beginning with a letter or digit. Invalid or missing IDs receive a platform-generated UUID. IDs are correlation metadata, not authentication or trusted identity.
+
+Errors use the shared `ApiErrorResponseSchema`:
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No se encontró el recurso solicitado.",
+    "requestId": "desktop:request-123"
+  }
+}
+```
+
+HTTP exceptions retain their status. A 404 maps to `NOT_FOUND`, other client errors to `INVALID_REQUEST`, and server/unexpected errors to `INTERNAL_ERROR`. Default client messages are Spanish. Responses never copy exception messages, validation issues, or stack traces; server-error logs include only correlation ID and HTTP status. Unknown routes also use this envelope. A small `ZodValidationPipe` validates future route-bound schemas and supports transformed output and asynchronous refinements. There is no request DTO or request endpoint to attach it to yet.
+
+Development CORS allows only `http://localhost:1420` and `http://127.0.0.1:1420`, with GET, no credentials, and `X-Request-Id` exposed to clients. Unlisted browser origins receive no CORS permission; CORS is not access control. Production origins and deployment are not configured. No desktop connectivity or Tauri permission changes were made.
+
+`AIProvider<Input, Output>` defines only an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. No implementation, injection registration, AI endpoint, provider SDK, provider credentials, or paid integration exists. Task-specific input/output contracts remain for the next module. There is no persistence, authentication, screenshot upload, or other backend feature yet.
 
 ## Local screenshot workflow
 
@@ -85,3 +138,5 @@ This environment has no connected native UI or browser surface, so these manual 
 - [Tailwind CSS Vite integration](https://tailwindcss.com/docs/installation/using-vite)
 - [Tauri window configuration and HTML5 drag and drop](https://v2.tauri.app/reference/config/#dragdropenabled)
 - [WebView file input behavior](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/file)
+- [NestJS exception filters](https://docs.nestjs.com/exception-filters)
+- [Node environment file support](https://nodejs.org/api/cli.html#--env-filefile)

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { OutputStackSchema } from "../src/index.ts";
+import { OutputStackSchema } from "../dist/index.js";
 
 test("only the supported output stacks are accepted", () => {
   assert.deepEqual(OutputStackSchema.options, ["REACT_TAILWIND", "HTML_CSS"]);
