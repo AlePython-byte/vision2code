@@ -46,12 +46,13 @@ desktop/
     styles/theme.css             Design tokens and responsive shell styling
   tests/                         File validation and decoder lifecycle tests
   src-tauri/                     Minimal native runner, window configuration, icons
-packages/contracts/              Zod output-stack and API error schemas, types, and tests
+packages/contracts/              Zod output-stack, API error, and UISchema contracts
 server/
   src/
     health/                      Health endpoint and feature module
     http/                        Request IDs, global error filter, and Zod pipe
     ai/                          Provider-agnostic interface only
+    analysis/                    Analysis input, use case, error, and versioned prompt
     configuration.ts             Validated startup configuration
   tests/                         HTTP integration and boundary unit tests
 ```
@@ -62,7 +63,7 @@ The shell follows a restrained typographic direction: off-white canvas, near-bla
 
 Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. No custom Rust commands, plugins, or native permissions are enabled. The production content security policy permits local assets and `blob:` images for in-memory previews. The scaffold's default bundle icons are retained as development placeholders.
 
-There is no frontend router or global state library. Screenshot state and output-stack selection stay inside the screenshot feature. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope and request ID validation. It builds JavaScript and declarations consumed by the desktop and ESM backend; it contains no browser dependencies or speculative AI schemas.
+There is no frontend router or global state library. Screenshot state and output-stack selection stay inside the screenshot feature. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope, request ID validation, and UISchema v1. It builds JavaScript and declarations consumed by the desktop and ESM backend, with no browser dependencies.
 
 ## Backend foundation
 
@@ -106,7 +107,26 @@ HTTP exceptions retain their status. A 404 maps to `NOT_FOUND`, other client err
 
 Development CORS allows only `http://localhost:1420` and `http://127.0.0.1:1420`, with GET, no credentials, and `X-Request-Id` exposed to clients. Unlisted browser origins receive no CORS permission; CORS is not access control. Production origins and deployment are not configured. No desktop connectivity or Tauri permission changes were made.
 
-`AIProvider<Input, Output>` defines only an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. No implementation, injection registration, AI endpoint, provider SDK, provider credentials, or paid integration exists. Task-specific input/output contracts remain for the next module. There is no persistence, authentication, screenshot upload, or other backend feature yet.
+`AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. No production implementation, injection registration, AI endpoint, provider SDK, provider credentials, or paid integration exists. There is no persistence, authentication, or screenshot upload.
+
+## Provider-independent analysis core
+
+UISchema v1 is the structured representation that future visual analysis will return, independently of generated code technology. Zod is its source of truth; `UISchema` and recursive `UINode` are inferred types. The public contracts entry point exports `UISchemaSchema`, `UINodeSchema`, and both types. All object fields are required, nullable values must be explicit, and unknown fields are rejected.
+
+The envelope contains `schemaVersion: "1.0"`, positive integer screenshot dimensions in `source`, `confidence` from 0 to 1, `designTokens`, a recursive `root`, and technical `warnings`. Tokens contain arrays of named colors, named typography, non-negative spacing, and non-negative radii. There are no global shadow tokens or arbitrary token records.
+
+Every node contains `id`, `type`, `name`, `bounds`, `layout`, `style`, `text`, `image`, and `children`. The only node types are FRAME, TEXT, IMAGE, ICON, BUTTON, INPUT, and DIVIDER. Leaves use an empty children array. Bounds record observed screenshot-relative geometry, not a code-generation positioning strategy. Layout describes NONE/FLEX/GRID/ABSOLUTE relationships with enumerated direction, justification and alignment, gap, columns, and structured padding. Styles contain color values, structured borders and shadows, radius, and opacity rather than CSS declarations. Optional text and image data use explicit null values.
+
+Dimensions are pixels, including typography line height. Uncertain typography values may be null; offsets, shadow spread, and letter spacing may be negative, while widths, heights, padding, gaps, radii, and blur cannot. Colors are normalized hex strings (#RGB, #RGBA, #RRGGBB, or #RRGGBBAA), including alpha when needed, to avoid arbitrary CSS expressions. Readable screenshot text is preserved in its original language. Names, image descriptions, and warnings are technical English; these semantic instructions live in the prompt, not a language-detection validator.
+
+`server/src/analysis/` contains a small application core with no Nest or HTTP coupling:
+
+- `analysis-image-input.ts`: a strict runtime schema and inferred types for non-empty `Uint8Array` bytes, PNG/JPEG/WEBP MIME, and positive integer width/height. No `OutputStack` is accepted. This boundary validates metadata and byte representation; it does not decode or preprocess images.
+- `analyze-interface.use-case.ts`: validates the input, invokes the injected provider once, validates its untrusted result with `UISchemaSchema`, and returns the parsed schema. Cancellation is forwarded and checked before/after provider work; provider failures propagate without retries or fallback content.
+- `invalid-analysis-output.error.ts`: a compact technical application error for invalid provider output. It exposes neither provider content nor Zod issue dumps. No new public API error code or endpoint mapping is introduced.
+- `prompts/analyzer-system.v1.ts`: the versioned English system prompt for future provider adapters. It requires evidence-based interface analysis, preserves readable text, and forbids invented content, URLs, source code, breakpoints, hover states, hidden menus, or behavior. It is not sent to a model in this task.
+
+Deterministic JSON fixtures live only under `packages/contracts/tests/fixtures/` and are shared by contract and server tests. Test-only provider doubles verify valid and invalid output, binary data/metadata forwarding, stack exclusion, error propagation, and cancellation. Tests use zero AI credits and need no API key. This core is not registered in the running Nest application, and screenshot-to-AI analysis is not available to users. No external AI API is called.
 
 ## Local screenshot workflow
 
@@ -140,3 +160,4 @@ This environment has no connected native UI or browser surface, so these manual 
 - [WebView file input behavior](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/file)
 - [NestJS exception filters](https://docs.nestjs.com/exception-filters)
 - [Node environment file support](https://nodejs.org/api/cli.html#--env-filefile)
+- [Zod recursive object inference](https://zod.dev/api#recursive-objects)

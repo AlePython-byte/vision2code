@@ -1,5 +1,6 @@
-// Task-specific input and output types belong to the module that consumes this boundary.
-// No provider is registered or implemented at this stage.
-export interface AIProvider<Input, Output> {
-  analyze(input: Input, signal?: AbortSignal): Promise<Output>;
+import type { AnalysisImageInput } from "../analysis/analysis-image-input.js";
+
+// External structured output is untrusted until the application validates it.
+export interface AIProvider {
+  analyze(input: AnalysisImageInput, signal?: AbortSignal): Promise<unknown>;
 }
