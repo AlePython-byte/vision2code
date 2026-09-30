@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 640,
+    "height": 480
+  },
+  "confidence": 0.9,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "background",
+        "value": "#f6f5f0"
+      },
+      {
+        "name": "text-primary",
+        "value": "#20211f"
+      }
+    ],
+    "typography": [
+      {
+        "name": "heading",
+        "fontFamily": "IBM Plex Sans",
+        "fontSize": 24,
+        "fontWeight": 500,
+        "lineHeight": 30,
+        "letterSpacing": 0
+      }
+    ],
+    "spacing": [
+      0,
+      8,
+      24
+    ],
+    "radii": [
+      0,
+      2
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "workspace",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 640,
+      "height": 480
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "START",
+      "gap": 24,
+      "columns": null,
+      "padding": {
+        "top": 24,
+        "right": 24,
+        "bottom": 24,
+        "left": 24
+      }
+    },
+    "style": {
+      "background": "#f6f5f0",
+      "color": "#20211f",
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "heading",
+        "type": "TEXT",
+        "name": "primary-heading",
+        "bounds": {
+          "x": 24,
+          "y": 24,
+          "width": 280,
+          "height": 30
+        },
+        "layout": {
+          "mode": "NONE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": "#20211f",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": {
+          "content": "Mi espacio",
+          "fontFamily": "IBM Plex Sans",
+          "fontSize": 24,
+          "fontWeight": 500,
+          "lineHeight": 30,
+          "letterSpacing": 0,
+          "textAlign": "START"
+        },
+        "image": null,
+        "children": []
+      },
+      {
+        "id": "image-container",
+        "type": "FRAME",
+        "name": "image-container",
+        "bounds": {
+          "x": 24,
+          "y": 78,
+          "width": 320,
+          "height": 180
+        },
+        "layout": {
+          "mode": "NONE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": "#20211f",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "reference-image",
+            "type": "IMAGE",
+            "name": "reference-image",
+            "bounds": {
+              "x": 24,
+              "y": 78,
+              "width": 320,
+              "height": 180
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#20211f",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "A red square on an off-white background.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "The exact font family is uncertain."
+  ]
+}

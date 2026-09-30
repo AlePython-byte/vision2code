@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "2.0",
+  "source": {
+    "width": 640,
+    "height": 480
+  },
+  "confidence": 1.5,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "background",
+        "value": "#f6f5f0"
+      },
+      {
+        "name": "text-primary",
+        "value": "#20211f"
+      }
+    ],
+    "typography": [
+      {
+        "name": "heading",
+        "fontFamily": "IBM Plex Sans",
+        "fontSize": 24,
+        "fontWeight": 500,
+        "lineHeight": 30,
+        "letterSpacing": 0
+      }
+    ],
+    "spacing": [
+      0,
+      8,
+      24
+    ],
+    "radii": [
+      0,
+      2
+    ]
+  },
+  "root": {
+    "id": "heading",
+    "type": "CARD",
+    "name": "primary-heading",
+    "bounds": {
+      "x": 24,
+      "y": 24,
+      "width": 280,
+      "height": 30
+    },
+    "layout": {
+      "mode": "NONE",
+      "direction": "NONE",
+      "justify": "START",
+      "align": "START",
+      "gap": null,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": null,
+      "color": "#20211f",
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": {
+      "content": "Mi espacio",
+      "fontFamily": "IBM Plex Sans",
+      "fontSize": 24,
+      "fontWeight": 500,
+      "lineHeight": 30,
+      "letterSpacing": 0,
+      "textAlign": "START"
+    },
+    "image": null,
+    "children": []
+  },
+  "warnings": []
+}
