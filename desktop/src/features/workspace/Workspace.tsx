@@ -1,6 +1,7 @@
+import type { GeneratedProject } from "../generation/generatedProject";
 import { CaptureConsole } from "../analysis/CaptureConsole";
 
-export function Workspace() {
+export function Workspace({ onGenerated }: { onGenerated: (project: GeneratedProject) => void }) {
   return (
     <main id="workspace" className="workspace" tabIndex={-1}>
       <div className="workspace-heading">
@@ -11,7 +12,7 @@ export function Workspace() {
         </div>
         <span className="workspace-badge"><span className="status-dot cyan" />Análisis de interfaces</span>
       </div>
-      <CaptureConsole />
+      <CaptureConsole onGenerated={onGenerated} />
     </main>
   );
 }

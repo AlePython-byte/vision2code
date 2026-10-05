@@ -1,3 +1,4 @@
+import type { GeneratedProject } from "../generation/generatedProject";
 import { useState } from "react";
 import { OutputStackSchema } from "@vision2code/contracts";
 import type { OutputStack } from "@vision2code/contracts";
@@ -6,7 +7,7 @@ import { useScreenshot } from "../screenshot/useScreenshot";
 import { canAnalyze } from "./analysisModel";
 import { useAnalysis } from "./useAnalysis";
 
-export function CaptureConsole() {
+export function CaptureConsole({ onGenerated }: { onGenerated: (project: GeneratedProject) => void }) {
   const screenshot = useScreenshot();
   const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING");
   const [outputStack, setOutputStack] = useState<OutputStack>("REACT_TAILWIND");
@@ -62,7 +63,7 @@ export function CaptureConsole() {
             <label htmlFor="generation-instructions" className="eyebrow">Instrucciones · Próximamente</label>
             <textarea id="generation-instructions" disabled rows={2} placeholder="Las instrucciones de generación estarán disponibles en una próxima etapa." />
           </div>
-          <p className="input-help">El perfil se reserva para la generación futura. El análisis actual utiliza solo tu captura.</p>
+          <p className="input-help">El análisis utiliza solo tu captura. La generación de código está disponible para React + Tailwind CSS.</p>
           <div className="analysis-actions">
             <button className="action-button primary-action" type="button"
               disabled={!canAnalyze(state) || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
@@ -72,7 +73,7 @@ export function CaptureConsole() {
             </button>
             {analyzing && <button className="action-button secondary-button" type="button" onClick={model.cancel}>Cancelar análisis</button>}
           </div>
-          <p id="analysis-help" className="input-help">Por ahora, esta acción analiza la imagen. Todavía no genera código.</p>
+          <p id="analysis-help" className="input-help">Analiza la captura y después abre el código generado en el espacio de trabajo.</p>
           <div className="analysis-feedback" data-state={state.status} aria-busy={analyzing}>
             <p role="status" aria-live="polite" aria-atomic="true">
               {state.status === "IDLE" && "Selecciona una captura para empezar."}
@@ -81,7 +82,15 @@ export function CaptureConsole() {
               {state.status === "SUCCESS" && "Interfaz analizada correctamente."}
             </p>
             {state.status === "ERROR" && <p role="alert" className="input-error">{state.error}</p>}
-            {state.result && <p className="input-help">Estructura disponible para la siguiente etapa.</p>}
+            {state.result && <>
+              <button type="button" className="action-button primary-action"
+                disabled={outputStack !== "REACT_TAILWIND" || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
+                onClick={() => { const project = model.generateReactProject(); if (project) onGenerated(project); }}>
+                Generar y abrir código
+              </button>
+              {outputStack === "HTML_CSS" && <p className="input-help">La generación HTML + CSS estará disponible próximamente.</p>}
+              <p className="input-help">Al generar de nuevo se reemplazan los cambios del proyecto de esta sesión.</p>
+            </>}
             {(state.result?.requestId || state.errorRequestId) && <p className="request-reference">Referencia: {state.result?.requestId ?? state.errorRequestId}</p>}
           </div>
         </section>
