@@ -1,16 +1,17 @@
-import { ScreenshotInput } from "../screenshot/ScreenshotInput";
+import { CaptureConsole } from "../analysis/CaptureConsole";
 
 export function Workspace() {
   return (
     <main id="workspace" className="workspace" tabIndex={-1}>
       <div className="workspace-heading">
         <div>
-          <p className="eyebrow mb-4">01 / Espacio de trabajo</p>
-          <h1>De la visión.<br />A la estructura.</h1>
+          <p className="eyebrow">Generador / Consola 01</p>
+          <h1>Consola de captura</h1>
+          <p className="workspace-intro">De una referencia visual a una estructura de interfaz.</p>
         </div>
-        <p className="workspace-intro">Un espacio enfocado en convertir<br className="intro-break" /> interfaces en código frontend.</p>
+        <span className="workspace-badge"><span className="status-dot cyan" />Análisis de interfaces</span>
       </div>
-      <ScreenshotInput />
+      <CaptureConsole />
     </main>
   );
 }

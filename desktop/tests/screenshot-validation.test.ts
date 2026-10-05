@@ -92,3 +92,30 @@ test("decoding failures and cancellation revoke their temporary object URLs", as
   assert.equal(create.mock.callCount(), 2);
   assert.equal(revoke.mock.callCount(), 2);
 });
+
+
+test("successful decoding retains the original file and actual image dimensions for analysis", async (context) => {
+  class FakeImage {
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    naturalWidth = 1440;
+    naturalHeight = 1024;
+    set src(_value: string) { queueMicrotask(() => this.onload?.()); }
+    removeAttribute() {}
+  }
+  const original = Object.getOwnPropertyDescriptor(globalThis, "Image");
+  Object.defineProperty(globalThis, "Image", { configurable: true, value: FakeImage });
+  context.after(() => {
+    if (original) Object.defineProperty(globalThis, "Image", original);
+    else Reflect.deleteProperty(globalThis, "Image");
+  });
+  context.mock.method(URL, "createObjectURL", () => "blob:decoded");
+  const revoke = context.mock.method(URL, "revokeObjectURL", () => {});
+  const file = new File([new Uint8Array(pngHeader)], "capture.png", { type: "image/png" });
+  const screenshot = await loadScreenshot(file, new AbortController().signal);
+  assert.equal(screenshot.file, file);
+  assert.equal(screenshot.width, 1440);
+  assert.equal(screenshot.height, 1024);
+  assert.equal(screenshot.url, "blob:decoded");
+  assert.equal(revoke.mock.callCount(), 0);
+});

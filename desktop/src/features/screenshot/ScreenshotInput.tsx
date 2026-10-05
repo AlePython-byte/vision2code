@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { OutputStackSchema } from "@vision2code/contracts";
-import type { OutputStack } from "@vision2code/contracts";
+import { useEffect, useRef } from "react";
 import { ScreenshotPreview } from "./ScreenshotPreview";
-import { useScreenshot } from "./useScreenshot";
+import type { useScreenshot } from "./useScreenshot";
 import type { ScreenshotStatus } from "./useScreenshot";
 import { MAX_SCREENSHOT_SIZE_LABEL, SCREENSHOT_ACCEPT } from "./validation";
 
@@ -14,9 +12,8 @@ const statusLabels: Record<ScreenshotStatus, string> = {
   ERROR: "No se pudo aceptar la imagen",
 };
 
-export function ScreenshotInput() {
-  const { screenshot, status, error, setDragging, selectFiles, removeScreenshot } = useScreenshot();
-  const [outputStack, setOutputStack] = useState<OutputStack>("REACT_TAILWIND");
+export function ScreenshotInput({ controller }: { controller: ReturnType<typeof useScreenshot> }) {
+  const { screenshot, status, error, setDragging, selectFiles, removeScreenshot } = controller;
   const fileInput = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
 
@@ -44,10 +41,10 @@ export function ScreenshotInput() {
   }, [setDragging]);
 
   return (
-    <section className="workspace-frame screenshot-input" aria-labelledby="screenshot-title">
+    <section className="raised-panel screenshot-input" aria-labelledby="screenshot-title">
       <header className="frame-header">
-        <h2 id="screenshot-title" className="eyebrow">Imagen de referencia</h2>
-        <span className="eyebrow text-muted">Entrada / 002</span>
+        <div><p className="eyebrow">Entrada / Captura A</p><h2 id="screenshot-title">Imagen de referencia</h2></div>
+        <span className="panel-badge">{screenshot ? "Lista" : "Vacía"}</span>
       </header>
       <div
         className="screenshot-drop-area"
@@ -77,7 +74,7 @@ export function ScreenshotInput() {
       >
         {screenshot ? <ScreenshotPreview screenshot={screenshot} /> : (
           <div className="empty-workspace">
-            <p className="eyebrow text-accent">Empieza con una captura</p>
+            <span className="upload-mark" aria-hidden="true">+</span>
             <h3>Arrastra tu interfaz aquí.</h3>
             <p className="empty-description">Selecciona una imagen de tu equipo o suéltala en este espacio.</p>
           </div>
@@ -101,23 +98,12 @@ export function ScreenshotInput() {
               </button>
             )}
           </div>
-          <p id="screenshot-help" className="input-help">PNG, JPEG o WEBP · Máximo {MAX_SCREENSHOT_SIZE_LABEL}. La imagen permanece en memoria; no se envía ni se guarda.</p>
+          <p id="screenshot-help" className="input-help">PNG, JPEG o WEBP · Máximo {MAX_SCREENSHOT_SIZE_LABEL}. Se enviará al servicio de análisis solo al activar la acción. No se guarda en el equipo.</p>
         </div>
       </div>
       <div className="screenshot-feedback">
         <p role="status" aria-live="polite" aria-atomic="true">{statusLabels[status]}</p>
         {error && <p role="alert" className="input-error">{error}{screenshot ? " Se conserva la captura anterior." : ""}</p>}
-      </div>
-      <div className="output-stack-control">
-        <label htmlFor="output-stack">Tecnología de salida</label>
-        <select id="output-stack" value={outputStack} onChange={(event) => {
-          const result = OutputStackSchema.safeParse(event.currentTarget.value);
-          if (result.success) setOutputStack(result.data);
-        }}>
-          <option value="REACT_TAILWIND">React + Tailwind CSS</option>
-          <option value="HTML_CSS">HTML + CSS</option>
-        </select>
-        <p className="input-help">Elige la tecnología para las próximas etapas. La generación aún no está disponible.</p>
       </div>
     </section>
   );
