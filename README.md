@@ -1,6 +1,6 @@
 # Vision2Code
 
-A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and screenshot analysis through OpenAI, returning validated UISchema v1. The desktop Capture Console sends validated screenshots to that backend on explicit user action. A deterministic React + Tailwind generator is available through the analysis model after successful analysis.
+A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and screenshot analysis through OpenAI, returning validated UISchema v1. The desktop Capture Console sends validated screenshots to that backend on explicit user action. A deterministic React + Tailwind generator feeds a Monaco Workspace for session-local code editing after successful analysis.
 
 ## Requirements
 
@@ -45,6 +45,7 @@ desktop/
     features/screenshot/         Input UI, feature state, validation, and decoding
     features/analysis/           HTTP client, React-independent model, and Capture Console
     features/generation/         Pure deterministic React + Tailwind source generation
+    features/editor/             Local Monaco adapter, file explorer, and session edits
     styles/theme.css             Design tokens and responsive shell styling
   tests/                         File validation and decoder lifecycle tests
   src-tauri/                     Minimal native runner, window configuration, icons
@@ -197,7 +198,7 @@ The Capture Console composes screenshot selection with a small feature boundary 
 
 The primary action is labeled “Activar generador” (the Spanish product label for “Engage generator”), with an explanation that this stage only analyzes. It is disabled without a validated image, during image validation, and during analysis. An active request preserves the preview and cannot be submitted twice. Failures allow manual retry with the same image. Cancelling, replacing/removing an image, or unmounting aborts work; obsolete responses cannot replace newer state. There are no automatic retries or invented progress percentages. A 150-second client transport deadline allows time beyond the backend's 120-second analysis deadline.
 
-The profile preserves the existing React/Tailwind versus HTML/CSS selection. Fidelity is informational and instructions are disabled with a “Próximamente” label. Profile settings do not alter analysis. Projects, library, export, generation UI, and generated previews remain unavailable.
+The profile preserves the existing React/Tailwind versus HTML/CSS selection. Fidelity is informational and instructions are disabled with a “Próximamente” label. Profile settings do not alter analysis. React/Tailwind generation opens the code workspace after success. Projects, library, export, HTML/CSS generation, and generated previews remain unavailable.
 
 Copy `desktop/.env.example` to an ignored `desktop/.env` only when overriding the default `VITE_API_BASE_URL=http://localhost:3000/api/v1`. Vite embeds `VITE_` values in public client code: never place provider secrets there. Start the backend separately with `npm.cmd run server:dev`, then the desktop with `npm.cmd run desktop:dev` (or browser mode with `npm.cmd run dev`). Real analysis consumes provider usage. A custom API origin must also be explicitly allowed by packaged Tauri `connect-src`; a custom frontend origin must be allowed by backend CORS. Restart/rebuild after environment or CSP changes.
 
@@ -207,7 +208,7 @@ Automated desktop tests inject HTTP transports and fixtures. They cover payloads
 
 The pipeline now includes screenshot -> validated UISchema v1 -> deterministic React + TypeScript + Tailwind source. The backend analysis endpoint remains unchanged and never generates source code.
 
-The pure synchronous function `generateReactProject(schema: UISchema)` lives in `desktop/src/features/generation/`, independently of React presentation. It accepts the existing validated contract, not an unknown provider response. The HTTP client remains the runtime validation boundary. The screen-scoped analysis model exposes `model.generateReactProject()`: it returns a project only after SUCCESS, and null while empty, loading, failed, cancelled, or cleared. The method explicitly targets React/Tailwind; it does not read the future profile selector or automatically generate HTML/CSS. This is the state-layer integration for TASK 006; no new UI action or progress indicator is added.
+The pure synchronous function `generateReactProject(schema: UISchema)` lives in `desktop/src/features/generation/`, independently of React presentation. It accepts the existing validated contract, not an unknown provider response. The HTTP client remains the runtime validation boundary. The screen-scoped analysis model exposes `model.generateReactProject()`: it returns a project only after SUCCESS, and null while empty, loading, failed, cancelled, or cleared. The method explicitly targets React/Tailwind; it does not read the future profile selector or automatically generate HTML/CSS. The Capture Console invokes this method through its explicit generation action and passes the result to the editor model. Generation is synchronous, without simulated progress.
 
 `GeneratedProject` contains `target: "react-tailwind"`, `generatorVersion: "1"`, and an ordered `files` array. Each `GeneratedFile` has `path`, `content`, and `language: "typescript"`. The output contains `src/App.tsx` and `src/generated/GeneratedInterface.tsx`. These compile in a React project with the automatic JSX runtime and Tailwind scanning the generated files; they are not a standalone package scaffold. No timestamps, environment values, random identifiers, formatting services, or network calls affect the output.
 
@@ -222,9 +223,33 @@ Mapping rules:
 
 Schema strings are encoded as JavaScript string literals inside JSX expressions, including Unicode escaping for markup delimiters and line separators. They never become raw HTML, event handlers, imports, identifiers, or executable expressions. Colors and numeric values come from the validated shared contract; font-family syntax is allowlisted. No inline style objects are emitted.
 
-Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation, editor integration, execution/preview, export, persistence, and component inference are not implemented.
+Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation, execution/preview, export, persistence, and component inference are not implemented.
 
 Generation tests cover every current node type, layouts, styles, hostile and multiline strings, deterministic output, an assembled dashboard fixture, full generated TypeScript checking, Tailwind compilation, and the validated analysis boundary. Run them separately with `node --experimental-strip-types --test desktop/tests/generation.test.ts` from the repository root. They use fixture transports and make no real backend, OpenAI, or external network calls.
+
+## Monaco code workspace
+
+The session pipeline is screenshot -> validated UISchema -> GeneratedProject -> Monaco Workspace. After a successful analysis, select React + Tailwind CSS and choose **Generar y abrir código**. Generation remains in the analysis/generation layer. The editor only consumes GeneratedProject; it never regenerates, analyzes, executes, or persists code.
+
+The application shell owns one React-independent editor model and a small capture/code view selection, without a router. Capture stays mounted while viewing code, preserving the selected screenshot and analysis. The Código rail action opens the current workspace, including its empty state. Generating again explicitly replaces the previous editor project and edits. The HTML/CSS profile cannot invoke generation.
+
+The editor boundary under `desktop/src/features/editor/` contains:
+
+- `editorModel.ts`: a copied original project, deterministic file ordering, active path, immutable per-file drafts, reset, and clipboard feedback. It does not depend on Monaco or React.
+- `FileExplorer.tsx`: accessible file buttons with full wrapping paths and a visible active selection.
+- `EditorWorkspace.tsx`: project metadata, Spanish empty/loading/error states, copy/reset controls, and a lazy-loaded editor.
+- `CodeEditor.tsx`: the local Monaco React adapter, Spanish Monaco locale, language services, and bundled Vite workers.
+- `editor.css`: pale blue-gray panels, purple selection, responsive layout, and the existing raised/inset visual direction. It is imported after Tailwind in the theme to preserve layer ordering.
+
+The default file is `src/generated/GeneratedInterface.tsx`, or the first supplied file when absent. The explorer sorts paths with a locale-independent comparison. Edits survive file and screen switches, including empty strings, without mutating GeneratedProject. **Restaurar proyecto** restores all original files. **Copiar código** uses `navigator.clipboard.writeText` and reports success or failure in Spanish; stale asynchronous feedback cannot overwrite a newer selection.
+
+TypeScript/TSX, JavaScript/JSX, CSS, HTML, and JSON map to Monaco languages; unknown names fall back to plaintext. The editor has line numbers, wrapping, automatic layout, a light theme, and no minimap. The active Monaco model is disposed on file/screen changes and unmount; it is not recreated for each edit. Drafts live in the application model, while undo history and cursor positions are local to the mounted editor.
+
+Monaco and its Spanish messages/workers are bundled locally using `monaco-editor` and `@monaco-editor/react`; the wrapper's CDN loader is bypassed. The Tauri CSP permits same-origin workers and inline styles for Monaco's dynamic layout, while retaining script restrictions and the existing backend connection allowlist. No external font, asset, or JSON schema downloads are needed. Generated code is shown as text, never executed. Project diagnostics are disabled because this workspace has no installed generated-project dependencies or compiler environment.
+
+Tests cover selection, ordering, independent drafts, resets, empty states, language mapping, rendered explorer paths, clipboard success/failure, and stale feedback. Run `node --experimental-strip-types --test desktop/tests/editor.test.ts` for this suite. Tests inject clipboard functions and require no analysis server or external network. An isolated Edge check also exercised fixture analysis -> generation -> real Monaco editing, file/screen switching, copy, and reset at 1280, 720, and 390 pixels without horizontal overflow or external page requests. Under the strict CSP, the existing Zod eval-availability probe logs a blocked eval attempt and falls back successfully; script restrictions were not relaxed.
+
+Current limits: editing lasts only for the current application session, with no filesystem, backend persistence, project history, preview, code execution, or export. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
 
 ## Manual verification
 
@@ -241,6 +266,9 @@ Run `npm run desktop:dev` and verify in the actual desktop WebView:
 An isolated headless browser check exercised the Capture Console with intercepted HTTP responses and verified layouts at 1280, 720, and 390 pixels without horizontal overflow. Packaged WebView behavior, native file-dialog interaction, and a real desktop-to-provider analysis still require manual verification; no paid request was performed during implementation.
 
 ## References
+
+- [Monaco React local-package integration](https://github.com/suren-atoyan/monaco-react#use-monaco-editor-as-an-npm-package)
+- [Monaco Editor and localization](https://github.com/microsoft/monaco-editor)
 
 - [Tauri project scaffolding](https://v2.tauri.app/start/create-project/)
 - [Tailwind CSS Vite integration](https://tailwindcss.com/docs/installation/using-vite)
