@@ -2,6 +2,7 @@ import { validateScreenshotFile, ScreenshotValidationError } from "./validation.
 import type { ScreenshotFormat } from "./validation.ts";
 
 export interface Screenshot {
+  file: File;
   name: string;
   size: number;
   format: ScreenshotFormat;
@@ -46,7 +47,7 @@ export async function loadScreenshot(file: File, signal: AbortSignal): Promise<S
   try {
     const dimensions = await decodeImage(url, signal);
     signal.throwIfAborted();
-    return { name: file.name, size: file.size, format, url, ...dimensions };
+    return { file, name: file.name, size: file.size, format, url, ...dimensions };
   } catch (error) {
     URL.revokeObjectURL(url);
     throw error;

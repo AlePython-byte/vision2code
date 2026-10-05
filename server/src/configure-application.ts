@@ -18,7 +18,7 @@ export function configureApplication(app: NestExpressApplication): void {
     else next();
   });
   app.enableCors({
-    origin: ["http://localhost:1420", "http://127.0.0.1:1420"],
+    origin: ["http://localhost:1420", "http://127.0.0.1:1420", "tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"],
     credentials: false,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "X-Request-Id"],

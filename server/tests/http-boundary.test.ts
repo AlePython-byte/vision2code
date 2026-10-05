@@ -106,4 +106,17 @@ describe("HTTP boundary", () => {
     assert.match(response.headers.get("x-request-id") ?? "", uuidPattern);
     assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST");
   });
+
+  it("allows POST preflight from explicit packaged Tauri origins", async () => {
+    for (const origin of ["tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"]) {
+      const response = await request("/api/v1/analyses", {
+        method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "Content-Type" },
+      });
+      assert.equal(response.status, 204);
+      assert.equal(response.headers.get("access-control-allow-origin"), origin);
+      assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST");
+      assert.equal(response.headers.get("access-control-allow-credentials"), null);
+    }
+  });
+
 });

@@ -1,6 +1,6 @@
 # Vision2Code
 
-A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and screenshot analysis through OpenAI, returning validated UISchema v1. The desktop does not call the backend yet, and code generation is not implemented.
+A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and screenshot analysis through OpenAI, returning validated UISchema v1. The desktop Capture Console sends validated screenshots to that backend on explicit user action. Code generation is not implemented.
 
 ## Requirements
 
@@ -43,6 +43,7 @@ desktop/
     App.tsx                      Application composition
     features/workspace/          Shell, navigation, and workspace region
     features/screenshot/         Input UI, feature state, validation, and decoding
+    features/analysis/           HTTP client, React-independent model, and Capture Console
     styles/theme.css             Design tokens and responsive shell styling
   tests/                         File validation and decoder lifecycle tests
   src-tauri/                     Minimal native runner, window configuration, icons
@@ -61,11 +62,11 @@ server/
 
 The frontend uses React, strict TypeScript, Vite, and Tailwind CSS 4 through `@tailwindcss/vite`. The official Tauri React/TypeScript scaffold is the starting point. IBM Plex Sans and IBM Plex Mono are bundled locally through Fontsource; no remote fonts are requested.
 
-The shell follows a restrained typographic direction: off-white canvas, near-black ink, red accents, and structural borders. CSS theme variables define color, typography, spacing, radius, borders, and motion. The layout adapts to smaller windows and keeps content scrollable. Keyboard users have a skip link and visible focus states; reduced-motion preferences are respected.
+The Capture Console follows the approved visual direction: a light blue-gray canvas, raised and inset surfaces, restrained shadows, purple primary actions, cyan/green status accents, a navigation rail, a workflow strip, and reference/profile panels. This is an initial adaptation of the written direction; exact Figma frame parity has not been verified. CSS theme variables define color, typography, spacing, radius, borders, and motion. The layout adapts to smaller windows and keeps content scrollable. Keyboard users have a skip link and visible focus states; reduced-motion preferences are respected.
 
-Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. No custom Rust commands, plugins, or native permissions are enabled. The production content security policy permits local assets and `blob:` images for in-memory previews. The scaffold's default bundle icons are retained as development placeholders.
+Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. No custom Rust commands, plugins, or native permissions are enabled. The production content security policy permits local assets and `blob:` images for in-memory previews, plus explicit HTTP connections to localhost:3000 and 127.0.0.1:3000 for the backend. The scaffold's default bundle icons are retained as development placeholders.
 
-There is no frontend router or global state library. Screenshot state and output-stack selection stay inside the screenshot feature. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope, request ID validation, and UISchema v1. It builds JavaScript and declarations consumed by the desktop and ESM backend, with no browser dependencies.
+There is no frontend router or global state library. Screenshot selection remains in its feature hook. The Capture Console composes it with a screen-scoped analysis model and keeps the existing output-stack selection local to the future generation profile. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope, request ID validation, and UISchema v1. It builds JavaScript and declarations consumed by the desktop and ESM backend, with no browser dependencies.
 
 ## Backend foundation
 
@@ -109,7 +110,7 @@ Errors use the shared `ApiErrorResponseSchema`:
 
 Ordinary HTTP exceptions retain their status. A 404 maps to `NOT_FOUND`, other ordinary client errors to `INVALID_REQUEST`, and unexpected errors to `INTERNAL_ERROR`. Analysis-specific mappings are listed below. All client error messages are Spanish. Responses never copy exception messages, provider bodies, validation issues, or stack traces; global exception-filter logs include only correlation ID and HTTP status. Unknown routes also use this envelope. The existing `ZodValidationPipe` remains available for route-bound schemas; multipart metadata is validated by a dedicated upload boundary.
 
-Development CORS allows only `http://localhost:1420` and `http://127.0.0.1:1420`, with GET and POST, no credentials, and `X-Request-Id` exposed to clients. Unlisted browser origins receive no CORS permission; CORS is not access control. Production origins and deployment are not configured. No desktop connectivity or Tauri permission changes were made.
+CORS explicitly allows the Vite origins `http://localhost:1420` and `http://127.0.0.1:1420`, plus packaged desktop origins `tauri://localhost`, `http://tauri.localhost`, and `https://tauri.localhost`. GET and POST are permitted without credentials; `X-Request-Id` is exposed. Unlisted browser origins receive no CORS permission; CORS is not authentication. No wildcard origin, HTTP plugin, or new native capability is used.
 
 `AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. The production adapter uses the official `openai` SDK. There is no persistence, authentication, provider fallback, or code generation.
 
@@ -153,7 +154,7 @@ This procedure performs one real analysis and consumes paid OpenAI API usage. It
 curl.exe --request POST "http://localhost:3000/api/v1/analyses" --header "X-Request-Id: manual-analysis-001" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
 ```
 
-Expect HTTP 200 with the same request ID and validated UISchema v1. A provider or validation failure returns the standard Spanish error envelope. There is no desktop analysis button or HTTP integration yet.
+Expect HTTP 200 with the same request ID and validated UISchema v1. A provider or validation failure returns the standard Spanish error envelope. The desktop also exposes this analysis through its Capture Console; neither entry point generates code.
 
 ## Provider-independent analysis core
 
@@ -182,7 +183,24 @@ Only PNG, JPEG, and WEBP are supported. `MAX_SCREENSHOT_BYTES` defines the limit
 
 The UI exposes `EMPTY`, `DRAGGING`, `VALIDATING`, `READY`, and `ERROR` states through Spanish copy and accessible announcements. It shows the file name, dimensions, size, and detected format. Invalid replacements retain the previous image; cancelling the file chooser leaves the selection unchanged. Multiple files are rejected. Removal cancels pending work and returns to the empty state. A newer selection cancels the previous request so stale work cannot replace the current image.
 
-The desktop never uploads or persists images in its current workflow. Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. All product copy is Spanish, while source identifiers and technical documentation remain English.
+The desktop retains the original validated File and decoded dimensions in memory. It uploads the selected screenshot only when the user activates analysis; it does not persist images or analysis results. Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. All product copy is Spanish, while source identifiers and technical documentation remain English.
+
+## Desktop analysis integration
+
+The Capture Console composes screenshot selection with a small feature boundary in `desktop/src/features/analysis/`:
+
+- `analysisClient.ts`: browser fetch transport, multipart construction, shared success/error contract validation, and fixed Spanish error messages. It sends only `image`, `viewportWidth`, and `viewportHeight` using browser-decoded dimensions and the validated MIME. The browser sets the multipart boundary. No profile settings, output stack, provider key, or provider configuration are sent.
+- `analysisModel.ts`: React-independent screen-scoped state with `IDLE`, `READY`, `ANALYZING`, `SUCCESS`, and `ERROR`. `getSnapshot().result` stores validated `{ requestId, uiSchema }`; Task 005 can consume `result.uiSchema` without importing a component or invoking the provider. State is not persisted.
+- `useAnalysis.ts`: subscribes React to the model, synchronizes validated selection, and aborts/disposes work on unmount.
+- `CaptureConsole.tsx`: presentation and feature composition, including the profile panel, primary action, cancellation, and Spanish announcements.
+
+The primary action is labeled “Activar generador” (the Spanish product label for “Engage generator”), with an explanation that this stage only analyzes. It is disabled without a validated image, during image validation, and during analysis. An active request preserves the preview and cannot be submitted twice. Failures allow manual retry with the same image. Cancelling, replacing/removing an image, or unmounting aborts work; obsolete responses cannot replace newer state. There are no automatic retries or invented progress percentages. A 150-second client transport deadline allows time beyond the backend's 120-second analysis deadline.
+
+The profile preserves the existing React/Tailwind versus HTML/CSS selection. Fidelity is informational and instructions are disabled with a “Próximamente” label. Profile settings do not alter analysis. Projects, library, export, code generation, and generated previews remain unavailable.
+
+Copy `desktop/.env.example` to an ignored `desktop/.env` only when overriding the default `VITE_API_BASE_URL=http://localhost:3000/api/v1`. Vite embeds `VITE_` values in public client code: never place provider secrets there. Start the backend separately with `npm.cmd run server:dev`, then the desktop with `npm.cmd run desktop:dev` (or browser mode with `npm.cmd run dev`). Real analysis consumes provider usage. A custom API origin must also be explicitly allowed by packaged Tauri `connect-src`; a custom frontend origin must be allowed by backend CORS. Restart/rebuild after environment or CSP changes.
+
+Automated desktop tests inject HTTP transports and fixtures. They cover payloads/dimensions, MIME normalization, state transitions, malformed responses, sanitized errors, retry, duplicate submission, cancellation, stale responses, disposal, and subscriptions. They never contact OpenAI. Manually verify the packaged WebView against the local backend separately when authorizing a paid live analysis.
 
 ## Manual verification
 
@@ -196,7 +214,7 @@ Run `npm run desktop:dev` and verify in the actual desktop WebView:
 - Change between React + Tailwind CSS and HTML + CSS using both mouse and keyboard.
 - Resize to 720 x 540, use a long file name and wide/tall images, and confirm scrolling without horizontal page overflow. Check keyboard focus, announcements, and reduced-motion behavior.
 
-This environment has no connected native UI or browser surface, so these manual checks remain pending.
+An isolated headless browser check exercised the Capture Console with intercepted HTTP responses and verified layouts at 1280, 720, and 390 pixels without horizontal overflow. Packaged WebView behavior, native file-dialog interaction, and a real desktop-to-provider analysis still require manual verification; no paid request was performed during implementation.
 
 ## References
 
