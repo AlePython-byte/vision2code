@@ -1,3 +1,4 @@
+import { generateReactProject } from "../generation/generateReactProject.ts";
 import type { AnalysisResponse } from "@vision2code/contracts";
 import type { Screenshot } from "../screenshot/loadScreenshot.ts";
 import { AnalysisClientError } from "./analysisClient.ts";
@@ -15,7 +16,7 @@ export function canAnalyze(state: AnalysisState): boolean {
   return state.screenshot !== null && state.status !== "ANALYZING";
 }
 
-// A screen-scoped model independent of React. Task 005 can consume result.uiSchema directly.
+// A screen-scoped model independent of React; generation consumes only successful analysis.
 export function createAnalysisModel(analyzeScreenshot: AnalyzeScreenshot) {
   let state: AnalysisState = { status: "IDLE", screenshot: null, result: null, error: null, errorRequestId: null };
   let active: AbortController | null = null;
@@ -31,6 +32,8 @@ export function createAnalysisModel(analyzeScreenshot: AnalyzeScreenshot) {
   }
   return {
     getSnapshot: () => state,
+    generateReactProject: () => state.status === "SUCCESS" && state.result !== null
+      ? generateReactProject(state.result.uiSchema) : null,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     setScreenshot(screenshot: Screenshot | null) {
       if (state.screenshot === screenshot) return;
