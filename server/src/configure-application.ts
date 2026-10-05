@@ -20,7 +20,7 @@ export function configureApplication(app: NestExpressApplication): void {
   app.enableCors({
     origin: ["http://localhost:1420", "http://127.0.0.1:1420"],
     credentials: false,
-    methods: ["GET"],
+    methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "X-Request-Id"],
     exposedHeaders: ["X-Request-Id"],
   });

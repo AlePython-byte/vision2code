@@ -1,7 +1,8 @@
 import "reflect-metadata";
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
-import { NestFactory } from "@nestjs/core";
+import { Test } from "@nestjs/testing";
+import { AI_PROVIDER } from "../src/analysis/analysis.constants.js";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { ApiErrorResponseSchema } from "@vision2code/contracts";
 import { AppModule } from "../src/app.module.js";
@@ -14,7 +15,10 @@ describe("HTTP boundary", () => {
   let baseUrl: string;
 
   before(async () => {
-    app = await NestFactory.create<NestExpressApplication>(AppModule, { logger: false });
+    const module = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(AI_PROVIDER).useValue({ analyze() { throw new Error("Unexpected analysis call."); } }).compile();
+    app = module.createNestApplication<NestExpressApplication>();
+    app.useLogger(false);
     configureApplication(app);
     await app.listen(0, "127.0.0.1");
     baseUrl = await app.getUrl();
@@ -100,6 +104,6 @@ describe("HTTP boundary", () => {
     });
     assert.equal(response.status, 204);
     assert.match(response.headers.get("x-request-id") ?? "", uuidPattern);
-    assert.equal(response.headers.get("access-control-allow-methods"), "GET");
+    assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST");
   });
 });
