@@ -78,6 +78,8 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     if (name in overrides) return overrides[name];
     if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
     if (name.endsWith("/preferences") || name === "./preferences") return { preferences };
+    if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };
+    if (name.endsWith("/PreviewPanel") || name === "./PreviewPanel") return { PreviewPanel: () => null };
     return require(name);
   } });
   return exports;

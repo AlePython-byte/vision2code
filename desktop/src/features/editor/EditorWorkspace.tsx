@@ -13,17 +13,12 @@ class EditorBoundary extends Component<{ children: ReactNode }, { failed: boolea
   }
 }
 
-export function EditorWorkspace({ model }: { model: EditorModel }) {
+export function EditorWorkspace({ model, preview }: { model: EditorModel; preview?: ReactNode }) {
   const { t, message } = useLabels();
-  const state = useSyncExternalStore(model.subscribe, model.getSnapshot);
+  const state = useSyncExternalStore(model.subscribe, model.getSnapshot, model.getSnapshot);
   const file = activeFile(state);
   const empty = editorEmptyMessage(state);
-  return <>
-    <header className="workspace-heading">
-      <div><p className="eyebrow">{t("editorEyebrow")}</p><h1>{t("editorTitle")}</h1>
-        <p className="workspace-intro">{t("editorIntro")}</p></div>
-      {state.project && <span className="workspace-badge">{t("projectMetadata", { count: state.files.length, version: state.project.generatorVersion })}</span>}
-    </header>
+  const grid = (
     <div className="editor-grid">
       <FileExplorer files={state.files} activePath={state.activePath} onSelect={model.select} />
       <section className="code-panel raised-panel" aria-label={t("editorLabel")}>
@@ -44,6 +39,14 @@ export function EditorWorkspace({ model }: { model: EditorModel }) {
         </EditorBoundary>}
       </section>
     </div>
+  );
+  return <>
+    <header className="workspace-heading">
+      <div><p className="eyebrow">{t("editorEyebrow")}</p><h1>{t("editorTitle")}</h1>
+        <p className="workspace-intro">{t("editorIntro")}</p></div>
+      {state.project && <span className="workspace-badge">{t("projectMetadata", { count: state.files.length, version: state.project.generatorVersion })}</span>}
+    </header>
+    {preview ? <div className="editor-split">{preview}{grid}</div> : grid}
   </>;
 }
 

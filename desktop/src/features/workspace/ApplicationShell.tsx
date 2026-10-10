@@ -5,14 +5,19 @@ import { Workspace } from "./Workspace";
 import { EditorWorkspace } from "../editor/EditorWorkspace";
 import { SettingsScreen } from "../settings/SettingsScreen";
 import { createEditorModel } from "../editor/editorModel";
+import { createPreviewModel } from "../preview/previewModel";
+import { PreviewPanel } from "../preview/PreviewPanel";
 import type { GeneratedProject } from "../generation/generatedProject";
 
 export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
   const { t } = useLabels();
   const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
   const [editorModel] = useState(createEditorModel);
+  const [previewModel] = useState(() => createPreviewModel());
   function openProject(project: GeneratedProject) {
     editorModel.setProject(project);
+    previewModel.setProject(project);
+    void previewModel.render();
     setView("editor");
   }
   return (
@@ -32,7 +37,7 @@ export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
       </nav>
       <div className="shell-content">
         <div hidden={view !== "capture"}><Workspace onGenerated={openProject} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} /></main>}
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>
