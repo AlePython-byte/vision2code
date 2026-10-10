@@ -18,9 +18,12 @@
     "@fontsource/ibm-plex-sans": "^5.2.0",
     "@monaco-editor/react": "^4.7.0",
     "@vision2code/contracts": "0.1.0",
+    "i18next": "^26.4.3",
+    "lucide-react": "^1.55.0",
     "monaco-editor": "^0.57.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-i18next": "^17.0.16"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",

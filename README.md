@@ -185,7 +185,7 @@ Only PNG, JPEG, and WEBP are supported. `MAX_SCREENSHOT_BYTES` defines the limit
 
 The UI exposes `EMPTY`, `DRAGGING`, `VALIDATING`, `READY`, and `ERROR` states through Spanish copy and accessible announcements. It shows the file name, dimensions, size, and detected format. Invalid replacements retain the previous image; cancelling the file chooser leaves the selection unchanged. Multiple files are rejected. Removal cancels pending work and returns to the empty state. A newer selection cancels the previous request so stale work cannot replace the current image.
 
-The desktop retains the original validated File and decoded dimensions in memory. It uploads the selected screenshot only when the user activates analysis; it does not persist images or analysis results. Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. All product copy is Spanish, while source identifiers and technical documentation remain English.
+The desktop retains the original validated File and decoded dimensions in memory. It uploads the selected screenshot only when the user activates analysis; it does not persist images or analysis results. Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. Product copy supports Spanish and English, while source identifiers and technical documentation remain English.
 
 ## Desktop analysis integration
 
@@ -251,6 +251,27 @@ Tests cover selection, ordering, independent drafts, resets, empty states, langu
 
 Current limits: editing lasts only for the current application session, with no filesystem, backend persistence, project history, preview, code execution, or export. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
 
+## UI foundation, preferences, and login shell
+
+The application starts with the Vision2Code login shell. This is a presentation-only screen: sign-in and account creation are explicitly unavailable. Email/password fields are uncontrolled, never sent to an API, never logged, and never copied to application state or storage. Password visibility is accessible and reversible. The clearly labeled local demo entry opens Capture Console without implying authentication. Returning to the login screen preserves the existing demo workspace; entering the demo removes the login form and its field values.
+
+`desktop/src/features/preferences/` owns the UI foundation:
+
+- `preferences.ts`: framework-independent theme/language preferences, defaulting to LIGHT and Spanish, regardless of OS preferences. Only `theme` and `language` are stored under `vision2code.preferences`. Invalid/blocked storage falls back safely to defaults or session-only changes.
+- `i18n.ts` and `resources.ts`: bundled Spanish/English resources using i18next and react-i18next, with no remote translation service or reload. The HTML language and root `data-theme` update immediately.
+- `useLabels.ts`: presentation translation helpers. Existing framework-independent error/feedback messages are mapped to keys at render time, so messages already on screen also change language. Backend error contracts and generated source are unchanged.
+- `PreferenceControls.tsx`: keyboard-accessible, labeled theme and language selectors shared by Login and the application shell.
+
+`styles/foundation.css` defines light/dark surface, text, border, focus, status, and depth tokens, with brand purple centered on #7662F5. Primary buttons use a slightly darker purple for small white-label contrast. Raised and inset surfaces remain restrained; active navigation, workflow steps, file selections, icons, and focus treatment use the brand accent. All screens use the same tokens rather than duplicated dark-mode components.
+
+Lucide supplies the consistent local SVG icon family. Icons accompanying visible labels are decorative; the password visibility control has a translated accessible name. Native selects, labeled inputs, focus outlines, and responsive panels remain keyboard accessible. Login, Capture Console, input states/errors, profile settings, navigation, Workspace actions, and empty states are translated. Technical framework names, file paths, and generated source are never translated. Screenshot file sizes use the active language.
+
+Monaco follows the app theme immediately using its light/vs-dark themes without discarding drafts. Application-owned editor labels switch language live. Monaco's bundled native command/menu translations remain Spanish: those strings are initialized by Monaco at module load and are outside the application's runtime translation resources.
+
+Automated preferences tests cover defaults, switching, persistence, corrupt/unavailable storage, complete bilingual keys, retained messages, login rendering, password visibility, accessible controls, and unchanged editor drafts. Existing screenshot, analysis, generation, and editor suites remain in place. A local Edge smoke check with intercepted analysis tested Login, actual password toggling, both themes/languages, persisted reload preferences, capture -> generation -> Monaco, copying, resets, and file/screen switches. No real analysis/OpenAI calls or external application requests were made.
+
+No authentication, fake user, token, cloud session, database, OAuth, history, live preview, or export is implemented. Session editing is still lost on application reload. Packaged WebView verification remains manual.
+
 ## Manual verification
 
 Automated tests cover format metadata/signatures, empty or unsupported files, the exact size boundary, early rejection of oversized files, cancellation, temporary URL cleanup with a simulated decoder, and the shared stack schema. They do not substitute for native GUI verification.
@@ -266,6 +287,9 @@ Run `npm run desktop:dev` and verify in the actual desktop WebView:
 An isolated headless browser check exercised the Capture Console with intercepted HTTP responses and verified layouts at 1280, 720, and 390 pixels without horizontal overflow. Packaged WebView behavior, native file-dialog interaction, and a real desktop-to-provider analysis still require manual verification; no paid request was performed during implementation.
 
 ## References
+
+- [react-i18next runtime translation](https://react.i18next.com/latest/usetranslation-hook)
+- [Lucide React icons](https://lucide.dev/guide/react/)
 
 - [Monaco React local-package integration](https://github.com/suren-atoyan/monaco-react#use-monaco-editor-as-an-npm-package)
 - [Monaco Editor and localization](https://github.com/microsoft/monaco-editor)
