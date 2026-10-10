@@ -1,8 +1,12 @@
 @layer components {
   .editor-grid { display: grid; grid-template-columns: minmax(180px, 240px) minmax(0, 1fr); gap: 22px; align-items: start; }
   .file-explorer ul { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
-  .file-explorer button { width: 100%; display: flex; gap: 9px; text-align: left; border: 0; border-radius: 12px; padding: 12px 10px; background: transparent; cursor: pointer; font: 11px var(--font-mono); overflow-wrap: anywhere; }
-  .file-explorer button[aria-current] { color: var(--color-accent); background: var(--color-tint); box-shadow: var(--shadow-inset); }
+  .file-explorer button { width: 100%; display: flex; align-items: center; gap: 9px; text-align: left; border: 1px solid transparent; border-radius: 12px; padding: 11px 10px; background: transparent; cursor: pointer; font: 11px var(--font-mono); color: var(--color-muted); overflow-wrap: anywhere; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast), border-color var(--motion-fast); }
+  .file-explorer button:hover:not([aria-current]) { color: var(--color-ink); background: var(--color-surface-hover); box-shadow: var(--shadow-control); transform: translateY(-1px); }
+  .file-explorer button:active:not([aria-current]) { transform: translateY(1px); box-shadow: var(--shadow-inset); }
+  .file-explorer button[aria-current] { color: var(--color-accent); background: var(--color-primary-subtle); box-shadow: var(--shadow-inset); border: 1px solid var(--color-line); border-left: 3px solid var(--color-primary); font-weight: 600; }
+  .file-explorer button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  :root[data-theme="dark"] .file-explorer button[aria-current] { background: var(--color-tint); box-shadow: var(--shadow-inset), inset 0 0 10px #7662f52e; }
   .file-explorer button span:last-child { min-width: 0; }
   .code-panel { padding: 18px; overflow: hidden; }
   .code-toolbar, .code-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
@@ -10,8 +14,8 @@
   .code-toolbar > div { min-width: 0; }
   .active-file-path { font: 12px var(--font-mono); overflow-wrap: anywhere; margin-top: 6px; }
   .editor-feedback { min-height: 20px; margin: 14px 0; font-size: 11px; color: var(--color-muted); }
-  .editor-empty { min-height: 360px; display: grid; place-items: center; text-align: center; padding: 24px; background: var(--color-tint); border-radius: 14px; color: var(--color-muted); }
-  .monaco-container { overflow: hidden; border: 1px solid var(--color-line); border-radius: 12px; }
+  .editor-empty { min-height: 360px; display: grid; place-items: center; text-align: center; padding: 24px; background: var(--color-tint); border: 1px solid var(--color-line); box-shadow: var(--shadow-inset); border-radius: 14px; color: var(--color-muted); }
+  .monaco-container { overflow: hidden; border: 1px solid var(--color-line); border-radius: 12px; box-shadow: var(--shadow-inset); }
 }
 @media (max-width: 1000px) {
   .editor-grid { grid-template-columns: minmax(0, 1fr); }

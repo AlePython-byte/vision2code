@@ -38,7 +38,7 @@ export function CaptureConsole({
       <ol className="workflow-strip" aria-label={t("workflow")}>
         {steps.map((step, index) => (
           <li key={step} aria-current={index === currentStep ? "step" : undefined}
-            data-current={index === currentStep} data-future={index === 4}>
+            data-current={index === currentStep} data-completed={index < currentStep} data-future={index === 4}>
             <span className="workflow-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <span>{step}{index === 4 && <small>{t("soon")}</small>}</span>
           </li>
