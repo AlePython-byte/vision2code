@@ -42,6 +42,7 @@ desktop/
   src/
     App.tsx                      Application composition
     features/workspace/          Shell, navigation, and workspace region
+    features/settings/           Dedicated settings workspace and skeuomorphic preference controls
     features/screenshot/         Input UI, feature state, validation, and decoding
     features/analysis/           HTTP client, React-independent model, and Capture Console
     features/generation/         Pure deterministic React + Tailwind source generation
@@ -260,7 +261,8 @@ The application starts with the Vision2Code login shell. This is a presentation-
 - `preferences.ts`: framework-independent theme/language preferences, defaulting to LIGHT and Spanish, regardless of OS preferences. Only `theme` and `language` are stored under `vision2code.preferences`. Invalid/blocked storage falls back safely to defaults or session-only changes.
 - `i18n.ts` and `resources.ts`: bundled Spanish/English resources using i18next and react-i18next, with no remote translation service or reload. The HTML language and root `data-theme` update immediately.
 - `useLabels.ts`: presentation translation helpers. Existing framework-independent error/feedback messages are mapped to keys at render time, so messages already on screen also change language. Backend error contracts and generated source are unchanged.
-- `PreferenceControls.tsx`: keyboard-accessible, labeled theme and language selectors shared by Login and the application shell.
+- `PreferenceControls.tsx`: keyboard-accessible, labeled theme and language selectors for Login; within the application shell, Settings is the canonical preferences location.
+- `SettingsScreen.tsx`: dedicated Settings screen in `features/settings/` accessible from left navigation, featuring skeuomorphic tactile selectors for Light/Dark appearance and Español/English localization, system telemetry, and default restoration.
 
 `styles/foundation.css` defines light/dark surface, text, border, focus, status, and depth tokens, with brand purple centered on #7662F5. Primary buttons use a slightly darker purple for small white-label contrast. Raised and inset surfaces remain restrained; active navigation, workflow steps, file selections, icons, and focus treatment use the brand accent. All screens use the same tokens rather than duplicated dark-mode components.
 

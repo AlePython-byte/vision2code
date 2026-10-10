@@ -47,7 +47,7 @@
 }
 @layer foundation {
   .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-color: var(--color-highlight); }
-  .action-button svg, .navigation-item svg, .preference-controls svg, .login-panel svg, .file-explorer svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.7; }
+  .action-button svg, .navigation-item svg, .preference-controls svg, .login-panel svg, .file-explorer svg, .settings-workspace svg, .setting-card svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.7; }
   .brand-mark { background: var(--color-primary); color: #fff; }
   .primary-action { background: var(--color-primary-action); color: #fff; }
   .primary-action:hover:not(:disabled) { background: var(--color-primary-hover); }
@@ -56,6 +56,8 @@
   .navigation-item[aria-current] { border-left: 3px solid var(--color-primary); }
   .workflow-strip [data-current="true"] .workflow-number { background: var(--color-primary); color: #fff; }
   .raised-panel { border-color: var(--color-highlight); }
+  .setting-card[aria-checked="true"], .setting-card.active { border-color: var(--color-primary); }
+  :root[data-theme="dark"] .setting-card[aria-checked="true"], :root[data-theme="dark"] .setting-card.active { box-shadow: var(--shadow-control), 0 0 16px #7662f555; }
   .status-dot { background: var(--color-primary); }
   .shell-preferences { display: flex; justify-content: flex-end; padding: 4px 12px; }
   .preference-controls { display: flex; flex-wrap: wrap; gap: 14px; }
