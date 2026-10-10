@@ -1,19 +1,27 @@
 import { ScanLine, Code2 } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import type { GeneratedProject } from "../generation/generatedProject";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { OutputStackSchema } from "@vision2code/contracts";
-import type { OutputStack } from "@vision2code/contracts";
 import { ScreenshotInput } from "../screenshot/ScreenshotInput";
 import { useScreenshot } from "../screenshot/useScreenshot";
 import { canAnalyze } from "./analysisModel";
 import { useAnalysis } from "./useAnalysis";
+import { createGenerationProfileModel, type GenerationProfileModel } from "./generationProfileModel";
+import { VisualFidelitySelector } from "./VisualFidelitySelector";
 
-export function CaptureConsole({ onGenerated }: { onGenerated: (project: GeneratedProject) => void }) {
+export function CaptureConsole({
+  onGenerated,
+  profileModel: externalProfileModel,
+}: {
+  onGenerated: (project: GeneratedProject) => void;
+  profileModel?: GenerationProfileModel;
+}) {
   const { t, message } = useLabels();
   const screenshot = useScreenshot();
   const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING");
-  const [outputStack, setOutputStack] = useState<OutputStack>("REACT_TAILWIND");
+  const [profileModel] = useState(() => externalProfileModel ?? createGenerationProfileModel());
+  const profile = useSyncExternalStore(profileModel.subscribe, profileModel.getSnapshot, profileModel.getSnapshot);
   const analyzing = state.status === "ANALYZING";
   const steps = [t("inputStage"), t("profileStage"), t("analysisStage"), t("resultStage"), t("exportStage")];
   const currentStep = state.status === "SUCCESS" ? 3 : analyzing ? 2 : screenshot.screenshot ? 1 : 0;
@@ -45,23 +53,25 @@ export function CaptureConsole({ onGenerated }: { onGenerated: (project: Generat
           </header>
           <div className="output-stack-control">
             <label htmlFor="output-stack" className="eyebrow">{t("outputStack")}</label>
-            <select id="output-stack" value={outputStack} onChange={(event) => {
+            <select id="output-stack" value={profile.outputStack} onChange={(event) => {
               const parsed = OutputStackSchema.safeParse(event.currentTarget.value);
-              if (parsed.success) setOutputStack(parsed.data);
+              if (parsed.success) profileModel.setOutputStack(parsed.data);
             }}>
               <option value="REACT_TAILWIND">React + Tailwind CSS</option>
               <option value="HTML_CSS">HTML + CSS</option>
             </select>
           </div>
           <dl className="profile-fields">
-            <div><dt>Framework</dt><dd><span className="status-dot" />{outputStack === "REACT_TAILWIND" ? "React" : t("noFramework")}</dd></div>
-            <div><dt>{t("styles")}</dt><dd><span className="status-dot cyan" />{outputStack === "REACT_TAILWIND" ? "Tailwind CSS" : "CSS"}</dd></div>
-            <div><dt>{t("codeLanguage")}</dt><dd><span className="status-dot green" />{outputStack === "REACT_TAILWIND" ? "TypeScript" : "HTML"}</dd></div>
+            <div><dt>Framework</dt><dd><span className="status-dot" />{profile.outputStack === "REACT_TAILWIND" ? "React" : t("noFramework")}</dd></div>
+            <div><dt>{t("styles")}</dt><dd><span className="status-dot cyan" />{profile.outputStack === "REACT_TAILWIND" ? "Tailwind CSS" : "CSS"}</dd></div>
+            <div><dt>{t("codeLanguage")}</dt><dd><span className="status-dot green" />{profile.outputStack === "REACT_TAILWIND" ? "TypeScript" : "HTML"}</dd></div>
           </dl>
-          <div className="fidelity-card">
-            <div className="fidelity-dial" aria-hidden="true"><span /></div>
-            <div><p className="eyebrow">{t("fidelity")}</p><h3>{t("structure")}</h3><p className="input-help">{t("structureHelp")}</p></div>
-          </div>
+          <VisualFidelitySelector
+            value={profile.fidelity}
+            onChange={profileModel.setFidelity}
+            onCycle={profileModel.cycleFidelity}
+            disabled={analyzing}
+          />
           <div className="instructions-field">
             <label htmlFor="generation-instructions" className="eyebrow">{t("instructions")}</label>
             <textarea id="generation-instructions" disabled rows={2} placeholder={t("instructionsHelp")} />
@@ -87,10 +97,10 @@ export function CaptureConsole({ onGenerated }: { onGenerated: (project: Generat
             {state.status === "ERROR" && <p role="alert" className="input-error">{message(state.error ?? "")}</p>}
             {state.result && <>
               <button type="button" className="action-button primary-action"
-                disabled={outputStack !== "REACT_TAILWIND" || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
+                disabled={profile.outputStack !== "REACT_TAILWIND" || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
                 onClick={() => { const project = model.generateReactProject(); if (project) onGenerated(project); }}>
                 <Code2 aria-hidden="true" />{t("generate")}</button>
-              {outputStack === "HTML_CSS" && <p className="input-help">{t("htmlSoon")}</p>}
+              {profile.outputStack === "HTML_CSS" && <p className="input-help">{t("htmlSoon")}</p>}
               <p className="input-help">{t("replaceProject")}</p>
             </>}
             {(state.result?.requestId || state.errorRequestId) && <p className="request-reference">{t("reference")}{state.result?.requestId ?? state.errorRequestId}</p>}

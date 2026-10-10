@@ -176,7 +176,14 @@ export const es = {
   "appearanceAria": "Selección de modo visual",
   "languageAria": "Selección de idioma de la consola",
   "activeState": "Activo",
-  "inactiveState": "Inactivo"
+  "inactiveState": "Inactivo",
+  "fidelityFast": "Rápido",
+  "fidelityFastDesc": "Menor tiempo de análisis.",
+  "fidelityBalanced": "Equilibrado",
+  "fidelityBalancedDesc": "Balance entre velocidad y detalle.",
+  "fidelityPrecise": "Preciso",
+  "fidelityPreciseDesc": "Mayor detalle, generación más lenta.",
+  "fidelityAria": "Fidelidad visual"
 };
 export const en: Record<keyof typeof es, string> = {
   "skip": "Skip to workspace",
@@ -356,7 +363,14 @@ export const en: Record<keyof typeof es, string> = {
   "appearanceAria": "Visual appearance mode selection",
   "languageAria": "Console language selection",
   "activeState": "Active",
-  "inactiveState": "Inactive"
+  "inactiveState": "Inactive",
+  "fidelityFast": "Fast",
+  "fidelityFastDesc": "Faster analysis with reduced detail.",
+  "fidelityBalanced": "Balanced",
+  "fidelityBalancedDesc": "Balanced speed and visual detail.",
+  "fidelityPrecise": "Precise",
+  "fidelityPreciseDesc": "Higher detail, slower generation.",
+  "fidelityAria": "Visual fidelity"
 };
 
 // Compatibility boundary for messages produced by existing framework-independent models.
