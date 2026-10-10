@@ -1,3 +1,6 @@
+import { useSyncExternalStore } from "react";
+import { preferences } from "../preferences/preferences";
+import { useLabels } from "../preferences/useLabels";
 import "monaco-editor/nls/lang/es.js";
 import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
@@ -31,15 +34,17 @@ monaco.css.cssDefaults.setDiagnosticsOptions({ validate: false });
 export default function CodeEditor({ path, content, language, onChange }: {
   path: string; content: string; language: string; onChange: (content: string) => void;
 }) {
+  const { t } = useLabels();
+  const { theme } = useSyncExternalStore(preferences.subscribe, preferences.getSnapshot);
   return <div className="monaco-container">
-    <Editor defaultPath={"inmemory://vision2code/" + path.split("/").map(encodeURIComponent).join("/")} height="60vh" theme="light" language={language} value={content}
-      loading={<p role="status">Cargando editor…</p>}
+    <Editor defaultPath={"inmemory://vision2code/" + path.split("/").map(encodeURIComponent).join("/")} height="60vh" theme={theme === "dark" ? "vs-dark" : "light"} language={language} value={content}
+      loading={<p role="status">{t("editorLoading")}</p>}
       keepCurrentModel={false} saveViewState={false}
       onChange={(value) => { if (value !== undefined) onChange(value); }}
       options={{ minimap: { enabled: false }, lineNumbers: "on", wordWrap: "on",
         automaticLayout: true, fontSize: 13, fontFamily: '"IBM Plex Mono", monospace',
         scrollBeyondLastLine: false, padding: { top: 14, bottom: 14 },
-        ariaLabel: "Editor del archivo seleccionado", tabSize: 2,
+        ariaLabel: t("editorAria"), tabSize: 2,
         links: false, accessibilitySupport: "auto", unicodeHighlight: { ambiguousCharacters: false } }} />
   </div>;
 }

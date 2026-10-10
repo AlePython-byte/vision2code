@@ -4,6 +4,7 @@
 @import "@fontsource/ibm-plex-mono/latin-400.css";
 @import "tailwindcss";
 @import "../features/editor/editor.css";
+@import "./foundation.css";
 
 @theme {
   --color-canvas: #e8edf2;
@@ -22,7 +23,7 @@
   --radius-sm: 14px;
   --radius-panel: 26px;
 }
-:root {
+:where(:root) {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background: var(--color-canvas);
@@ -71,7 +72,7 @@
   .workflow-strip [data-current="true"] { color: var(--color-accent); font-weight: 600; }
   .workflow-strip [data-current="true"] .workflow-number { background: var(--color-accent); color: white; box-shadow: none; }
   .capture-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
-  .raised-panel { min-width: 0; padding: 22px; background: var(--color-surface); border: 1px solid #ffffff55; border-radius: var(--radius-panel); box-shadow: var(--shadow-raised); }
+  .raised-panel { min-width: 0; padding: 22px; background: var(--color-surface); border: 1px solid var(--color-highlight); border-radius: var(--radius-panel); box-shadow: var(--shadow-raised); }
   .frame-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
   .panel-badge { padding: 5px 9px; border-radius: 8px; background: var(--color-tint); color: var(--color-muted); font: 9px var(--font-mono); text-transform: uppercase; }
   .screenshot-drop-area { min-width: 0; background: var(--color-tint); border-radius: 20px; box-shadow: var(--shadow-inset); transition: outline-color var(--motion-fast); }
@@ -81,12 +82,12 @@
   .empty-description { max-width: 300px; color: var(--color-muted); font-size: 12px; line-height: 1.7; }
   .screenshot-controls { display: grid; gap: 14px; padding: 0 20px 22px; text-align: center; }
   .screenshot-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-  .action-button { cursor: pointer; padding: 11px 16px; border: 1px solid #ffffffb3; background: var(--color-surface); color: var(--color-ink); border-radius: var(--radius-sm); box-shadow: var(--shadow-control); font-size: 12px; font-weight: 600; transition: background-color var(--motion-fast), box-shadow var(--motion-fast); }
-  .action-button:hover:not(:disabled) { background: #f8faff; }
+  .action-button { cursor: pointer; padding: 11px 16px; border: 1px solid var(--color-highlight); background: var(--color-surface); color: var(--color-ink); border-radius: var(--radius-sm); box-shadow: var(--shadow-control); font-size: 12px; font-weight: 600; transition: background-color var(--motion-fast), box-shadow var(--motion-fast); }
+  .action-button:hover:not(:disabled) { background: var(--color-surface-hover); }
   .action-button:active:not(:disabled) { box-shadow: var(--shadow-inset); }
   .action-button:disabled { opacity: .55; box-shadow: none; }
   .primary-action { background: var(--color-accent); color: white; display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 44px; }
-  .primary-action:hover:not(:disabled) { background: #5640c8; }
+  .primary-action:hover:not(:disabled) { background: var(--color-primary-hover); }
   .secondary-button { box-shadow: none; border-color: var(--color-line); }
   .input-help { color: var(--color-muted); font-size: 11px; line-height: 1.6; }
   .screenshot-preview { min-width: 0; }
@@ -149,5 +150,5 @@
   .screenshot-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root { --motion-fast: 0ms; }
+  :where(:root) { --motion-fast: 0ms; }
 }

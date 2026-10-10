@@ -1,3 +1,5 @@
+import { Upload, ImagePlus, Trash2 } from "lucide-react";
+import { useLabels } from "../preferences/useLabels";
 import { useEffect, useRef } from "react";
 import { ScreenshotPreview } from "./ScreenshotPreview";
 import type { useScreenshot } from "./useScreenshot";
@@ -5,14 +7,15 @@ import type { ScreenshotStatus } from "./useScreenshot";
 import { MAX_SCREENSHOT_SIZE_LABEL, SCREENSHOT_ACCEPT } from "./validation";
 
 const statusLabels: Record<ScreenshotStatus, string> = {
-  EMPTY: "Sin captura seleccionada",
-  DRAGGING: "Suelta la imagen para validarla",
-  VALIDATING: "Validando imagen…",
-  READY: "Captura lista",
-  ERROR: "No se pudo aceptar la imagen",
+  EMPTY: "screenshotEmpty",
+  DRAGGING: "screenshotDragging",
+  VALIDATING: "screenshotValidating",
+  READY: "screenshotReady",
+  ERROR: "screenshotError",
 };
 
 export function ScreenshotInput({ controller }: { controller: ReturnType<typeof useScreenshot> }) {
+  const { t, message } = useLabels();
   const { screenshot, status, error, setDragging, selectFiles, removeScreenshot } = controller;
   const fileInput = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
@@ -43,8 +46,8 @@ export function ScreenshotInput({ controller }: { controller: ReturnType<typeof 
   return (
     <section className="raised-panel screenshot-input" aria-labelledby="screenshot-title">
       <header className="frame-header">
-        <div><p className="eyebrow">Entrada / Captura A</p><h2 id="screenshot-title">Imagen de referencia</h2></div>
-        <span className="panel-badge">{screenshot ? "Lista" : "Vacía"}</span>
+        <div><p className="eyebrow">{t("screenshotEyebrow")}</p><h2 id="screenshot-title">{t("screenshotTitle")}</h2></div>
+        <span className="panel-badge">{screenshot ? t("ready") : t("empty")}</span>
       </header>
       <div
         className="screenshot-drop-area"
@@ -74,14 +77,14 @@ export function ScreenshotInput({ controller }: { controller: ReturnType<typeof 
       >
         {screenshot ? <ScreenshotPreview screenshot={screenshot} /> : (
           <div className="empty-workspace">
-            <span className="upload-mark" aria-hidden="true">+</span>
-            <h3>Arrastra tu interfaz aquí.</h3>
-            <p className="empty-description">Selecciona una imagen de tu equipo o suéltala en este espacio.</p>
+            <span className="upload-mark"><Upload aria-hidden="true" /></span>
+            <h3>{t("dropTitle")}</h3>
+            <p className="empty-description">{t("dropHelp")}</p>
           </div>
         )}
         <div className="screenshot-controls">
           <input ref={fileInput} type="file" accept={SCREENSHOT_ACCEPT} hidden
-            aria-label="Seleccionar una captura de pantalla"
+            aria-label={t("selectScreenshotLabel")}
             onChange={(event) => {
               const files = Array.from(event.currentTarget.files ?? []);
               event.currentTarget.value = "";
@@ -90,20 +93,20 @@ export function ScreenshotInput({ controller }: { controller: ReturnType<typeof 
           <div className="screenshot-actions">
             <button className="action-button" type="button" aria-describedby="screenshot-help"
               onClick={() => fileInput.current?.click()}>
-              {screenshot ? "Reemplazar captura" : "Seleccionar imagen"}
+              <ImagePlus aria-hidden="true" />{screenshot ? t("replaceScreenshot") : t("selectImage")}
             </button>
             {(screenshot || status === "VALIDATING") && (
               <button className="action-button secondary-button" type="button" onClick={removeScreenshot}>
-                {screenshot ? "Eliminar captura" : "Cancelar selección"}
+                <Trash2 aria-hidden="true" />{screenshot ? t("removeScreenshot") : t("cancelSelection")}
               </button>
             )}
           </div>
-          <p id="screenshot-help" className="input-help">PNG, JPEG o WEBP · Máximo {MAX_SCREENSHOT_SIZE_LABEL}. Se enviará al servicio de análisis solo al activar la acción. No se guarda en el equipo.</p>
+          <p id="screenshot-help" className="input-help">{t("screenshotHelp", { size: MAX_SCREENSHOT_SIZE_LABEL })}</p>
         </div>
       </div>
       <div className="screenshot-feedback">
-        <p role="status" aria-live="polite" aria-atomic="true">{statusLabels[status]}</p>
-        {error && <p role="alert" className="input-error">{error}{screenshot ? " Se conserva la captura anterior." : ""}</p>}
+        <p role="status" aria-live="polite" aria-atomic="true">{t(statusLabels[status])}</p>
+        {error && <p role="alert" className="input-error">{message(error)}{screenshot ? t("keepScreenshot") : ""}</p>}
       </div>
     </section>
   );

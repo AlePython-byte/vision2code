@@ -42,8 +42,8 @@ export async function validateScreenshotFile(file: File): Promise<ScreenshotForm
   return format;
 }
 
-export function formatFileSize(bytes: number): string {
-  return new Intl.NumberFormat("es", {
+export function formatFileSize(bytes: number, language = "es"): string {
+  return new Intl.NumberFormat(language, {
     style: "unit",
     unit: bytes >= 1_000_000 ? "megabyte" : "kilobyte",
     maximumFractionDigits: 2,
