@@ -9,7 +9,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "dev": "vite",
     "build": "npm run typecheck && vite build",
-    "typecheck": "tsc --noEmit && tsc --project tsconfig.node.json --noEmit",
+    "typecheck": "tsc --noEmit && tsc --project tsconfig.node.json --noEmit && tsc --project tsconfig.test.json --noEmit",
     "preview": "vite preview",
     "tauri": "tauri"
   },

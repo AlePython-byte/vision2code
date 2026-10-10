@@ -1,4 +1,4 @@
-import { Upload, ImagePlus, Trash2 } from "lucide-react";
+import { Plus, ImagePlus, Trash2 } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import { useEffect, useRef } from "react";
 import { ScreenshotPreview } from "./ScreenshotPreview";
@@ -14,11 +14,55 @@ const statusLabels: Record<ScreenshotStatus, string> = {
   ERROR: "screenshotError",
 };
 
-export function ScreenshotInput({ controller }: { controller: ReturnType<typeof useScreenshot> }) {
+export function ScreenshotInput({
+  controller,
+  inputRef: externalInputRef,
+}: {
+  controller: ReturnType<typeof useScreenshot>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
+}) {
   const { t, message } = useLabels();
   const { screenshot, status, error, setDragging, selectFiles, removeScreenshot } = controller;
-  const fileInput = useRef<HTMLInputElement>(null);
+  const internalInputRef = useRef<HTMLInputElement>(null);
+  const fileInput = externalInputRef ?? internalInputRef;
   const dragDepth = useRef(0);
+
+  const triggerPicker = () => {
+    fileInput.current?.click();
+  };
+
+  const handleAffordanceClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    triggerPicker();
+  };
+
+  const handleSurfaceClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("button") || target.closest(".input-help")) return;
+    event.stopPropagation();
+    triggerPicker();
+  };
+
+  const handleDropAreaClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (screenshot) return;
+    const target = event.target as HTMLElement;
+    if (target.closest("button") || target.closest(".input-help") || target.closest(".screenshot-actions")) return;
+    triggerPicker();
+  };
+
+  const handleBrowseClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    triggerPicker();
+  };
+
+  const handleSurfaceKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      if (event.target === event.currentTarget) {
+        event.preventDefault();
+        triggerPicker();
+      }
+    }
+  };
 
   useEffect(() => {
     // Prevent dropped files outside the input region from navigating the WebView.
@@ -53,6 +97,7 @@ export function ScreenshotInput({ controller }: { controller: ReturnType<typeof 
         className="screenshot-drop-area"
         data-dragging={status === "DRAGGING"}
         aria-busy={status === "VALIDATING"}
+        onClick={handleDropAreaClick}
         onDragEnter={(event) => {
           if (!Array.from(event.dataTransfer.types).includes("Files")) return;
           event.preventDefault();
@@ -76,27 +121,57 @@ export function ScreenshotInput({ controller }: { controller: ReturnType<typeof 
         }}
       >
         {screenshot ? <ScreenshotPreview screenshot={screenshot} /> : (
-          <div className="empty-workspace">
-            <span className="upload-mark"><Upload aria-hidden="true" /></span>
+          <div
+            className="empty-workspace"
+            role="region"
+            tabIndex={0}
+            aria-label={t("dropTitle")}
+            onClick={handleSurfaceClick}
+            onKeyDown={handleSurfaceKeyDown}
+          >
+            <button
+              type="button"
+              className="upload-mark"
+              aria-label={t("uploadAffordanceAria")}
+              onClick={handleAffordanceClick}
+            >
+              <Plus aria-hidden="true" />
+            </button>
             <h3>{t("dropTitle")}</h3>
             <p className="empty-description">{t("dropHelp")}</p>
           </div>
         )}
         <div className="screenshot-controls">
-          <input ref={fileInput} type="file" accept={SCREENSHOT_ACCEPT} hidden
+          <input
+            ref={fileInput}
+            type="file"
+            accept={SCREENSHOT_ACCEPT}
+            hidden
             aria-label={t("selectScreenshotLabel")}
             onChange={(event) => {
               const files = Array.from(event.currentTarget.files ?? []);
               event.currentTarget.value = "";
               void selectFiles(files);
-            }} />
+            }}
+          />
           <div className="screenshot-actions">
-            <button className="action-button" type="button" aria-describedby="screenshot-help"
-              onClick={() => fileInput.current?.click()}>
+            <button
+              className="action-button"
+              type="button"
+              aria-describedby="screenshot-help"
+              onClick={handleBrowseClick}
+            >
               <ImagePlus aria-hidden="true" />{screenshot ? t("replaceScreenshot") : t("selectImage")}
             </button>
             {(screenshot || status === "VALIDATING") && (
-              <button className="action-button secondary-button" type="button" onClick={removeScreenshot}>
+              <button
+                className="action-button secondary-button"
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  removeScreenshot();
+                }}
+              >
                 <Trash2 aria-hidden="true" />{screenshot ? t("removeScreenshot") : t("cancelSelection")}
               </button>
             )}

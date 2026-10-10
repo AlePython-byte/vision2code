@@ -60,6 +60,10 @@
   :root[data-theme="dark"] .setting-card[aria-checked="true"], :root[data-theme="dark"] .setting-card.active { box-shadow: var(--shadow-control), 0 0 16px #7662f555; }
   :root[data-theme="dark"] .fidelity-card { border-color: var(--color-line); }
   :root[data-theme="dark"] .fidelity-segment.active, :root[data-theme="dark"] .fidelity-segment[aria-checked="true"] { box-shadow: 0 0 10px #7662f555; }
+  :root[data-theme="dark"] .empty-workspace:hover { background: rgba(255, 255, 255, 0.03); }
+  :root[data-theme="dark"] .upload-mark { border-color: var(--color-line); }
+  :root[data-theme="dark"] .upload-mark:hover { box-shadow: var(--shadow-raised), 0 0 18px #7662f566; }
+  :root[data-theme="dark"] .screenshot-drop-area[data-dragging="true"] { outline-color: var(--color-primary); box-shadow: var(--shadow-inset), 0 0 24px #7662f555; }
   .status-dot { background: var(--color-primary); }
   .shell-preferences { display: flex; justify-content: flex-end; padding: 4px 12px; }
   .preference-controls { display: flex; flex-wrap: wrap; gap: 14px; }

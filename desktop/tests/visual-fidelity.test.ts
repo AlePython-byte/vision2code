@@ -282,15 +282,19 @@ test("CaptureConsole renders fidelity control and state survives normal rerender
   assert.match(html, /Preciso/);
 });
 
+function assertFormData(value: unknown): asserts value is FormData {
+  assert.ok(value instanceof FormData);
+}
+
 test("backend analyses request payload is completely unchanged regardless of fidelity selection", async () => {
   const profileModel = createGenerationProfileModel();
   const shot = testScreenshot();
 
-  let capturedFormData: FormData | null = null;
+  let capturedBody: BodyInit | null = null;
   const mockTransport = async (url: string | URL | Request, init?: RequestInit) => {
     assert.equal(String(url), DEFAULT_API_BASE_URL + "/analyses");
     assert.equal(init?.method, "POST");
-    capturedFormData = init?.body as FormData;
+    capturedBody = init?.body ?? null;
     return Response.json(validAnalysisResult);
   };
 
@@ -301,18 +305,19 @@ test("backend analyses request payload is completely unchanged regardless of fid
     profileModel.setFidelity(mode);
     assert.equal(profileModel.getSnapshot().fidelity, mode);
 
-    capturedFormData = null;
+    capturedBody = null;
     await client(shot, new AbortController().signal);
 
-    assert.ok(capturedFormData instanceof FormData);
-    const keys = Array.from((capturedFormData as FormData).keys()).sort();
+    const body: unknown = capturedBody;
+    assertFormData(body);
+    const keys = Array.from(body.keys()).sort();
     // Exactly three fields sent: image, viewportHeight, viewportWidth
     assert.deepEqual(keys, ["image", "viewportHeight", "viewportWidth"]);
-    assert.equal((capturedFormData as FormData).get("viewportWidth"), "800");
-    assert.equal((capturedFormData as FormData).get("viewportHeight"), "600");
+    assert.equal(body.get("viewportWidth"), "800");
+    assert.equal(body.get("viewportHeight"), "600");
     // Verify fidelity is NEVER included in the multipart payload
-    assert.equal((capturedFormData as FormData).get("fidelity"), null);
-    assert.equal((capturedFormData as FormData).get("profile"), null);
-    assert.equal((capturedFormData as FormData).get("outputStack"), null);
+    assert.equal(body.get("fidelity"), null);
+    assert.equal(body.get("profile"), null);
+    assert.equal(body.get("outputStack"), null);
   }
 });
