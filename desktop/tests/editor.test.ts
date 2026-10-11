@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
-import { createElement } from "react";
+import { createElement, type ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 import { useLabels } from "../src/features/preferences/useLabels.ts";
@@ -138,7 +138,7 @@ test("subscriptions notify on edits and release listeners on unsubscribe", () =>
 test("file explorer renders every path, selection and safe long path text", () => {
   const source = readFileSync(new URL("../src/features/editor/FileExplorer.tsx", import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS } }).outputText;
-  const exports: { FileExplorer?: Parameters<typeof createElement>[0] } = {};
+  const exports: { FileExplorer?: ComponentType<{ files: typeof files; activePath: string; onSelect: () => void }> } = {};
   const require = createRequire(import.meta.url);
   runInNewContext(compiled, { exports, require: (name: string) => name === "../preferences/useLabels" ? { useLabels } : require(name) });
   const files = project().files;

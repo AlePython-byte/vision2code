@@ -77,7 +77,10 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
   runInNewContext(code, { exports, require: (name: string) => {
     if (name in overrides) return overrides[name];
     if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
-    if (name === "./preferences") return { preferences };
+    if (name.endsWith("/preferences") || name === "./preferences") return { preferences };
+    if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };
+    if (name.endsWith("/PreviewPanel") || name === "./PreviewPanel") return { PreviewPanel: () => null };
+    if (name.endsWith("/previewSync") || name === "./previewSync") return { syncEditorToPreview: () => ({ dispose: () => {}, flush: async () => {}, isPending: () => false }) };
     return require(name);
   } });
   return exports;
@@ -126,4 +129,152 @@ test("preferences and translation resources require no external service", (conte
   const model = createPreferences(storage());
   model.set({ theme: "dark", language: "en" });
   assert.ok(en.demoEntry);
+});
+
+test("settings screen renders appearance, language, telemetry and reset controls", () => {
+  preferences.set({ theme: "light", language: "es" });
+  const { SettingsScreen } = loadComponent("settings/SettingsScreen.tsx");
+  const html = renderToStaticMarkup(React.createElement(SettingsScreen));
+  assert.match(html, /id="settings-workspace"/);
+  assert.match(html, /Configuración del entorno/);
+  assert.match(html, /Modo visual/);
+  assert.match(html, /Idioma del entorno/);
+  assert.match(html, /Telemetría de consola/);
+  assert.match(html, /Modo claro/);
+  assert.match(html, /Modo oscuro/);
+  assert.match(html, /Español/);
+  assert.match(html, /English/);
+  assert.match(html, /aria-label="Selección de modo visual"/);
+  assert.match(html, /aria-label="Selección de idioma de la consola"/);
+  assert.match(html, /Restablecer valores predeterminados/);
+  assert.match(html, /ONLINE/);
+});
+
+test("settings screen controls switch theme and language immediately and support reset", () => {
+  preferences.set({ theme: "light", language: "es" });
+  let statusMessage: string | null = null;
+  const { SettingsScreen } = loadComponent("settings/SettingsScreen.tsx", {
+    react: {
+      ...React,
+      useSyncExternalStore: (_subscribe: any, getSnapshot: any) => getSnapshot(),
+      useState: (initial: any) => [
+        statusMessage ?? (typeof initial === "function" ? initial() : initial),
+        (v: any) => { statusMessage = typeof v === "function" ? v(statusMessage) : v; },
+      ],
+    },
+  });
+  function flatten(element: any): any[] {
+    if (!element || typeof element !== "object") return [];
+    return [element, ...React.Children.toArray(element.props?.children).flatMap(flatten)];
+  }
+
+  // Initial state: Light and Spanish
+  let nodes = flatten(SettingsScreen());
+  const radios = nodes.filter(n => n.props?.role === "radio");
+  assert.equal(radios.length, 4);
+
+  const lightBtn = radios[0];
+  const darkBtn = radios[1];
+  const esBtn = radios[2];
+  const enBtn = radios[3];
+
+  assert.equal(lightBtn?.props?.["aria-checked"], true);
+  assert.equal(darkBtn?.props?.["aria-checked"], false);
+  assert.equal(esBtn?.props?.["aria-checked"], true);
+  assert.equal(enBtn?.props?.["aria-checked"], false);
+
+  // Switch to Dark
+  darkBtn.props.onClick();
+  assert.equal(preferences.getSnapshot().theme, "dark");
+  nodes = flatten(SettingsScreen());
+  const updatedRadios = nodes.filter(n => n.props?.role === "radio");
+  assert.equal(updatedRadios[0].props["aria-checked"], false);
+  assert.equal(updatedRadios[1].props["aria-checked"], true);
+
+  // Switch to English
+  enBtn.props.onClick();
+  assert.equal(preferences.getSnapshot().language, "en");
+  assert.equal(i18n.language, "en");
+
+  // Reset to defaults
+  nodes = flatten(SettingsScreen());
+  const resetBtn = nodes.find(n => n.props?.["aria-label"] === "Reset to defaults");
+  assert.ok(resetBtn);
+  resetBtn.props.onClick();
+  assert.equal(preferences.getSnapshot().theme, "light");
+  assert.equal(preferences.getSnapshot().language, "es");
+});
+
+test("application shell provides Settings navigation and removes redundant shell-preferences", () => {
+  let activeView = "capture";
+  const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
+    react: { ...React, useEffect: () => {}, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
+    "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
+    "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
+    "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
+    "../editor/editorModel": { createEditorModel: () => ({}) },
+  });
+
+  function flatten(element: any): any[] {
+    if (!element || typeof element !== "object") return [];
+    return [element, ...React.Children.toArray(element.props?.children).flatMap(flatten)];
+  }
+
+  // Initial view is capture
+  let nodes = flatten(ApplicationShell({ onLogin() {} }));
+  const skipLink = nodes.find(n => n.props?.className === "skip-link");
+  assert.equal(skipLink.props.href, "#workspace");
+
+  // Redundant shell-preferences is removed from ApplicationShell
+  assert.equal(nodes.find(n => n.props?.className === "shell-preferences"), undefined);
+
+  // Find settings navigation item
+  const settingsNavItem = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Configuración"));
+  assert.ok(settingsNavItem);
+  assert.equal(settingsNavItem.props["aria-current"], undefined);
+
+  // Navigate to settings
+  settingsNavItem.props.onClick();
+  assert.equal(activeView, "settings");
+
+  // Re-render in settings view
+  nodes = flatten(ApplicationShell({ onLogin() {} }));
+  const updatedSkipLink = nodes.find(n => n.props?.className === "skip-link");
+  assert.equal(updatedSkipLink.props.href, "#settings-workspace");
+
+  const activeSettingsNav = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Configuración"));
+  assert.equal(activeSettingsNav.props["aria-current"], "page");
+
+  // Settings screen is rendered in the tree via renderToStaticMarkup
+  const html = renderToStaticMarkup(React.createElement(ApplicationShell, { onLogin() {} }));
+  assert.match(html, /id="settings-workspace"/);
+});
+
+test("preference changes survive navigation between settings and workspace and persist", () => {
+  const local = storage();
+  const model = createPreferences(local);
+  model.set({ theme: "dark", language: "en" });
+  assert.deepEqual(model.getSnapshot(), { theme: "dark", language: "en" });
+
+  // Simulate navigating back and forth in application
+  let activeView = "settings";
+  const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
+    react: { ...React, useEffect: () => {}, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
+    "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
+    "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
+    "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
+    "../editor/editorModel": { createEditorModel: () => ({}) },
+    "../preferences/preferences": { preferences: model },
+  });
+
+  // Switch to capture
+  activeView = "capture";
+  let html = renderToStaticMarkup(React.createElement(ApplicationShell, { onLogin() {} }));
+  assert.match(html, /id="workspace"/);
+  assert.equal(model.getSnapshot().theme, "dark");
+  assert.equal(model.getSnapshot().language, "en");
+
+  // Reloaded preferences from same storage maintain exact values
+  const reloaded = createPreferences(local);
+  assert.deepEqual(reloaded.getSnapshot(), { theme: "dark", language: "en" });
 });
