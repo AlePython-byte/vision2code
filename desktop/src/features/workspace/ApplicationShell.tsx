@@ -35,18 +35,18 @@ export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
       <nav className="navigation" aria-label={t("navigation")}>
         <button type="button" className="brand-mark" aria-label={t("brandLabel")} onClick={() => setView("capture")}>V</button>
         <div className="navigation-links">
-          <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
-          <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
-          <button className="navigation-item" disabled aria-label={t("projectsSoon")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
-          <button className="navigation-item" disabled aria-label={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
-          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
+          <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
+          <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
+          <button className="navigation-item" disabled aria-label={t("projectsSoon")} title={t("projectsSoon")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
+          <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
+          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
         </div>
-        <button type="button" className="navigation-item" aria-label={t("loginScreen")} onClick={onLogin}><LogIn aria-hidden="true" /><small>{t("login")}</small></button>
+        <button type="button" className="navigation-item" aria-label={t("loginScreen")} title={t("loginScreen")} onClick={onLogin}><LogIn aria-hidden="true" /><small>{t("login")}</small></button>
         <span className="navigation-note">V/2<br />0.1.0</span>
       </nav>
       <div className="shell-content">
         <div hidden={view !== "capture"}><Workspace onGenerated={openProject} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} />} /></main>}
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>

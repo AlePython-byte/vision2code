@@ -115,6 +115,6 @@
 @media (max-width: 560px) {
   .login-panel { padding: 24px; }
   .shell-preferences { padding: 8px 0; }
-  .navigation-links { gap: 4px; flex-wrap: wrap; }
-  .navigation { flex-wrap: wrap; }
+  .navigation-links { gap: 4px; flex-wrap: nowrap; }
+  .navigation { flex-wrap: nowrap; }
 }

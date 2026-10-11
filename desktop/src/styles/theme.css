@@ -222,20 +222,184 @@
   .workspace-badge { display: none; }
 }
 @media (max-width: 850px) {
-  .capture-grid { grid-template-columns: minmax(0, 1fr); }
-  .empty-workspace { min-height: 250px; }
+  .application-shell { grid-template-columns: 66px minmax(0, 1fr); gap: 14px; padding: 12px; }
+  .navigation { padding: 12px 6px; gap: clamp(10px, 2vh, 20px); }
+  .brand-mark { width: 44px; height: 44px; border-radius: 14px; font-size: 20px; }
+  .navigation-links { gap: 8px; }
+  .navigation-item { padding: 8px 2px; }
+  .navigation-item small { font-size: 9px; }
+  .capture-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .workflow-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 8px; border-radius: 16px; }
+  .workflow-strip li { padding: 6px 8px; font-size: 10.5px; gap: 6px; }
+  .workflow-number { width: 24px; height: 24px; font-size: 9.5px; }
+  .empty-workspace { min-height: 220px; }
 }
 @media (max-width: 560px) {
-  .application-shell { display: flex; flex-direction: column; padding: 12px; }
-  .navigation { flex-direction: row; gap: 12px; padding: 10px; }
-  .brand-mark { width: 42px; height: 42px; border-radius: 14px; font-size: 24px; }
-  .navigation-links { display: flex; gap: 10px; width: auto; }
-  .navigation-item { padding: 6px; }
-  .navigation-note { display: none; }
-  .workflow-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .workflow-strip li { font-size: 10px; }
-  .workspace { gap: 18px; }
-  .screenshot-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .application-shell {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px 16px;
+    gap: 8px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .navigation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 8px;
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    border-radius: 14px;
+    box-sizing: border-box;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .navigation-links {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+  .navigation-item {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 8px;
+    width: auto;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  .navigation-item svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+  .navigation-item small {
+    display: inline-block;
+    font-size: 10.5px;
+    line-height: 1;
+  }
+  .navigation-item[aria-current] {
+    border: 1px solid var(--color-primary);
+    border-left-width: 1px;
+  }
+  .navigation-item:disabled {
+    display: none;
+  }
+  .navigation-note {
+    display: none;
+  }
+  .shell-content {
+    min-width: 0;
+    overflow: visible;
+    padding: 0;
+  }
+  .workspace {
+    gap: 12px;
+    padding: 4px 0 12px;
+  }
+  .workspace-heading {
+    gap: 8px;
+  }
+  h1 {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  .workspace-intro {
+    font-size: 12px;
+  }
+  .workflow-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+  .workflow-strip li {
+    font-size: 10px;
+    padding: 5px 6px;
+    gap: 5px;
+  }
+  .workflow-number {
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+    border-radius: 7px;
+  }
+  .capture-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .raised-panel {
+    padding: 14px;
+    border-radius: 16px;
+  }
+  .empty-workspace {
+    min-height: 180px;
+    padding: 14px;
+    gap: 6px;
+  }
+  .upload-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    margin-bottom: 4px;
+  }
+  .upload-mark svg {
+    width: 26px;
+    height: 26px;
+  }
+  .screenshot-metadata {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .profile-fields {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 6px;
+  }
+  .profile-fields > div {
+    padding: 6px 8px;
+  }
+  .setting-options-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .setting-card {
+    padding: 12px 14px;
+  }
+}
+@media (max-width: 440px) {
+  .navigation-item small {
+    display: none;
+  }
+  .navigation-item {
+    padding: 6px;
+  }
+  .workflow-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 /* Desktop viewport fit: shell is bound to the window, content column scrolls internally. */
 @media (min-width: 561px) {

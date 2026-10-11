@@ -16,6 +16,8 @@ import { generateReactProject } from "../src/features/generation/generateReactPr
 import { createPreviewModel, type PreviewModel } from "../src/features/preview/previewModel.ts";
 import { createPlaceholderPreviewEngine, createLocalIsolatedPreviewEngine } from "../src/features/preview/previewEngine.ts";
 import { projectFromEditorState } from "../src/features/preview/previewInput.ts";
+import * as previewInput from "../src/features/preview/previewInput.ts";
+import * as previewPresentation from "../src/features/preview/previewPresentation.ts";
 import * as previewDocument from "../src/features/preview/previewDocument.ts";
 import { PREVIEW_RUNTIME_SOURCE } from "../src/features/preview/runtime/previewRuntime.ts";
 import * as previewTypes from "../src/features/preview/previewTypes.ts";
@@ -64,6 +66,8 @@ const PreviewPanel = loadComponent<ComponentType<{ model: PreviewModel }>>("../s
   "../preferences/useLabels": { useLabels },
   "./previewDocument": previewDocument,
   "./previewTypes": previewTypes,
+  "./previewInput": previewInput,
+  "./previewPresentation": previewPresentation,
 });
 const EditorWorkspace = loadComponent<ComponentType<{ model: EditorModel; preview?: ReactNode }>>("../src/features/editor/EditorWorkspace.tsx", "EditorWorkspace", {
   "lucide-react": lucide,
