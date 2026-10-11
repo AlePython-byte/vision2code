@@ -123,10 +123,6 @@ export function createPreviewPresentation(initial?: Partial<PreviewPresentationS
       state = { ...state, zoomMode };
       notify();
     },
-    reset() {
-      state = { preset: DEFAULT_VIEWPORT_PRESET, zoomMode: DEFAULT_ZOOM_MODE };
-      notify();
-    },
   };
 }
 

@@ -8,7 +8,7 @@ import {
   Tablet,
   TriangleAlert,
 } from "lucide-react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
 import { useLabels } from "../preferences/useLabels";
 import { PREVIEW_PLACEHOLDER_DOCUMENT, PREVIEW_SANDBOX } from "./previewDocument";
 import { projectFromEditorState } from "./previewInput";
@@ -18,6 +18,8 @@ import {
   PREVIEW_VIEWPORT_PRESETS,
   PREVIEW_ZOOM_MODES,
   type PreviewPresentation,
+  type PreviewViewportPreset,
+  type PreviewZoomMode,
 } from "./previewPresentation";
 import { PREVIEW_ENTRY_PATH } from "./previewTypes";
 import type { EditorModel } from "../editor/editorModel";
@@ -28,6 +30,70 @@ export interface PreviewPanelProps {
   readonly editorModel?: EditorModel;
   readonly presentation?: PreviewPresentation;
   readonly onRefresh?: () => void | Promise<void>;
+}
+
+interface SegmentOption<T extends string> {
+  readonly value: T;
+  readonly text: string;
+  readonly icon?: ReactNode;
+  /** When true the text is visually collapsible on narrow widths and must be exposed through aria-label. */
+  readonly collapsible?: boolean;
+}
+
+const DEVICE_ICONS: Record<PreviewViewportPreset, ReactNode> = {
+  desktop: <Monitor aria-hidden="true" />,
+  tablet: <Tablet aria-hidden="true" />,
+  mobile: <Smartphone aria-hidden="true" />,
+};
+const DEVICE_PRESETS = Object.keys(PREVIEW_VIEWPORT_PRESETS) as PreviewViewportPreset[];
+
+/**
+ * Compact instrument-style radiogroup with roving tabindex and arrow-key navigation.
+ * Purely presentational: it only reports the selected value.
+ */
+function SegmentedRadioGroup<T extends string>({ label, value, options, onChange }: {
+  label: string;
+  value: T;
+  options: readonly SegmentOption<T>[];
+  onChange: (value: T) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+    const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+    if (!forward && !backward && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const count = options.length;
+    const current = Math.max(0, options.findIndex((option) => option.value === value));
+    const next = event.key === "Home" ? 0 : event.key === "End" ? count - 1 : (current + (forward ? 1 : count - 1)) % count;
+    const target = options[next];
+    if (!target) return;
+    onChange(target.value);
+    ref.current?.querySelectorAll<HTMLElement>('[role="radio"]')[next]?.focus();
+  }
+  return (
+    <div ref={ref} className="preview-segmented" role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
+      {options.map((option) => {
+        const checked = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            className="preview-segment"
+            aria-checked={checked}
+            aria-label={option.collapsible ? option.text : undefined}
+            title={option.collapsible ? option.text : undefined}
+            tabIndex={checked ? 0 : -1}
+            onClick={() => onChange(option.value)}
+          >
+            {option.icon}
+            {option.collapsible ? <span className="preview-segment-text">{option.text}</span> : option.text}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 export function PreviewPanel({ model, editorModel, presentation: controlledPresentation, onRefresh }: PreviewPanelProps) {
@@ -42,23 +108,18 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
   const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
   const [lastGoodHtml, setLastGoodHtml] = useState<string | null>(null);
 
-  // Retain last successful preview document for seamless live editing recovery
+  // Retain the last successful document so a transient compile error never blanks the canvas.
   useEffect(() => {
-    if (state.status === "SUCCESS" && state.documentHtml) {
-      setLastGoodHtml(state.documentHtml);
-    } else if (state.status === "EMPTY") {
-      setLastGoodHtml(null);
-    }
+    if (state.status === "SUCCESS" && state.documentHtml) setLastGoodHtml(state.documentHtml);
+    else if (state.status === "EMPTY") setLastGoodHtml(null);
   }, [state.status, state.documentHtml]);
 
-  // Measure stage dimensions for responsive fit scaling
+  // Measure the scrollable stage so FIT can be recalculated on window resize without recompiling.
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
     const updateDims = () => {
-      if (el.clientWidth > 0 && el.clientHeight > 0) {
-        setStageDimensions({ width: el.clientWidth, height: el.clientHeight });
-      }
+      if (el.clientWidth > 0 && el.clientHeight > 0) setStageDimensions({ width: el.clientWidth, height: el.clientHeight });
     };
     updateDims();
     if (typeof ResizeObserver !== "undefined") {
@@ -74,7 +135,6 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
 
   const busy = state.status === "RENDERING";
   const canRender = state.project !== null && state.error !== "NO_ENTRY" && !busy;
-
   const scaleResult = calculatePresentationScale({
     preset: presState.preset,
     zoomMode: presState.zoomMode,
@@ -89,204 +149,139 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
     }
     if (editorModel) {
       const draft = projectFromEditorState(editorModel.getSnapshot());
-      if (draft) {
-        model.setProject(draft);
-      }
+      if (draft) model.setProject(draft);
     }
     void model.render();
   };
 
-  const currentPresetConfig = PREVIEW_VIEWPORT_PRESETS[presState.preset] ?? PREVIEW_VIEWPORT_PRESETS.desktop;
+  const presetConfig = PREVIEW_VIEWPORT_PRESETS[presState.preset] ?? PREVIEW_VIEWPORT_PRESETS.desktop;
   const showFrame = (state.status === "SUCCESS" && state.documentHtml) || (lastGoodHtml !== null && (busy || state.status === "ERROR"));
   const activeDocument = state.status === "SUCCESS" && state.documentHtml ? state.documentHtml : (lastGoodHtml ?? PREVIEW_PLACEHOLDER_DOCUMENT);
+  const refreshLabel = state.status === "ERROR" ? t("previewRetry") : state.status === "READY" ? t("previewRender") : t("previewRefresh");
+  const errorReason = state.error === "NO_ENTRY" ? t("previewErrorNoEntry") : t("previewErrorEngine");
+  const errorCode = state.error === "NO_ENTRY" ? "ERR_MISSING_ENTRY" : "ERR_COMPILATION_FAILED";
+
+  const deviceOptions: SegmentOption<PreviewViewportPreset>[] = DEVICE_PRESETS.map((preset) => ({
+    value: preset,
+    text: t(PREVIEW_VIEWPORT_PRESETS[preset].labelKey),
+    icon: DEVICE_ICONS[preset],
+    collapsible: true,
+  }));
+  const zoomOptions: SegmentOption<PreviewZoomMode>[] = PREVIEW_ZOOM_MODES.map((mode) => ({
+    value: mode,
+    text: mode === "fit" ? t("previewZoomFit") : `${mode}%`,
+  }));
 
   return (
     <section className="preview-panel raised-panel" aria-label={t("previewRegion")} data-status={state.status}>
-      <header className="code-toolbar preview-toolbar">
-        <div>
+      <header className="preview-header">
+        <div className="preview-heading">
           <p className="eyebrow">{t("previewEyebrow")}</p>
           <h2>{t("previewTitle")}</h2>
         </div>
-
-        <div className="preview-controls-row">
-          {/* Device Presets */}
-          <div
-            className="preview-control-group"
-            role="radiogroup"
-            aria-label={t("previewDeviceGroup")}
-          >
-            <button
-              type="button"
-              role="radio"
-              className="preview-toggle-button"
-              aria-checked={presState.preset === "desktop"}
-              aria-label={t("previewDeviceDesktop")}
-              title={t("previewDeviceDesktop")}
-              onClick={() => presentation.setPreset("desktop")}
-            >
-              <Monitor aria-hidden="true" className="preview-control-icon" />
-              <span className="preview-control-text">{t("previewDeviceDesktop")}</span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              className="preview-toggle-button"
-              aria-checked={presState.preset === "tablet"}
-              aria-label={t("previewDeviceTablet")}
-              title={t("previewDeviceTablet")}
-              onClick={() => presentation.setPreset("tablet")}
-            >
-              <Tablet aria-hidden="true" className="preview-control-icon" />
-              <span className="preview-control-text">{t("previewDeviceTablet")}</span>
-            </button>
-            <button
-              type="button"
-              role="radio"
-              className="preview-toggle-button"
-              aria-checked={presState.preset === "mobile"}
-              aria-label={t("previewDeviceMobile")}
-              title={t("previewDeviceMobile")}
-              onClick={() => presentation.setPreset("mobile")}
-            >
-              <Smartphone aria-hidden="true" className="preview-control-icon" />
-              <span className="preview-control-text">{t("previewDeviceMobile")}</span>
-            </button>
-          </div>
-
-          {/* Zoom Controls */}
-          <div
-            className="preview-control-group"
-            role="radiogroup"
-            aria-label={t("previewZoomGroup")}
-          >
-            {PREVIEW_ZOOM_MODES.map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                role="radio"
-                className="preview-toggle-button"
-                aria-checked={presState.zoomMode === mode}
-                aria-label={mode === "fit" ? t("previewZoomFit") : `${mode}%`}
-                title={mode === "fit" ? t("previewZoomFit") : `${mode}%`}
-                onClick={() => presentation.setZoomMode(mode)}
-              >
-                {mode === "fit" ? t("previewZoomFit") : `${mode}%`}
-              </button>
-            ))}
-          </div>
-
-          {/* Status and Refresh */}
-          <div className="code-actions">
-            <span className="preview-status" role="status" aria-live="polite">
-              {busy ? (
-                <>
-                  <RotateCw className="preview-status-spinner preview-spinner" aria-hidden="true" />
-                  <span>{t("previewUpdating")}</span>
-                </>
-              ) : (
-                <>
-                  <span className="preview-status-dot" aria-hidden="true" />
-                  <span>{t(`previewStatus${state.status}`)}</span>
-                </>
-              )}
-            </span>
-            <button
-              type="button"
-              className="action-button preview-action-button"
-              disabled={!canRender}
-              onClick={handleRefresh}
-              title={t("previewRefresh")}
-              aria-label={t("previewRefresh")}
-            >
-              <RotateCw aria-hidden="true" className={busy ? "preview-spinner" : ""} />
-              {state.status === "ERROR" ? t("previewRetry") : t("previewRender")}
-            </button>
-          </div>
-        </div>
+        <span className="preview-status" role="status" aria-live="polite">
+          {busy ? (
+            <>
+              <RotateCw className="preview-status-spinner preview-spinner" aria-hidden="true" />
+              <span>{t("previewUpdating")}</span>
+            </>
+          ) : (
+            <>
+              <span className="preview-status-dot" aria-hidden="true" />
+              <span>{t(`previewStatus${state.status}`)}</span>
+            </>
+          )}
+        </span>
       </header>
 
-      <div className="preview-stage" ref={stageRef} aria-busy={busy}>
-        {showFrame && (
-          <div
-            className="preview-device-wrapper"
-            data-preset={presState.preset}
-            data-zoom={presState.zoomMode}
-            style={{
-              width: `${scaleResult.scaledWidth}px`,
-              height: `${scaleResult.scaledHeight}px`,
-            }}
-          >
+      <div className="preview-toolbar" role="group" aria-label={t("previewControls")}>
+        <SegmentedRadioGroup label={t("previewDeviceGroup")} value={presState.preset} options={deviceOptions} onChange={presentation.setPreset} />
+        <SegmentedRadioGroup label={t("previewZoomGroup")} value={presState.zoomMode} options={zoomOptions} onChange={presentation.setZoomMode} />
+        <button type="button" className="action-button preview-refresh" disabled={!canRender} onClick={handleRefresh} aria-label={refreshLabel} title={refreshLabel}>
+          <RotateCw aria-hidden="true" className={busy ? "preview-spinner" : undefined} />
+          <span className="preview-refresh-text">{refreshLabel}</span>
+        </button>
+      </div>
+
+      <div className="preview-stage-shell">
+        <div className="preview-stage" ref={stageRef} aria-busy={busy}>
+          {showFrame && (
             <div
-              className="preview-device-canvas"
-              style={{
-                width: `${scaleResult.contentWidth}px`,
-                height: `${scaleResult.contentHeight}px`,
-                transform: `scale(${scaleResult.scale})`,
-                transformOrigin: "top left",
-              }}
+              className="preview-device-wrapper"
+              data-preset={presState.preset}
+              data-zoom={presState.zoomMode}
+              style={{ width: `${scaleResult.scaledWidth}px`, height: `${scaleResult.scaledHeight}px` }}
             >
-              <iframe
-                className="preview-frame"
-                title={t("previewFrameTitle")}
-                sandbox={PREVIEW_SANDBOX}
-                referrerPolicy="no-referrer"
-                srcDoc={activeDocument}
-                tabIndex={0}
-              />
+              <div
+                className="preview-device-canvas"
+                style={{
+                  width: `${scaleResult.contentWidth}px`,
+                  height: `${scaleResult.contentHeight}px`,
+                  transform: `scale(${scaleResult.scale})`,
+                }}
+              >
+                <iframe
+                  className="preview-frame"
+                  title={t("previewFrameTitle")}
+                  sandbox={PREVIEW_SANDBOX}
+                  referrerPolicy="no-referrer"
+                  srcDoc={activeDocument}
+                  tabIndex={0}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {state.status === "EMPTY" && (
-          <div className="preview-card"><MonitorPlay aria-hidden="true" /><p>{t("previewEmpty")}</p></div>
-        )}
-        {state.status === "READY" && (
-          <div className="preview-card"><MonitorPlay aria-hidden="true" /><p>{t("previewReadyText")}</p></div>
-        )}
-        {busy && !lastGoodHtml && (
-          <div className="preview-card" role="status"><LoaderCircle className="preview-spinner" aria-hidden="true" /><p>{t("previewRendering")}</p></div>
-        )}
+          {state.status === "EMPTY" && (
+            <div className="preview-card preview-card-quiet"><MonitorPlay aria-hidden="true" /><p>{t("previewEmpty")}</p></div>
+          )}
+          {state.status === "READY" && (
+            <div className="preview-card"><MonitorPlay aria-hidden="true" /><p>{t("previewReadyText")}</p></div>
+          )}
+          {busy && !lastGoodHtml && (
+            <div className="preview-card" role="status"><LoaderCircle className="preview-spinner" aria-hidden="true" /><p>{t("previewRendering")}</p></div>
+          )}
 
-        {state.status === "SUCCESS" && state.project && state.engine === "placeholder" && (
-          <div className="preview-card">
-            <h3>{t("previewPlaceholderTitle")}</h3>
-            <p>{t("previewPlaceholderBody")}</p>
-            <dl className="preview-meta">
-              <div><dt>{t("previewEngine")}</dt><dd>{t("previewEnginePlaceholder")}</dd></div>
-              <div><dt>{t("previewEntry")}</dt><dd>{PREVIEW_ENTRY_PATH}</dd></div>
-              <div><dt>{t("previewFiles")}</dt><dd>{state.project.files.length}</dd></div>
-            </dl>
-          </div>
-        )}
+          {state.status === "SUCCESS" && state.project && state.engine === "placeholder" && (
+            <div className="preview-card">
+              <h3>{t("previewPlaceholderTitle")}</h3>
+              <p>{t("previewPlaceholderBody")}</p>
+              <dl className="preview-meta">
+                <div><dt>{t("previewEngine")}</dt><dd>{t("previewEnginePlaceholder")}</dd></div>
+                <div><dt>{t("previewEntry")}</dt><dd>{PREVIEW_ENTRY_PATH}</dd></div>
+                <div><dt>{t("previewFiles")}</dt><dd>{state.project.files.length}</dd></div>
+              </dl>
+            </div>
+          )}
 
-        {/* Improved ERROR UX: overlay when last-good-preview is retained */}
-        {state.status === "ERROR" && lastGoodHtml && (
-          <div className="preview-error-overlay" role="alert">
-            <div className="preview-card preview-error-card">
+          {/* No previous good preview: a centered card is the only content. */}
+          {state.status === "ERROR" && !lastGoodHtml && (
+            <div className="preview-card preview-error-card" role="alert">
               <TriangleAlert aria-hidden="true" />
               <div className="preview-error-body">
-                <h3>{t("previewUpdateErrorTitle")}</h3>
-                <p>{state.error === "NO_ENTRY" ? t("previewErrorNoEntry") : t("previewErrorEngine")}</p>
-                <small className="preview-error-code">{state.error === "NO_ENTRY" ? "ERR_MISSING_ENTRY" : "ERR_COMPILATION_FAILED"}</small>
+                <h3>{t("previewErrorTitle")}</h3>
+                <p>{errorReason}</p>
+                <small className="preview-error-code">{errorCode}</small>
               </div>
-              <button type="button" className="action-button preview-retry-button" onClick={handleRefresh}>
-                <RotateCw aria-hidden="true" />{t("previewRetry")}
-              </button>
+              {canRender && (
+                <button type="button" className="action-button" onClick={handleRefresh}>
+                  <RotateCw aria-hidden="true" />{t("previewRetry")}
+                </button>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Fallback ERROR UX: centered card when no prior good preview exists */}
-        {state.status === "ERROR" && !lastGoodHtml && (
-          <div className="preview-card preview-error-card" role="alert">
+        {/* Last good preview stays visible and untouched; a compact toast reports the failure. */}
+        {state.status === "ERROR" && lastGoodHtml && (
+          <div className="preview-error-toast" role="alert">
             <TriangleAlert aria-hidden="true" />
-            <div className="preview-error-body">
-              <h3>{t("previewErrorTitle")}</h3>
-              <p>{state.error === "NO_ENTRY" ? t("previewErrorNoEntry") : t("previewErrorEngine")}</p>
-              <small className="preview-error-code">{state.error === "NO_ENTRY" ? "ERR_MISSING_ENTRY" : "ERR_COMPILATION_FAILED"}</small>
+            <div className="preview-error-text">
+              <p className="preview-error-title">{t("previewUpdateErrorTitle")}</p>
+              <p className="preview-error-reason">{errorReason} <small className="preview-error-code">{errorCode}</small></p>
             </div>
             {canRender && (
-              <button type="button" className="action-button preview-retry-button" onClick={handleRefresh}>
+              <button type="button" className="action-button" onClick={handleRefresh}>
                 <RotateCw aria-hidden="true" />{t("previewRetry")}
               </button>
             )}
@@ -298,10 +293,8 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
         <p className="input-help preview-isolation"><ShieldCheck aria-hidden="true" />{t("previewIsolation")}</p>
         {state.project && (
           <dl className="preview-meta">
-            <div><dt>{t("previewEngine")}</dt><dd>{state.engine === "local-isolated" ? t("previewEngineLocal") : t("previewEnginePlaceholder")}</dd></div>
-            <div><dt>{t("previewViewport")}</dt><dd>{t(currentPresetConfig.labelKey)} ({currentPresetConfig.width}×{currentPresetConfig.height})</dd></div>
+            <div><dt>{t("previewViewport")}</dt><dd>{t(presetConfig.labelKey)} {presetConfig.width}×{presetConfig.height}</dd></div>
             <div><dt>{t("previewMode")}</dt><dd>{presState.zoomMode === "fit" ? t("previewModeFit") : `${presState.zoomMode}%`}</dd></div>
-            <div><dt>{t("previewEntry")}</dt><dd>{PREVIEW_ENTRY_PATH}</dd></div>
             <div><dt>{t("previewFiles")}</dt><dd>{state.project.files.length}</dd></div>
           </dl>
         )}

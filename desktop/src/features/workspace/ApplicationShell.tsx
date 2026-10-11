@@ -35,11 +35,11 @@ export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
       <nav className="navigation" aria-label={t("navigation")}>
         <button type="button" className="brand-mark" aria-label={t("brandLabel")} onClick={() => setView("capture")}>V</button>
         <div className="navigation-links">
-          <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
-          <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
+          <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined} aria-label={t("capture")} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
+          <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined} aria-label={t("code")} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
           <button className="navigation-item" disabled aria-label={t("projectsSoon")} title={t("projectsSoon")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
           <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
-          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
+          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} aria-label={t("settings")} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
         </div>
         <button type="button" className="navigation-item" aria-label={t("loginScreen")} title={t("loginScreen")} onClick={onLogin}><LogIn aria-hidden="true" /><small>{t("login")}</small></button>
         <span className="navigation-note">V/2<br />0.1.0</span>

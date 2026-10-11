@@ -278,17 +278,20 @@ test("8. zoom/device changes do not mutate GeneratedProject", () => {
 test("9. zoom/device changes do not trigger editor sync", () => {
   const editorModel = createEditorModel();
   const previewModel = createPreviewModel();
-  const { scheduler, pendingCount } = createMockScheduler();
+  const mock = createMockScheduler();
 
-  const sync = syncEditorToPreview(editorModel, previewModel, { scheduler });
+  const sync = syncEditorToPreview(editorModel, previewModel, { scheduler: mock.scheduler });
   editorModel.setProject(sampleProject());
+  const revisionBefore = previewModel.getSnapshot().revision;
 
   const presentation = createPreviewPresentation();
   presentation.setPreset("mobile");
   presentation.setZoomMode("75");
 
-  // Presentation adjustments must not queue pending editor compile timers
-  assert.equal(pendingCount, 0);
+  // Presentation adjustments must not queue editor debounce timers nor touch the preview model.
+  assert.equal(mock.pendingCount, 0);
+  assert.equal(sync.isPending(), false);
+  assert.equal(previewModel.getSnapshot().revision, revisionBefore);
   sync.dispose();
 });
 
@@ -431,7 +434,6 @@ test("15. fixing code still recovers automatically", async () => {
 
   // 1. Break code
   editorModel.edit(`export default function Broken() { return <div>unclosed; }`);
-  scheduler.setTimeout(() => {}, 0);
   await sync.flush();
   assert.equal(previewModel.getSnapshot().status, "ERROR");
 
@@ -492,4 +494,18 @@ test("20. module resolver tests remain passing", () => {
     "src/generated/GeneratedInterface.tsx",
   ]);
   assert.equal(resolved, "src/generated/GeneratedInterface.tsx");
+});
+
+test("21. toolbar exposes two radiogroups with roving tabindex and a refresh name matching its label", () => {
+  const model = createPreviewModel();
+  model.setProject(sampleProject());
+  const html = renderToStaticMarkup(createElement(PreviewPanel, { model }));
+  assert.equal((html.match(/role="radiogroup"/g) ?? []).length, 2);
+  assert.equal((html.match(/role="radio"/g) ?? []).length, 7);
+  assert.equal((html.match(/aria-checked="true"/g) ?? []).length, 2, "one selected option per group");
+  assert.equal((html.match(/tabindex="0"/g) ?? []).length, 2, "only the selected option of each group is tabbable");
+  assert.equal((html.match(/tabindex="-1"/g) ?? []).length, 5);
+  assert.match(html, /role="group"[^>]*aria-label="Controles de vista previa"|aria-label="Controles de vista previa"[^>]*role="group"/);
+  assert.match(html, /aria-label="Preparar vista previa"[^>]*>.*<span class="preview-refresh-text">Preparar vista previa<\/span>/s);
+  assert.doesNotMatch(html, /<iframe/, "READY never mounts the sandbox frame");
 });

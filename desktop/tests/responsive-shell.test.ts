@@ -105,6 +105,14 @@ test("responsive breakpoints are defined for desktop, compact, and narrow layout
   assert.ok(themeCss.includes("@media (max-width: 850px)"));
   assert.ok(themeCss.includes("repeat(3, minmax(0, 1fr))"), "Workflow wraps to 3 columns on compact tablet");
 
+  // Compact left rail icon-only transition (561px - 760px) prevents cramped/clipped labels
+  assert.ok(themeCss.includes("@media (max-width: 760px) and (min-width: 561px)"));
+  assert.ok(
+    themeCss.includes(".navigation-item small {\n    display: none;\n  }") ||
+    themeCss.includes(".navigation-item small {\n    display: none;"),
+    "Navigation item labels collapse to icon-only presentation in compact rail mode"
+  );
+
   // Tier 3: Very narrow layout (< 560px)
   assert.ok(themeCss.includes("@media (max-width: 560px)"));
   assert.ok(themeCss.includes("flex-direction: row;"), "Navigation shifts to horizontal layout at < 560px");
@@ -124,5 +132,5 @@ test("preview workspace controls have responsive compact rules", () => {
 
   // Mobile compact preview controls rule
   assert.ok(previewCss.includes("@media (max-width: 600px)"));
-  assert.ok(previewCss.includes(".preview-control-text { display: none; }"), "Device text labels collapse to compact icons");
+  assert.ok(previewCss.includes(".preview-segment-text { display: none; }"), "Device text labels collapse to compact icons");
 });

@@ -234,6 +234,40 @@
   .workflow-number { width: 24px; height: 24px; font-size: 9.5px; }
   .empty-workspace { min-height: 220px; }
 }
+@media (max-width: 760px) and (min-width: 561px) {
+  .application-shell { grid-template-columns: 60px minmax(0, 1fr); gap: 12px; padding: 12px 8px; }
+  .navigation { padding: 12px 6px; gap: 14px; }
+  .brand-mark { width: 44px; height: 44px; border-radius: 14px; font-size: 20px; margin: 0 auto; }
+  .navigation-links { gap: 6px; }
+  .navigation-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-sizing: border-box;
+  }
+  .navigation-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  .navigation-item small {
+    display: none;
+  }
+  .navigation-item[aria-current] {
+    border-left-width: 1px;
+    border: 1.5px solid var(--color-primary);
+  }
+  .navigation-note {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+}
 @media (max-width: 560px) {
   .application-shell {
     display: flex;
