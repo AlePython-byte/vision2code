@@ -1,12 +1,13 @@
 import { ScanLine, Code2, Folder, Library, Settings, LogIn } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Workspace } from "./Workspace";
 import { EditorWorkspace } from "../editor/EditorWorkspace";
 import { SettingsScreen } from "../settings/SettingsScreen";
 import { createEditorModel } from "../editor/editorModel";
 import { createPreviewModel } from "../preview/previewModel";
 import { PreviewPanel } from "../preview/PreviewPanel";
+import { syncEditorToPreview } from "../preview/previewSync";
 import type { GeneratedProject } from "../generation/generatedProject";
 
 export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
@@ -14,6 +15,14 @@ export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
   const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
   const [editorModel] = useState(createEditorModel);
   const [previewModel] = useState(() => createPreviewModel());
+
+  useEffect(() => {
+    const sync = syncEditorToPreview(editorModel, previewModel);
+    return () => {
+      sync.dispose();
+    };
+  }, [editorModel, previewModel]);
+
   function openProject(project: GeneratedProject) {
     editorModel.setProject(project);
     previewModel.setProject(project);

@@ -80,6 +80,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     if (name.endsWith("/preferences") || name === "./preferences") return { preferences };
     if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };
     if (name.endsWith("/PreviewPanel") || name === "./PreviewPanel") return { PreviewPanel: () => null };
+    if (name.endsWith("/previewSync") || name === "./previewSync") return { syncEditorToPreview: () => ({ dispose: () => {}, flush: async () => {}, isPending: () => false }) };
     return require(name);
   } });
   return exports;
@@ -207,7 +208,7 @@ test("settings screen controls switch theme and language immediately and support
 test("application shell provides Settings navigation and removes redundant shell-preferences", () => {
   let activeView = "capture";
   const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
-    react: { ...React, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
+    react: { ...React, useEffect: () => {}, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
     "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
     "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
     "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
@@ -258,7 +259,7 @@ test("preference changes survive navigation between settings and workspace and p
   // Simulate navigating back and forth in application
   let activeView = "settings";
   const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
-    react: { ...React, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
+    react: { ...React, useEffect: () => {}, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
     "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
     "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
     "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
