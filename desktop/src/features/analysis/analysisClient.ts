@@ -14,6 +14,7 @@ const errorMessages: Record<ApiErrorCode, string> = {
   INVALID_REQUEST: "No se pudo enviar la captura. Revisa la imagen y vuelve a intentarlo.",
   NOT_FOUND: "El servicio de análisis no está disponible en esta dirección.",
   INTERNAL_ERROR: "No se pudo completar el análisis. Inténtalo de nuevo.",
+  UNAUTHORIZED: "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
 };
 
 export class AnalysisClientError extends Error {

@@ -7,5 +7,20 @@ export function readConfiguration(environment: NodeJS.ProcessEnv = process.env) 
   if (!port.success) {
     throw new Error("PORT must be an integer between 1 and 65535.");
   }
-  return { port: port.data };
+
+  /**
+   * Supabase URL used solely for asymmetric JWKS remote key retrieval and JWT verification.
+   * Security notice:
+   * - Service-role keys must NEVER exist in the desktop/client.
+   * - A backend may use a service-role credential for legitimate privileged server-only operations in future.
+   * - Vision2Code does NOT need or use one for authentication or JWT verification.
+   */
+  const supabaseUrl = typeof environment.SUPABASE_URL === "string" && environment.SUPABASE_URL.trim()
+    ? environment.SUPABASE_URL.trim()
+    : undefined;
+
+  return {
+    port: port.data,
+    supabaseUrl,
+  };
 }

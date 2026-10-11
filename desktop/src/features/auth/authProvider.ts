@@ -29,6 +29,12 @@ export interface AuthProvider {
    * Terminates the current authenticated session.
    */
   signOut(signal?: AbortSignal): Promise<void>;
+
+  /**
+   * Retrieves the raw bearer access token for authorized API calls to the backend.
+   * Stays below the UI/domain identity surface; NEVER exposed in AuthUser or AuthState.
+   */
+  getAccessToken?(): Promise<string | null>;
 }
 
 /**
@@ -49,6 +55,9 @@ export function createUnconfiguredAuthProvider(): AuthProvider {
     },
     async signOut(): Promise<void> {
       // Nothing to clear when unconfigured
+    },
+    async getAccessToken(): Promise<string | null> {
+      return null;
     },
   };
 }

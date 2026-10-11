@@ -8,6 +8,9 @@ import { readConfiguration } from "./configuration.js";
 
 async function bootstrap(): Promise<void> {
   const configuration = readConfiguration();
+  if (!configuration.supabaseUrl) {
+    throw new Error("SUPABASE_URL is required for auth verification.");
+  }
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   configureApplication(app);
   app.enableShutdownHooks();

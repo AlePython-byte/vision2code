@@ -1,11 +1,13 @@
 import { useState, useSyncExternalStore } from "react";
 import { ApplicationShell } from "./features/workspace/ApplicationShell";
 import { Login } from "./features/login/Login";
-import { createAuthModel, type AuthModel } from "./features/auth/index";
+import { createAuthModel, createSupabaseAuthProvider, createUnconfiguredAuthProvider, readSupabaseConfig, type AuthModel } from "./features/auth/index";
 import "./features/preferences/i18n";
 import "./styles/theme.css";
 
-const defaultAuthModel = createAuthModel();
+const defaultAuthModel = createAuthModel(
+  readSupabaseConfig() ? createSupabaseAuthProvider() : createUnconfiguredAuthProvider()
+);
 
 export default function App({ authModel = defaultAuthModel }: { authModel?: AuthModel }) {
   const authState = useSyncExternalStore(authModel.subscribe, authModel.getSnapshot);

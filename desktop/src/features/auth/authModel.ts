@@ -12,6 +12,7 @@ export interface AuthModel {
   signUp(input: unknown): Promise<void>;
   signOut(): Promise<void>;
   clearError(): void;
+  getAccessToken(): Promise<string | null>;
 }
 
 /**
@@ -193,6 +194,10 @@ export function createAuthModel(
           error: null,
         });
       }
+    },
+
+    async getAccessToken(): Promise<string | null> {
+      return provider.getAccessToken ? await provider.getAccessToken() : null;
     },
   };
 
