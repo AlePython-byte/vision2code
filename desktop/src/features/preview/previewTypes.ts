@@ -15,15 +15,16 @@ export interface PreviewProject {
   readonly files: readonly Readonly<GeneratedFile>[];
 }
 
-/**
- * Execution seam. The current engine is a placeholder that executes nothing.
- * A future engine must run code inside an isolated, credential-free origin.
- */
-export type PreviewEngineKind = "placeholder";
+/** Execution engines: placeholder (Task 007A) or local-isolated (Task 007B). */
+export type PreviewEngineKind = "placeholder" | "local-isolated";
+
+export interface PreviewRenderResult {
+  readonly documentHtml: string;
+}
 
 export interface PreviewEngine {
   readonly kind: PreviewEngineKind;
-  render(project: PreviewProject, signal: AbortSignal): Promise<void>;
+  render(project: PreviewProject, signal: AbortSignal): Promise<PreviewRenderResult | void>;
 }
 
 export interface PreviewState {
@@ -33,5 +34,6 @@ export interface PreviewState {
   readonly revision: number;
   readonly engine: PreviewEngineKind;
   readonly error: PreviewErrorCode | null;
+  /** Generated standalone HTML document containing the isolated rendered project. */
+  readonly documentHtml: string | null;
 }
-

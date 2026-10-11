@@ -1,5 +1,5 @@
 import type { GeneratedProject } from "../generation/generatedProject.ts";
-import { createPlaceholderPreviewEngine } from "./previewEngine.ts";
+import { createLocalIsolatedPreviewEngine } from "./previewEngine.ts";
 import { PREVIEW_ENTRY_PATH, type PreviewEngine, type PreviewProject, type PreviewState } from "./previewTypes.ts";
 
 function snapshotProject(project: GeneratedProject): PreviewProject {
@@ -15,13 +15,20 @@ function snapshotProject(project: GeneratedProject): PreviewProject {
  * Any new setProject/render/clear aborts and supersedes in-flight work.
  * The model has no network, AI or Tauri dependency; it only talks to the injected engine.
  */
-export function createPreviewModel(engine: PreviewEngine = createPlaceholderPreviewEngine()) {
-  let state: PreviewState = { status: "EMPTY", project: null, revision: 0, engine: engine.kind, error: null };
+export function createPreviewModel(engine: PreviewEngine = createLocalIsolatedPreviewEngine()) {
+  let state: PreviewState = {
+    status: "EMPTY",
+    project: null,
+    revision: 0,
+    engine: engine.kind,
+    error: null,
+    documentHtml: null,
+  };
   let controller: AbortController | null = null;
   const listeners = new Set<() => void>();
 
   function update(next: Omit<PreviewState, "revision" | "engine">) {
-    state = { ...next, revision: state.revision + 1, engine: engine.kind };
+    state = Object.freeze({ ...next, revision: state.revision + 1, engine: engine.kind });
     listeners.forEach((listener) => listener());
   }
   function supersede() {
@@ -34,16 +41,16 @@ export function createPreviewModel(engine: PreviewEngine = createPlaceholderPrev
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     setProject(project: GeneratedProject | null) {
       supersede();
-      if (!project) { update({ status: "EMPTY", project: null, error: null }); return; }
+      if (!project) { update({ status: "EMPTY", project: null, error: null, documentHtml: null }); return; }
       const snapshot = snapshotProject(project);
       const hasEntry = snapshot.files.some((file) => file.path === PREVIEW_ENTRY_PATH);
       update(hasEntry
-        ? { status: "READY", project: snapshot, error: null }
-        : { status: "ERROR", project: snapshot, error: "NO_ENTRY" });
+        ? { status: "READY", project: snapshot, error: null, documentHtml: null }
+        : { status: "ERROR", project: snapshot, error: "NO_ENTRY", documentHtml: null });
     },
     clear() {
       supersede();
-      update({ status: "EMPTY", project: null, error: null });
+      update({ status: "EMPTY", project: null, error: null, documentHtml: null });
     },
     /** Resolves when this render attempt settles, including when it was superseded. */
     async render(): Promise<void> {
@@ -52,13 +59,22 @@ export function createPreviewModel(engine: PreviewEngine = createPlaceholderPrev
       supersede();
       const current = new AbortController();
       controller = current;
-      update({ status: "RENDERING", project, error: null });
+      update({ status: "RENDERING", project, error: null, documentHtml: null });
       const revision = state.revision;
       try {
-        await engine.render(project, current.signal);
-        if (revision === state.revision) update({ status: "SUCCESS", project, error: null });
+        const result = await engine.render(project, current.signal);
+        if (revision === state.revision) {
+          update({
+            status: "SUCCESS",
+            project,
+            error: null,
+            documentHtml: result ? result.documentHtml : null,
+          });
+        }
       } catch {
-        if (revision === state.revision) update({ status: "ERROR", project, error: "ENGINE_FAILURE" });
+        if (revision === state.revision) {
+          update({ status: "ERROR", project, error: "ENGINE_FAILURE", documentHtml: null });
+        }
       } finally {
         if (controller === current) controller = null;
       }
@@ -70,4 +86,3 @@ export function createPreviewModel(engine: PreviewEngine = createPlaceholderPrev
   };
 }
 export type PreviewModel = ReturnType<typeof createPreviewModel>;
-

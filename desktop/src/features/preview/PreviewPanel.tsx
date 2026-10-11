@@ -29,8 +29,14 @@ export function PreviewPanel({ model }: { model: PreviewModel }) {
       </header>
       <div className="preview-stage" aria-busy={busy}>
         {state.status === "SUCCESS" && (
-          <iframe className="preview-frame" title={t("previewFrameTitle")} sandbox={PREVIEW_SANDBOX}
-            referrerPolicy="no-referrer" srcDoc={PREVIEW_PLACEHOLDER_DOCUMENT} tabIndex={-1} />
+          <iframe
+            className="preview-frame"
+            title={t("previewFrameTitle")}
+            sandbox={PREVIEW_SANDBOX}
+            referrerPolicy="no-referrer"
+            srcDoc={state.documentHtml ?? PREVIEW_PLACEHOLDER_DOCUMENT}
+            tabIndex={0}
+          />
         )}
         {state.status === "EMPTY" && (
           <div className="preview-card"><MonitorPlay aria-hidden="true" /><p>{t("previewEmpty")}</p></div>
@@ -41,7 +47,7 @@ export function PreviewPanel({ model }: { model: PreviewModel }) {
         {busy && (
           <div className="preview-card" role="status"><LoaderCircle className="preview-spinner" aria-hidden="true" /><p>{t("previewRendering")}</p></div>
         )}
-        {state.status === "SUCCESS" && state.project && (
+        {state.status === "SUCCESS" && state.project && state.engine === "placeholder" && (
           <div className="preview-card">
             <h3>{t("previewPlaceholderTitle")}</h3>
             <p>{t("previewPlaceholderBody")}</p>
@@ -59,8 +65,17 @@ export function PreviewPanel({ model }: { model: PreviewModel }) {
           </div>
         )}
       </div>
-      <p className="input-help preview-isolation"><ShieldCheck aria-hidden="true" />{t("previewIsolation")}</p>
+      <footer className="preview-footer">
+        <p className="input-help preview-isolation"><ShieldCheck aria-hidden="true" />{t("previewIsolation")}</p>
+        {state.project && (
+          <dl className="preview-meta">
+            <div><dt>{t("previewEngine")}</dt><dd>{state.engine === "local-isolated" ? t("previewEngineLocal") : t("previewEnginePlaceholder")}</dd></div>
+            <div><dt>{t("previewMode")}</dt><dd>{t("previewModeFit")}</dd></div>
+            <div><dt>{t("previewEntry")}</dt><dd>{PREVIEW_ENTRY_PATH}</dd></div>
+            <div><dt>{t("previewFiles")}</dt><dd>{state.project.files.length}</dd></div>
+          </dl>
+        )}
+      </footer>
     </section>
   );
 }
-
