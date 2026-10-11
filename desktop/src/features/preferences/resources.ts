@@ -222,7 +222,19 @@ export const es = {
   "fidelityBalancedDesc": "Balance entre velocidad y detalle.",
   "fidelityPrecise": "Preciso",
   "fidelityPreciseDesc": "Mayor detalle, generación más lenta.",
-  "fidelityAria": "Fidelidad visual"
+  "fidelityAria": "Fidelidad visual",
+  "authStatusRestoring": "Restaurando sesión…",
+  "authStatusAuthenticating": "Verificando credenciales…",
+  "authStatusAuthenticated": "Sesión iniciada",
+  "authStatusUnauthenticated": "Sin sesión activa",
+  "authStatusAwaitingConfirmation": "Esperando confirmación de correo electrónico…",
+  "authErrorInvalidCredentials": "Credenciales inválidas. Revisa tu correo y contraseña.",
+  "authErrorEmailNotConfirmed": "Correo electrónico no confirmado.",
+  "authErrorEmailAlreadyRegistered": "Este correo electrónico ya está registrado.",
+  "authErrorNetworkError": "Error de conexión con el servicio de autenticación.",
+  "authErrorSessionExpired": "Tu sesión ha expirado. Inicia sesión de nuevo.",
+  "authErrorValidationFailed": "Los datos ingresados no cumplen con los requisitos.",
+  "authErrorUnknown": "Ocurrió un error inesperado al procesar la autenticación."
 };
 export const en: Record<keyof typeof es, string> = {
   "skip": "Skip to workspace",
@@ -448,7 +460,19 @@ export const en: Record<keyof typeof es, string> = {
   "fidelityBalancedDesc": "Balanced speed and visual detail.",
   "fidelityPrecise": "Precise",
   "fidelityPreciseDesc": "Higher detail, slower generation.",
-  "fidelityAria": "Visual fidelity"
+  "fidelityAria": "Visual fidelity",
+  "authStatusRestoring": "Restoring session…",
+  "authStatusAuthenticating": "Verifying credentials…",
+  "authStatusAuthenticated": "Signed in",
+  "authStatusUnauthenticated": "No active session",
+  "authStatusAwaitingConfirmation": "Awaiting email confirmation…",
+  "authErrorInvalidCredentials": "Invalid credentials. Please verify your email and password.",
+  "authErrorEmailNotConfirmed": "Email address not confirmed.",
+  "authErrorEmailAlreadyRegistered": "This email address is already registered.",
+  "authErrorNetworkError": "Connection error with authentication service.",
+  "authErrorSessionExpired": "Your session has expired. Please sign in again.",
+  "authErrorValidationFailed": "Entered credentials do not meet requirements.",
+  "authErrorUnknown": "An unexpected error occurred during authentication."
 };
 
 // Compatibility boundary for messages produced by existing framework-independent models.
