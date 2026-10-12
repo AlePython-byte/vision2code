@@ -18,6 +18,12 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+tauri-plugin-stronghold = "2"
+getrandom = "0.2"
+keyring = "4"
+
+[profile.dev.package.scrypt]
+opt-level = 3
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

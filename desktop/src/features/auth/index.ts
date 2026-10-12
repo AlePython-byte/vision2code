@@ -5,4 +5,5 @@ export * from "./authModel.ts";
 export * from "./supabaseAuthProvider.ts";
 export * from "./supabaseClient.ts";
 export * from "./authProbe.ts";
-
+export * from "./authStorage.ts";
+export * from "./tauriStrongholdStorage.ts";

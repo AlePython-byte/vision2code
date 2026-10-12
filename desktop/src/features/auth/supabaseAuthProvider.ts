@@ -178,9 +178,11 @@ export function createSupabaseAuthProvider(
         }
 
         if (!data.session) {
+          console.info("[Auth] restore session found: no");
           return null;
         }
 
+        console.info("[Auth] restore session found: yes");
         return mapSupabaseSession(data.session);
       } catch (err) {
         if (signal?.aborted) {

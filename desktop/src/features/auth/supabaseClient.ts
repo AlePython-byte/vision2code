@@ -1,4 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { AuthStorage } from "./authStorage.ts";
+import { cleanLegacyLocalStorage } from "./authStorage.ts";
+import { getDefaultAuthStorage } from "./tauriStrongholdStorage.ts";
 
 export interface SupabaseConfig {
   readonly url: string;
@@ -48,7 +51,12 @@ let cachedClient: SupabaseClient | null = null;
  * Returns a singleton instance of the public Supabase client.
  * Returns null if required configuration is absent.
  */
-export function getSupabaseClient(configOverride?: SupabaseConfig | null): SupabaseClient | null {
+export function getSupabaseClient(
+  configOverride?: SupabaseConfig | null,
+  storageOverride?: AuthStorage | null
+): SupabaseClient | null {
+  const storage = storageOverride ?? getDefaultAuthStorage();
+
   if (configOverride) {
     if (!configOverride.url || !configOverride.publishableKey) {
       return null;
@@ -58,6 +66,7 @@ export function getSupabaseClient(configOverride?: SupabaseConfig | null): Supab
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
+        storage,
       },
     });
   }
@@ -71,13 +80,24 @@ export function getSupabaseClient(configOverride?: SupabaseConfig | null): Supab
     return null;
   }
 
+  // Purge legacy WebView localStorage session on startup to enforce clean-break boundary
+  cleanLegacyLocalStorage();
+
   cachedClient = createClient(config.url, config.publishableKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: false,
+      storage,
     },
   });
 
   return cachedClient;
+}
+
+/**
+ * Resets the cached Supabase singleton for isolated testing.
+ */
+export function resetSupabaseClientForTesting(): void {
+  cachedClient = null;
 }
