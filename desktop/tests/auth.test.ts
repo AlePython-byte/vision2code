@@ -526,3 +526,39 @@ test("17. clearError resets ERROR status back to UNAUTHENTICATED", async () => {
   assert.equal(model.getSnapshot().error, null);
 });
 
+test("18. returnToSignIn resets AWAITING_EMAIL_CONFIRMATION back to UNAUTHENTICATED without network", async () => {
+  const user = createMockUser({ email: "confirm@example.com" });
+  let networkCalls = 0;
+  const provider: AuthProvider = {
+    async restoreSession(): Promise<AuthSession | null> {
+      networkCalls++;
+      return null;
+    },
+    async signIn(): Promise<AuthSession> {
+      networkCalls++;
+      throw new Error("No network call expected");
+    },
+    async signUp(): Promise<SignUpResult> {
+      networkCalls++;
+      return { user, session: null, requiresEmailConfirmation: true };
+    },
+    async signOut(): Promise<void> {
+      networkCalls++;
+    },
+  };
+
+  const model = createAuthModel(provider, { autoRestore: false });
+  await model.signUp({ email: "confirm@example.com", password: "password123" });
+
+  assert.equal(model.getSnapshot().status, "AWAITING_EMAIL_CONFIRMATION");
+  assert.equal(model.getSnapshot().user?.email, "confirm@example.com");
+
+  const callsBefore = networkCalls;
+  model.returnToSignIn();
+
+  assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
+  assert.equal(model.getSnapshot().user, null);
+  assert.equal(model.getSnapshot().error, null);
+  assert.equal(networkCalls, callsBefore);
+});
+

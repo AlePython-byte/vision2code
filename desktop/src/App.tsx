@@ -5,12 +5,15 @@ import { createAuthModel, createSupabaseAuthProvider, createUnconfiguredAuthProv
 import "./features/preferences/i18n";
 import "./styles/theme.css";
 
-const defaultAuthModel = createAuthModel(
-  readSupabaseConfig() ? createSupabaseAuthProvider() : createUnconfiguredAuthProvider()
-);
+function createDefaultAuthModel(): AuthModel {
+  return createAuthModel(
+    readSupabaseConfig() ? createSupabaseAuthProvider() : createUnconfiguredAuthProvider()
+  );
+}
 
-export default function App({ authModel = defaultAuthModel }: { authModel?: AuthModel }) {
-  const authState = useSyncExternalStore(authModel.subscribe, authModel.getSnapshot);
+export default function App({ authModel }: { authModel?: AuthModel }) {
+  const [model] = useState(() => authModel ?? createDefaultAuthModel());
+  const authState = useSyncExternalStore(model.subscribe, model.getSnapshot);
   const [demo, setDemo] = useState(false);
 
   // An authenticated user enters the application. Otherwise, local demo mode allows testing.
@@ -18,12 +21,18 @@ export default function App({ authModel = defaultAuthModel }: { authModel?: Auth
 
   return (
     <>
-      {!showApplication && <Login onDemo={() => setDemo(true)} />}
+      {!showApplication && (
+        <Login
+          authModel={model}
+          onDemo={() => setDemo(true)}
+        />
+      )}
       <div hidden={!showApplication}>
         <ApplicationShell
+          user={authState.user}
           onLogin={() => {
             if (authState.status === "AUTHENTICATED") {
-              void authModel.signOut();
+              void model.signOut();
             }
             setDemo(false);
           }}

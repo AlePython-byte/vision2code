@@ -15,13 +15,25 @@ export interface SupabaseConfig {
  * - Vision2Code does NOT need or use one for authentication or JWT verification.
  */
 export function readSupabaseConfig(): SupabaseConfig | null {
-  const env = (import.meta as any).env ?? (typeof (globalThis as any).process !== "undefined" ? (globalThis as any).process.env : {}) ?? {};
-  const url = typeof env.VITE_SUPABASE_URL === "string" ? env.VITE_SUPABASE_URL.trim() : "";
+  const metaEnv = (import.meta as any).env;
+  const procEnv = typeof (globalThis as any).process !== "undefined" ? (globalThis as any).process.env : undefined;
+  const env = metaEnv ?? procEnv ?? {};
+
+  const url = typeof env.VITE_SUPABASE_URL === "string" && env.VITE_SUPABASE_URL.trim()
+    ? env.VITE_SUPABASE_URL.trim()
+    : typeof import.meta.env?.VITE_SUPABASE_URL === "string"
+      ? import.meta.env.VITE_SUPABASE_URL.trim()
+      : "";
+
   const publishableKey = typeof env.VITE_SUPABASE_PUBLISHABLE_KEY === "string" && env.VITE_SUPABASE_PUBLISHABLE_KEY.trim()
     ? env.VITE_SUPABASE_PUBLISHABLE_KEY.trim()
-    : typeof env.VITE_SUPABASE_ANON_KEY === "string" && env.VITE_SUPABASE_ANON_KEY.trim()
-      ? env.VITE_SUPABASE_ANON_KEY.trim()
-      : "";
+    : typeof import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY === "string" && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY.trim()
+      ? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY.trim()
+      : typeof env.VITE_SUPABASE_ANON_KEY === "string" && env.VITE_SUPABASE_ANON_KEY.trim()
+        ? env.VITE_SUPABASE_ANON_KEY.trim()
+        : typeof import.meta.env?.VITE_SUPABASE_ANON_KEY === "string"
+          ? import.meta.env.VITE_SUPABASE_ANON_KEY.trim()
+          : "";
 
   if (!url || !publishableKey) {
     return null;

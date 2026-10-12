@@ -12,6 +12,7 @@ export interface AuthModel {
   signUp(input: unknown): Promise<void>;
   signOut(): Promise<void>;
   clearError(): void;
+  returnToSignIn(): void;
   getAccessToken(): Promise<string | null>;
 }
 
@@ -191,6 +192,20 @@ export function createAuthModel(
         update({
           status: state.status === "ERROR" ? "UNAUTHENTICATED" : state.status,
           user: state.user,
+          error: null,
+        });
+      }
+    },
+
+    returnToSignIn(): void {
+      if (
+        state.status === "AWAITING_EMAIL_CONFIRMATION" ||
+        state.status === "ERROR" ||
+        state.status === "UNAUTHENTICATED"
+      ) {
+        update({
+          status: "UNAUTHENTICATED",
+          user: null,
           error: null,
         });
       }

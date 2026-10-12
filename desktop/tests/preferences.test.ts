@@ -81,6 +81,9 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };
     if (name.endsWith("/PreviewPanel") || name === "./PreviewPanel") return { PreviewPanel: () => null };
     if (name.endsWith("/previewSync") || name === "./previewSync") return { syncEditorToPreview: () => ({ dispose: () => {}, flush: async () => {}, isPending: () => false }) };
+    if (name.includes("authProbe") || name.includes("/auth")) return {
+      probeBackendAuth: async () => ({ ok: true, status: 200, isUnauthorized: false }),
+    };
     return require(name);
   } });
   return exports;

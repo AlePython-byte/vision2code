@@ -345,3 +345,222 @@ test("13. no Supabase service-role secret is ever expected or accepted by deskto
   }
 });
 
+test("14. signUp with user and null session maps to AWAITING_EMAIL_CONFIRMATION", async () => {
+  const mockUser = createMockSupabaseUser({
+    id: "usr-pending-confirm",
+    email: "confirm@example.com",
+    email_confirmed_at: null as any,
+    confirmed_at: null as any,
+    confirmation_sent_at: "2026-03-01T12:00:00Z" as any,
+  });
+
+  const mockClient = createMockSupabaseClient({
+    signUp: async () => ({
+      data: { user: mockUser, session: null },
+      error: null,
+    }),
+  });
+
+  const provider = createSupabaseAuthProvider(mockClient);
+  const result = await provider.signUp({ email: "confirm@example.com", password: "Password123!" });
+
+  assert.equal(result.requiresEmailConfirmation, true);
+  assert.equal(result.session, null);
+  assert.equal(result.user.id, "usr-pending-confirm");
+  assert.equal(result.user.email, "confirm@example.com");
+  assert.equal(result.user.emailVerified, false);
+});
+
+test("15. signUp with user and active session maps to immediate authenticated session", async () => {
+  const mockUser = createMockSupabaseUser({ id: "usr-active", email: "active@example.com" });
+  const mockSession = createMockSupabaseSession(mockUser);
+
+  const mockClient = createMockSupabaseClient({
+    signUp: async () => ({
+      data: { user: mockUser, session: mockSession },
+      error: null,
+    }),
+  });
+
+  const provider = createSupabaseAuthProvider(mockClient);
+  const result = await provider.signUp({ email: "active@example.com", password: "Password123!" });
+
+  assert.equal(result.requiresEmailConfirmation, false);
+  assert.ok(result.session);
+  assert.equal(result.session.user.id, "usr-active");
+  assert.equal(result.user.id, "usr-active");
+});
+
+test("16. user with email_confirmed_at null and confirmed_at null maps to emailVerified false", () => {
+  const user = mapSupabaseUser({
+    id: "usr-null-dates",
+    email: "unconfirmed@example.com",
+    email_confirmed_at: null,
+    confirmed_at: null,
+  } as any);
+
+  assert.equal(user.emailVerified, false);
+  assert.equal(user.id, "usr-null-dates");
+  assert.equal(user.email, "unconfirmed@example.com");
+});
+
+test("17. user with confirmation_sent_at populated maps safely to domain AuthUser", () => {
+  const user = mapSupabaseUser({
+    id: "usr-with-sent-at",
+    email: "sent@example.com",
+    confirmation_sent_at: "2026-03-01T15:30:00.000Z",
+    email_confirmed_at: null,
+  } as any);
+
+  assert.equal(user.id, "usr-with-sent-at");
+  assert.equal(user.email, "sent@example.com");
+  assert.equal(user.emailVerified, false);
+  // Ensure extra raw fields do NOT leak into domain AuthUser
+  assert.equal((user as any).confirmation_sent_at, undefined);
+});
+
+test("18. optional metadata fields missing map safely to domain AuthUser", () => {
+  const minimalUser: User = {
+    id: "usr-minimal",
+    email: "minimal@example.com",
+  } as any;
+
+  const user = mapSupabaseUser(minimalUser);
+  assert.equal(user.id, "usr-minimal");
+  assert.equal(user.email, "minimal@example.com");
+  assert.equal(user.emailVerified, false);
+});
+
+test("19. user.email absent or empty falls back to input email safely", () => {
+  const userWithoutEmail: User = {
+    id: "usr-no-email",
+    email: undefined as any,
+  } as any;
+
+  const user = mapSupabaseUser(userWithoutEmail, "input@example.com");
+  assert.equal(user.id, "usr-no-email");
+  assert.equal(user.email, "input@example.com");
+});
+
+test("20. Supabase error with code/status maps to domain-safe errors without UNKNOWN", () => {
+  // Rate limit / 429 / over_email_send_rate_limit
+  const emailRateLimitError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 429,
+    code: "over_email_send_rate_limit",
+    message: "email rate limit exceeded",
+  });
+  assert.equal(emailRateLimitError.code, "RATE_LIMITED");
+
+  // Rate limit / over_request_rate_limit
+  const requestRateLimitError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 429,
+    code: "over_request_rate_limit",
+    message: "request rate limit exceeded",
+  });
+  assert.equal(requestRateLimitError.code, "RATE_LIMITED");
+
+  // Rate limit by status 429 without code
+  const status429Only = mapSupabaseError({
+    name: "AuthApiError",
+    status: 429,
+    message: "Too many requests",
+  });
+  assert.equal(status429Only.code, "RATE_LIMITED");
+
+  // Rate limit by code without status
+  const codeOnlyRateLimit = mapSupabaseError({
+    name: "AuthApiError",
+    code: "over_email_send_rate_limit",
+    message: "slow down",
+  });
+  assert.equal(codeOnlyRateLimit.code, "RATE_LIMITED");
+
+  // Email already registered with code email_exists
+  const emailExistsError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 422,
+    code: "email_exists",
+    message: "Email address already registered",
+  });
+  assert.equal(emailExistsError.code, "EMAIL_ALREADY_REGISTERED");
+
+  // Email already registered with user_already_exists
+  const userAlreadyExistsError = mapSupabaseError({
+    name: "AuthApiError",
+    code: "user_already_exists",
+    message: "A user with this email address has already been registered",
+  });
+  assert.equal(userAlreadyExistsError.code, "EMAIL_ALREADY_REGISTERED");
+
+  // Email already registered with message evidence
+  const messageDuplicateError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 422,
+    message: "User with this email already exists",
+  });
+  assert.equal(messageDuplicateError.code, "EMAIL_ALREADY_REGISTERED");
+
+  // Generic 422 without duplicate evidence maps to VALIDATION_FAILED
+  const generic422Error = mapSupabaseError({
+    name: "AuthApiError",
+    status: 422,
+    message: "Unprocessable Entity",
+  });
+  assert.equal(generic422Error.code, "VALIDATION_FAILED");
+
+  // Weak password / validation
+  const weakPasswordError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 400,
+    code: "weak_password",
+    message: "Password should be at least 6 characters",
+  });
+  assert.equal(weakPasswordError.code, "VALIDATION_FAILED");
+
+  // Server error / 500+
+  const serverError = mapSupabaseError({
+    name: "AuthApiError",
+    status: 503,
+    message: "Service unavailable",
+  });
+  assert.equal(serverError.code, "NETWORK_ERROR");
+
+  // True network failure (status 0, failed to fetch)
+  const networkError = mapSupabaseError({
+    name: "AuthRetryableFetchError",
+    status: 0,
+    message: "Failed to fetch",
+  });
+  assert.equal(networkError.code, "NETWORK_ERROR");
+});
+
+test("21. successful confirmation-required response must NOT become UNKNOWN in AuthModel", async () => {
+  const mockUser = createMockSupabaseUser({
+    id: "usr-valid-signup",
+    email: "registered@example.com",
+    email_confirmed_at: null as any,
+    confirmed_at: null as any,
+    confirmation_sent_at: "2026-03-01T12:00:00Z" as any,
+  });
+
+  const mockClient = createMockSupabaseClient({
+    signUp: async () => ({
+      data: { user: mockUser, session: null },
+      error: null,
+    }),
+  });
+
+  const provider = createSupabaseAuthProvider(mockClient);
+  const model = createAuthModel(provider, { autoRestore: false });
+
+  await model.signUp({ email: "registered@example.com", password: "ValidPassword123!" });
+
+  const snapshot = model.getSnapshot();
+  assert.notEqual(snapshot.status, "ERROR");
+  assert.notEqual(snapshot.error, "UNKNOWN");
+  assert.equal(snapshot.status, "AWAITING_EMAIL_CONFIRMATION");
+  assert.equal(snapshot.user?.email, "registered@example.com");
+});
+

@@ -9,6 +9,7 @@ export type AuthErrorCode =
   | "NETWORK_ERROR"
   | "SESSION_EXPIRED"
   | "VALIDATION_FAILED"
+  | "RATE_LIMITED"
   | "UNKNOWN";
 
 /**
