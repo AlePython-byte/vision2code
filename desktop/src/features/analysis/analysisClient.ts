@@ -1,8 +1,9 @@
 import { AnalysisResponseSchema, ApiErrorResponseSchema } from "@vision2code/contracts";
 import type { AnalysisResponse, ApiErrorCode } from "@vision2code/contracts";
 import type { Screenshot } from "../screenshot/loadScreenshot.ts";
+import { resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
+export { DEFAULT_API_BASE_URL, resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
 
-export const DEFAULT_API_BASE_URL = "http://localhost:3000/api/v1";
 export const ANALYSIS_REQUEST_TIMEOUT_MS = 150_000;
 
 const errorMessages: Record<ApiErrorCode, string> = {
@@ -27,14 +28,6 @@ export class AnalysisClientError extends Error {
 }
 
 export type AnalyzeScreenshot = (screenshot: Screenshot, signal: AbortSignal) => Promise<AnalysisResponse>;
-
-export function resolveApiBaseUrl(value?: string): string {
-  const url = new URL(value?.trim() || DEFAULT_API_BASE_URL);
-  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
-    throw new Error("Invalid analysis API base URL.");
-  }
-  return url.href.replace(/\/$/, "");
-}
 
 export function createAnalysisClient(
   baseUrl?: string,

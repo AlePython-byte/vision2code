@@ -1,4 +1,4 @@
-import { resolveApiBaseUrl } from "../analysis/analysisClient.ts";
+import { resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
 
 export interface ProbeResult {
   readonly ok: boolean;
