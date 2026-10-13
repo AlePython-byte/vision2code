@@ -178,11 +178,15 @@ export function createSupabaseAuthProvider(
         }
 
         if (!data.session) {
-          console.info("[Auth] restore session found: no");
+          if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+            console.info("[Auth] restore session found: no");
+          }
           return null;
         }
 
-        console.info("[Auth] restore session found: yes");
+        if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+          console.info("[Auth] restore session found: yes");
+        }
         return mapSupabaseSession(data.session);
       } catch (err) {
         if (signal?.aborted) {

@@ -11,6 +11,35 @@ export function isTauriEnvironment(): boolean {
   );
 }
 
+function isDebug(): boolean {
+  try {
+    return Boolean(
+      (typeof import.meta !== "undefined" && import.meta.env?.DEV) ||
+      (typeof globalThis !== "undefined" && (globalThis as any).process?.env?.NODE_ENV !== "production")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function debugLog(...args: unknown[]): void {
+  if (isDebug()) {
+    console.info(...args);
+  }
+}
+
+function debugWarn(...args: unknown[]): void {
+  if (isDebug()) {
+    console.warn(...args);
+  }
+}
+
+function debugError(...args: unknown[]): void {
+  if (isDebug()) {
+    console.error(...args);
+  }
+}
+
 export interface StrongholdStore {
   get(key: string): Promise<Uint8Array | null>;
   insert(key: string, value: number[], lifetime?: number): Promise<void>;
@@ -92,7 +121,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     if (!this.initPromise) {
       this.initPromise = (async () => {
         try {
-          console.info("[Stronghold] initialization started");
+          debugLog("[Stronghold] initialization started");
 
           // 1. Resolve snapshot path via backend get_vault_path command (matches app_local_data_dir exactly)
           // or fallback to path plugin appLocalDataDir if available
@@ -119,7 +148,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
             const { invoke } = await import("@tauri-apps/api/core");
             vaultKey = await invoke<string>("get_vault_key");
           }
-          console.info("[Stronghold] credential key retrieved:", vaultKey ? "yes" : "no");
+          debugLog("[Stronghold] credential key retrieved:", vaultKey ? "yes" : "no");
 
           // 3. Load or initialize Stronghold snapshot
           let stronghold: StrongholdInstance;
@@ -130,27 +159,27 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
             stronghold = (await Stronghold.load(snapshotPath, vaultKey)) as unknown as StrongholdInstance;
           }
           this.strongholdInstance = stronghold;
-          console.info("[Stronghold] vault loaded: yes");
+          debugLog("[Stronghold] vault loaded: yes");
 
           // 4. Load or create client
           let client: StrongholdClient;
           try {
             client = await stronghold.loadClient(this.clientName);
-            console.info("[Stronghold] client loaded");
+            debugLog("[Stronghold] client loaded");
           } catch {
             client = await stronghold.createClient(this.clientName);
-            console.info("[Stronghold] client created");
+            debugLog("[Stronghold] client created");
           }
 
           this.storeInstance = client.getStore();
-          console.info("[AuthStorage] selected backend: stronghold");
+          debugLog("[AuthStorage] selected backend: stronghold");
         } catch (err) {
           this.initError = err instanceof Error ? err : new Error(String(err));
-          console.warn(
+          debugWarn(
             "[AuthStorage] Stronghold unavailable — using ephemeral memory fallback",
             this.initError.name ?? "Error"
           );
-          console.info("[AuthStorage] selected backend: memory");
+          debugLog("[AuthStorage] selected backend: memory");
         }
       })();
     }
@@ -164,10 +193,10 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     }
     const currentSave = this.saveQueue.then(async () => {
       await this.strongholdInstance!.save();
-      console.info("[Stronghold] snapshot save succeeded");
+      debugLog("[Stronghold] snapshot save succeeded");
     });
     this.saveQueue = currentSave.catch((err) => {
-      console.error(
+      debugError(
         "[Stronghold] snapshot save failed",
         err instanceof Error ? err.name : "Error"
       );
@@ -176,31 +205,31 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   }
 
   async getItem(key: string): Promise<string | null> {
-    console.info(`[Stronghold] getItem called: ${key}`);
+    debugLog(`[Stronghold] getItem called: ${key}`);
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
       const val = await this.memoryFallback.getItem(key);
-      console.info(`[Stronghold] record exists: ${val !== null ? "yes" : "no"}`);
+      debugLog(`[Stronghold] record exists: ${val !== null ? "yes" : "no"}`);
       return val;
     }
 
     try {
       const bytes: Uint8Array | null = await this.storeInstance.get(key);
       if (!bytes || bytes.length === 0) {
-        console.info("[Stronghold] record exists: no");
+        debugLog("[Stronghold] record exists: no");
         return null;
       }
-      console.info("[Stronghold] record exists: yes");
+      debugLog("[Stronghold] record exists: yes");
       return new TextDecoder().decode(bytes);
     } catch {
-      console.info("[Stronghold] record exists: no");
+      debugLog("[Stronghold] record exists: no");
       return this.memoryFallback.getItem(key);
     }
   }
 
   async setItem(key: string, value: string): Promise<void> {
-    console.info(`[Stronghold] setItem called: ${key}`);
+    debugLog(`[Stronghold] setItem called: ${key}`);
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
@@ -219,22 +248,22 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   }
 
   async removeItem(key: string): Promise<void> {
-    console.info(`[Stronghold] removeItem called: ${key}`);
+    debugLog(`[Stronghold] removeItem called: ${key}`);
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
       this.memoryFallback.removeItem(key);
-      console.info("[Stronghold] removeItem succeeded");
+      debugLog("[Stronghold] removeItem succeeded");
       return;
     }
 
     try {
       await this.storeInstance.remove(key);
       await this.flushSave();
-      console.info("[Stronghold] removeItem succeeded");
+      debugLog("[Stronghold] removeItem succeeded");
     } catch (err) {
       this.memoryFallback.removeItem(key);
-      console.error(
+      debugError(
         "[Stronghold] removeItem failed",
         err instanceof Error ? err.name : "Error"
       );

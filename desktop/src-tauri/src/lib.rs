@@ -10,11 +10,15 @@ pub fn get_or_create_vault_master_key() -> Result<String, String> {
 
     match entry.get_password() {
         Ok(existing_key) if !existing_key.trim().is_empty() => {
-            eprintln!("[Stronghold] credential key retrieved: yes");
+            if cfg!(debug_assertions) {
+                eprintln!("[Stronghold] credential key retrieved: yes");
+            }
             Ok(existing_key.trim().to_string())
         }
         Ok(_) | Err(keyring::Error::NoEntry) => {
-            eprintln!("[Stronghold] credential key retrieved: no (generating new)");
+            if cfg!(debug_assertions) {
+                eprintln!("[Stronghold] credential key retrieved: no (generating new)");
+            }
             // Generate a random 256-bit (32 bytes) master key using OS CSPRNG
             let mut key_bytes = [0u8; 32];
             getrandom::getrandom(&mut key_bytes).map_err(|e| e.to_string())?;
@@ -25,7 +29,9 @@ pub fn get_or_create_vault_master_key() -> Result<String, String> {
             Ok(key_hex)
         }
         Err(err) => {
-            eprintln!("[Stronghold] credential key error: {}", err);
+            if cfg!(debug_assertions) {
+                eprintln!("[Stronghold] credential key error: {}", err);
+            }
             Err(format!("OS credential storage error: {}", err))
         }
     }

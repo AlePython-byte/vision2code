@@ -17,6 +17,7 @@ import {
   type AuthUser,
   AuthDomainError,
   probeBackendAuth,
+  resetActiveProbeForTesting,
 } from "../src/features/auth/index.ts";
 
 function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
@@ -30,6 +31,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     exports,
     require: (name: string) => {
       if (name in overrides) return overrides[name];
+      if (name.endsWith(".css")) return {};
       if (name === "lucide-react") return lucide;
       if (name.endsWith("/useLabels") || name === "./useLabels") {
         return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
@@ -530,5 +532,154 @@ test("22. responsive structural semantics remain valid", () => {
 
   assert.ok(html.includes("designer@example.com"));
   assert.ok(html.includes(es.signOut));
+});
+
+test("23. SESSION_EXPIRED error renders clear message on login screen", async () => {
+  const provider = createMockProvider({
+    restoreSession: async () => null,
+  });
+  const model = createAuthModel(provider, { autoRestore: false });
+  await model.expireSession("SESSION_EXPIRED");
+
+  assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
+  assert.equal(model.getSnapshot().error, "SESSION_EXPIRED");
+
+  const { Login } = loadComponent("login/Login.tsx");
+  const html = renderToStaticMarkup(React.createElement(Login, { authModel: model }));
+
+  assert.ok(html.includes("auth-error-banner"));
+  assert.ok(html.includes(es.authErrorSESSION_EXPIRED));
+  assert.ok(html.includes("<form"));
+});
+
+test("24. backend auth probe 500 error does NOT mark session unauthorized", async () => {
+  resetActiveProbeForTesting();
+  const mockTransport = async () => {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  const result = await probeBackendAuth(
+    async () => "active-valid-token",
+    "http://localhost:3000/api/v1",
+    mockTransport as any
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 500);
+  assert.equal(result.isUnauthorized, false);
+});
+
+test("25. backend auth probe network failure does NOT mark session unauthorized", async () => {
+  resetActiveProbeForTesting();
+  const mockTransport = async () => {
+    throw new TypeError("Failed to fetch (backend is offline)");
+  };
+
+  const result = await probeBackendAuth(
+    async () => "active-valid-token",
+    "http://localhost:3000/api/v1",
+    mockTransport as any
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 0);
+  assert.equal(result.isUnauthorized, false);
+});
+
+test("26. backend auth probe with null access token does not invoke transport", async () => {
+  resetActiveProbeForTesting();
+  let transportCalled = false;
+  const mockTransport = async () => {
+    transportCalled = true;
+    throw new Error("Transport must not be called when access token is null");
+  };
+
+  const result = await probeBackendAuth(
+    async () => null,
+    "http://localhost:3000/api/v1",
+    mockTransport as any
+  );
+
+  assert.equal(transportCalled, false);
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 401);
+  assert.equal(result.isUnauthorized, true);
+});
+
+test("27. backend auth probe deduplication merges concurrent in-flight calls", async () => {
+  resetActiveProbeForTesting();
+  let fetchCount = 0;
+  const mockTransport = async () => {
+    fetchCount++;
+    await new Promise((r) => setTimeout(r, 20));
+    return new Response(JSON.stringify({ user: { id: "u-concurrent" } }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  const [res1, res2] = await Promise.all([
+    probeBackendAuth(async () => "token-dedup", "http://localhost:3000/api/v1", mockTransport as any),
+    probeBackendAuth(async () => "token-dedup", "http://localhost:3000/api/v1", mockTransport as any),
+  ]);
+
+  assert.equal(fetchCount, 1);
+  assert.equal(res1.ok, true);
+  assert.equal(res2.ok, true);
+  assert.equal(res1.user?.id, "u-concurrent");
+  assert.equal(res2.user?.id, "u-concurrent");
+});
+
+test("28. probe with AbortSignal cancellation aborts cleanly", async () => {
+  resetActiveProbeForTesting();
+  const abortedSignal = AbortSignal.abort();
+  const result = await probeBackendAuth(
+    async () => "token",
+    "http://localhost:3000/api/v1",
+    undefined,
+    abortedSignal
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.isUnauthorized, false);
+});
+
+test("29. production App shell has no demo button or demo bypass", () => {
+  const provider = createMockProvider({
+    restoreSession: async () => null,
+  });
+  const model = createAuthModel(provider, { autoRestore: false });
+  // UNAUTHENTICATED
+  model.clearError();
+
+  const { Login } = loadComponent("login/Login.tsx");
+  // In production, Login is mounted without onDemo prop
+  const html = renderToStaticMarkup(React.createElement(Login, { authModel: model }));
+
+  assert.equal(html.includes("demo-entry"), false);
+  assert.equal(html.includes(es.demoEntry), false);
+  assert.equal(html.includes(es.demoLabel), false);
+});
+
+test("30. all 8 domain error codes have valid localized representations", () => {
+  const errorCodes = [
+    "INVALID_CREDENTIALS",
+    "EMAIL_NOT_CONFIRMED",
+    "EMAIL_ALREADY_REGISTERED",
+    "NETWORK_ERROR",
+    "SESSION_EXPIRED",
+    "VALIDATION_FAILED",
+    "RATE_LIMITED",
+    "UNKNOWN",
+  ] as const;
+
+  for (const code of errorCodes) {
+    const esKey = `authError${code}` as keyof typeof es;
+    const enKey = `authError${code}` as keyof typeof en;
+    assert.ok(typeof es[esKey] === "string" && es[esKey].length > 0, `Missing ES localization for ${code}`);
+    assert.ok(typeof en[enKey] === "string" && en[enKey].length > 0, `Missing EN localization for ${code}`);
+  }
 });
 

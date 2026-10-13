@@ -562,3 +562,40 @@ test("18. returnToSignIn resets AWAITING_EMAIL_CONFIRMATION back to UNAUTHENTICA
   assert.equal(networkCalls, callsBefore);
 });
 
+test("19. expireSession transitions to UNAUTHENTICATED with SESSION_EXPIRED error and calls provider.signOut", async () => {
+  let signOutCalled = false;
+  const user = createMockUser();
+  const provider: AuthProvider = {
+    async restoreSession(): Promise<AuthSession | null> {
+      return { user };
+    },
+    async signIn(): Promise<AuthSession> {
+      return { user };
+    },
+    signUp: dummySignUp,
+    async signOut(): Promise<void> {
+      signOutCalled = true;
+    },
+  };
+
+  const model = createAuthModel(provider, { autoRestore: false });
+  await model.restoreSession();
+  assert.equal(model.getSnapshot().status, "AUTHENTICATED");
+
+  await model.expireSession("SESSION_EXPIRED");
+
+  assert.equal(signOutCalled, true);
+  assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
+  assert.equal(model.getSnapshot().user, null);
+  assert.equal(model.getSnapshot().error, "SESSION_EXPIRED");
+});
+
+test("20. expireSession defaults to SESSION_EXPIRED error code", async () => {
+  const provider = createUnconfiguredAuthProvider();
+  const model = createAuthModel(provider, { autoRestore: false });
+  await model.expireSession();
+
+  assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
+  assert.equal(model.getSnapshot().error, "SESSION_EXPIRED");
+});
+

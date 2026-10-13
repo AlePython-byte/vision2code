@@ -11,6 +11,7 @@ export interface AuthModel {
   signIn(input: unknown): Promise<void>;
   signUp(input: unknown): Promise<void>;
   signOut(): Promise<void>;
+  expireSession(error?: AuthErrorCode): Promise<void>;
   clearError(): void;
   returnToSignIn(): void;
   getAccessToken(): Promise<string | null>;
@@ -180,6 +181,22 @@ export function createAuthModel(
         await provider.signOut(op.signal);
       } catch {
         // Sign-out errors do not prevent local unauthentication
+      } finally {
+        if (op.id === activeOperationId) {
+          controller = null;
+        }
+      }
+    },
+
+    async expireSession(error: AuthErrorCode = "SESSION_EXPIRED"): Promise<void> {
+      const op = beginOperation();
+      // Invalidate active session and transition to UNAUTHENTICATED with error banner
+      update({ status: "UNAUTHENTICATED", user: null, error });
+
+      try {
+        await provider.signOut(op.signal);
+      } catch {
+        // Sign-out errors do not prevent local session expiration
       } finally {
         if (op.id === activeOperationId) {
           controller = null;

@@ -107,7 +107,7 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
         // Backend auth probe validation: verify NestJS accepts the bearer token
         void probeBackendAuth(authModel.getAccessToken).then((probe) => {
           if (probe.isUnauthorized) {
-            void authModel.signOut();
+            void authModel.expireSession("SESSION_EXPIRED");
           }
         });
         onAuthSuccess?.();
