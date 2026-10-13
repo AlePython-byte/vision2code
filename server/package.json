@@ -8,12 +8,14 @@
     "prebuild": "npm run build --workspace @vision2code/contracts",
     "build": "tsc --project tsconfig.json",
     "start": "node --env-file-if-exists=.env dist/main.js",
-    "test": "npm run build && tsc --project tsconfig.test.json && node --test dist/tests/*.test.js"
+    "test": "npm run build && tsc --project tsconfig.test.json && node --test dist/tests/*.test.js",
+    "test:db": "node --env-file-if-exists=.env --experimental-strip-types scripts/smoke-test-db.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.1.0",
     "@nestjs/core": "^12.1.0",
     "@nestjs/platform-express": "^12.1.0",
+    "@prisma/client": "^6.19.3",
     "@vision2code/contracts": "0.1.0",
     "jose": "^6.2.12",
     "openai": "^7.25.0",
@@ -26,6 +28,7 @@
     "@types/express": "^5.0.0",
     "@types/multer": "^2.3.0",
     "@types/node": "^24.0.0",
+    "prisma": "^6.19.3",
     "typescript": "~6.0.3"
   }
 }
