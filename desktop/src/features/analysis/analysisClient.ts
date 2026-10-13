@@ -14,6 +14,7 @@ const errorMessages: Record<ApiErrorCode, string> = {
   INVALID_REQUEST: "No se pudo enviar la captura. Revisa la imagen y vuelve a intentarlo.",
   NOT_FOUND: "El servicio de análisis no está disponible en esta dirección.",
   INTERNAL_ERROR: "No se pudo completar el análisis. Inténtalo de nuevo.",
+  UNAUTHORIZED: "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
 };
 
 export class AnalysisClientError extends Error {
@@ -35,7 +36,11 @@ export function resolveApiBaseUrl(value?: string): string {
   return url.href.replace(/\/$/, "");
 }
 
-export function createAnalysisClient(baseUrl?: string, transport: typeof fetch = globalThis.fetch): AnalyzeScreenshot {
+export function createAnalysisClient(
+  baseUrl?: string,
+  transport: typeof fetch = globalThis.fetch,
+  getAccessToken?: () => Promise<string | null>
+): AnalyzeScreenshot {
   return async (screenshot, signal) => {
     const controller = new AbortController();
     let timedOut = false;
@@ -54,9 +59,20 @@ export function createAnalysisClient(baseUrl?: string, transport: typeof fetch =
       body.set("image", screenshot.file.slice(0, screenshot.file.size, mime), screenshot.file.name);
       body.set("viewportWidth", String(screenshot.width));
       body.set("viewportHeight", String(screenshot.height));
-      const response = await transport(`${endpoint}/analyses`, {
-        method: "POST", body, signal: controller.signal, credentials: "omit", redirect: "error",
-      });
+      const init: RequestInit = {
+        method: "POST",
+        body,
+        signal: controller.signal,
+        credentials: "omit",
+        redirect: "error",
+      };
+      if (getAccessToken) {
+        const token = await getAccessToken();
+        if (token) {
+          init.headers = { Authorization: `Bearer ${token}` };
+        }
+      }
+      const response = await transport(`${endpoint}/analyses`, init);
       controller.signal.throwIfAborted();
       const payload: unknown = await response.json().catch(() => null);
       controller.signal.throwIfAborted();

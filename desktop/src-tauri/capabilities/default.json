@@ -1,7 +1,15 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The static application shell requires no native permissions.",
+  "description": "Desktop capability configuration for Vision2Code",
   "windows": ["main"],
-  "permissions": []
+  "permissions": [
+    "stronghold:allow-initialize",
+    "stronghold:allow-create-client",
+    "stronghold:allow-load-client",
+    "stronghold:allow-get-store-record",
+    "stronghold:allow-save-store-record",
+    "stronghold:allow-remove-store-record",
+    "stronghold:allow-save"
+  ]
 }

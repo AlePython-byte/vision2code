@@ -17,6 +17,7 @@ const errorMessages: Record<ApiErrorCode, string> = {
   AI_RATE_LIMITED: "El servicio de análisis está temporalmente limitado. Inténtalo nuevamente.",
   AI_UNAVAILABLE: "El servicio de análisis no está disponible temporalmente.",
   AI_OUTPUT_INVALID: "No se pudo interpretar correctamente la interfaz.",
+  UNAUTHORIZED: "No autorizado. Se requiere un token de acceso válido.",
 };
 
 @Catch()
@@ -29,7 +30,13 @@ export class ApiExceptionFilter implements ExceptionFilter<unknown> {
     const response = context.getResponse<Response>();
     const requestId = request.requestId ?? randomUUID();
     let status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    let code: ApiErrorCode = status >= 500 ? "INTERNAL_ERROR" : status === 404 ? "NOT_FOUND" : "INVALID_REQUEST";
+    let code: ApiErrorCode = status >= 500
+      ? "INTERNAL_ERROR"
+      : status === 404
+        ? "NOT_FOUND"
+        : status === 401
+          ? "UNAUTHORIZED"
+          : "INVALID_REQUEST";
     if (exception instanceof ApiHttpException) code = exception.code;
     else if (exception instanceof InvalidAnalysisOutputError) { status = 502; code = "AI_OUTPUT_INVALID"; }
     else if (exception instanceof ProviderFailureError) {

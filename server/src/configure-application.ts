@@ -21,7 +21,7 @@ export function configureApplication(app: NestExpressApplication): void {
     origin: ["http://localhost:1420", "http://127.0.0.1:1420", "tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"],
     credentials: false,
     methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "X-Request-Id"],
+    allowedHeaders: ["Content-Type", "X-Request-Id", "Authorization"],
     exposedHeaders: ["X-Request-Id"],
   });
   app.useGlobalFilters(new ApiExceptionFilter());

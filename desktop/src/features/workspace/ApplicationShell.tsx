@@ -1,4 +1,4 @@
-import { ScanLine, Code2, Folder, Library, Settings, LogIn } from "lucide-react";
+import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import { useState, useEffect } from "react";
 import { Workspace } from "./Workspace";
@@ -9,8 +9,15 @@ import { createPreviewModel } from "../preview/previewModel";
 import { PreviewPanel } from "../preview/PreviewPanel";
 import { syncEditorToPreview } from "../preview/previewSync";
 import type { GeneratedProject } from "../generation/generatedProject";
+import type { AuthUser } from "../auth/authTypes.ts";
 
-export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
+export function ApplicationShell({
+  onLogin,
+  user,
+}: {
+  onLogin: () => void;
+  user?: AuthUser | null;
+}) {
   const { t } = useLabels();
   const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
   const [editorModel] = useState(createEditorModel);
@@ -41,8 +48,29 @@ export function ApplicationShell({ onLogin }: { onLogin: () => void }) {
           <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
           <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} aria-label={t("settings")} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
         </div>
-        <button type="button" className="navigation-item" aria-label={t("loginScreen")} title={t("loginScreen")} onClick={onLogin}><LogIn aria-hidden="true" /><small>{t("login")}</small></button>
-        <span className="navigation-note">V/2<br />0.1.0</span>
+        <button
+          type="button"
+          className="navigation-item"
+          aria-label={user ? t("signOut") : t("loginScreen")}
+          title={user ? `${t("signOut")} (${user.email})` : t("loginScreen")}
+          onClick={onLogin}
+        >
+          {user ? <LogOut aria-hidden="true" /> : <LogIn aria-hidden="true" />}
+          <small>{user ? t("signOut") : t("login")}</small>
+        </button>
+        <span className="navigation-note" title={user?.email || "Vision2Code"}>
+          {user?.email ? (
+            <>
+              <span style={{ maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block", verticalAlign: "bottom" }}>
+                {user.email}
+              </span>
+              <br />
+            </>
+          ) : (
+            <>V/2<br /></>
+          )}
+          0.1.0
+        </span>
       </nav>
       <div className="shell-content">
         <div hidden={view !== "capture"}><Workspace onGenerated={openProject} /></div>
