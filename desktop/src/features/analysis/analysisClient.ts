@@ -2,6 +2,7 @@ import { AnalysisResponseSchema, ApiErrorResponseSchema } from "@vision2code/con
 import type { AnalysisResponse, ApiErrorCode } from "@vision2code/contracts";
 import type { Screenshot } from "../screenshot/loadScreenshot.ts";
 import { resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
+import { screenshotMimeType } from "../screenshot/validation.ts";
 export { DEFAULT_API_BASE_URL, resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
 
 export const ANALYSIS_REQUEST_TIMEOUT_MS = 150_000;
@@ -47,7 +48,7 @@ export function createAnalysisClient(
       try { endpoint = resolveApiBaseUrl(baseUrl); }
       catch { throw new AnalysisClientError("La dirección del servicio de análisis no es válida."); }
       const body = new FormData();
-      const mime = { PNG: "image/png", JPEG: "image/jpeg", WEBP: "image/webp" }[screenshot.format];
+      const mime = screenshotMimeType(screenshot.format);
       // Use the validated format even when the operating system provided no MIME type.
       body.set("image", screenshot.file.slice(0, screenshot.file.size, mime), screenshot.file.name);
       body.set("viewportWidth", String(screenshot.width));

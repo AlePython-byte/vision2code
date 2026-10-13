@@ -1,7 +1,7 @@
 import { ScanLine, Code2 } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import type { GeneratedProject } from "../generation/generatedProject";
-import { useState, useSyncExternalStore } from "react";
+import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { OutputStackSchema } from "@vision2code/contracts";
 import { ScreenshotInput } from "../screenshot/ScreenshotInput";
 import { useScreenshot } from "../screenshot/useScreenshot";
@@ -10,16 +10,28 @@ import { useAnalysis } from "./useAnalysis";
 import { createGenerationProfileModel, type GenerationProfileModel } from "./generationProfileModel";
 import { VisualFidelitySelector } from "./VisualFidelitySelector";
 
+/** Project targeting supplied by the workspace; the console itself never depends on the projects feature. */
+export interface CaptureProjectTarget {
+  /** Read once when analysis starts; the captured value travels with the result. */
+  getSelectedProjectId: () => string | null;
+  /** A new analysis or screenshot replaces the previous generation session. */
+  onAnalysisReplaced: () => void;
+  /** undefined: no analysis started yet; null: the running/finished analysis has no project. */
+  render: (analysisTargetProjectId: string | null | undefined) => ReactNode;
+}
+
 export function CaptureConsole({
   onGenerated,
   profileModel: externalProfileModel,
+  projectTarget,
 }: {
-  onGenerated: (project: GeneratedProject) => void;
+  onGenerated: (artifact: CompletedGenerationArtifact) => void;
   profileModel?: GenerationProfileModel;
+  projectTarget?: CaptureProjectTarget | undefined;
 }) {
   const { t, message } = useLabels();
   const screenshot = useScreenshot();
-  const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING");
+  const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING", projectTarget?.onAnalysisReplaced);
   const [profileModel] = useState(() => externalProfileModel ?? createGenerationProfileModel());
   const profile = useSyncExternalStore(profileModel.subscribe, profileModel.getSnapshot, profileModel.getSnapshot);
   const analyzing = state.status === "ANALYZING";
@@ -77,10 +89,11 @@ export function CaptureConsole({
             <textarea id="generation-instructions" disabled rows={2} placeholder={t("instructionsHelp")} />
           </div>
           <p className="input-help">{t("profileHelp")}</p>
+          {projectTarget?.render(state.context ? state.context.targetProjectId : undefined)}
           <div className="analysis-actions">
             <button className="action-button primary-action" type="button"
               disabled={!canAnalyze(state) || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
-              aria-describedby="analysis-help" onClick={() => { void model.analyze(); }}>
+              aria-describedby="analysis-help" onClick={() => { void model.analyze({ targetProjectId: projectTarget?.getSelectedProjectId() ?? null, fidelity: profile.fidelity }); }}>
               {analyzing ? t("analyzingButton") : state.status === "ERROR" ? t("retry") : state.status === "SUCCESS" ? t("reanalyze") : t("analyze")}
               <ScanLine aria-hidden="true" />
             </button>
@@ -98,7 +111,7 @@ export function CaptureConsole({
             {state.result && <>
               <button type="button" className="action-button primary-action"
                 disabled={profile.outputStack !== "REACT_TAILWIND" || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
-                onClick={() => { const project = model.generateReactProject(); if (project) onGenerated(project); }}>
+                onClick={() => { const artifact = model.generateArtifact(); if (artifact) onGenerated(artifact); }}>
                 <Code2 aria-hidden="true" />{t("generate")}</button>
               {profile.outputStack === "HTML_CSS" && <p className="input-help">{t("htmlSoon")}</p>}
               <p className="input-help">{t("replaceProject")}</p>

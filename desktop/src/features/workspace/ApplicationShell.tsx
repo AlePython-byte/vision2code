@@ -1,6 +1,6 @@
 import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Workspace } from "./Workspace";
 import { EditorWorkspace } from "../editor/EditorWorkspace";
 import { SettingsScreen } from "../settings/SettingsScreen";
@@ -9,19 +9,27 @@ import { createPreviewModel } from "../preview/previewModel";
 import { PreviewPanel } from "../preview/PreviewPanel";
 import { syncEditorToPreview } from "../preview/previewSync";
 import type { GeneratedProject } from "../generation/generatedProject";
+import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
 import type { AuthUser } from "../auth/authTypes.ts";
+import type { WorkspaceServices } from "./workspaceServices";
 
 export function ApplicationShell({
   onLogin,
   user,
+  services,
+  editorStatus,
 }: {
   onLogin: () => void;
   user?: AuthUser | null;
+  /** User-scoped models owned by the app boundary; without them the shell keeps local, unsaved state only. */
+  services?: WorkspaceServices | undefined;
+  /** Optional status line rendered above the code workspace (temporary save feedback, TASK 009C). */
+  editorStatus?: ReactNode;
 }) {
   const { t } = useLabels();
   const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
-  const [editorModel] = useState(createEditorModel);
-  const [previewModel] = useState(() => createPreviewModel());
+  const [editorModel] = useState(() => services?.editorModel ?? createEditorModel());
+  const [previewModel] = useState(() => services?.previewModel ?? createPreviewModel());
 
   useEffect(() => {
     const sync = syncEditorToPreview(editorModel, previewModel);
@@ -36,6 +44,23 @@ export function ApplicationShell({
     void previewModel.render();
     setView("editor");
   }
+
+  function completeGeneration(artifact: CompletedGenerationArtifact) {
+    // The session loads the code immediately and persists in the background.
+    if (services) void services.generationSession.complete(artifact);
+    else openProject(artifact.generatedProject);
+    setView("editor");
+  }
+
+  const [projects] = useState(() => services && {
+    projectsModel: services.projectsModel,
+    generationSession: services.generationSession,
+    onOpenGeneration: (projectId: string, generationId: string) => {
+      void services.generationSession.openGeneration(projectId, generationId).then((opened) => {
+        if (opened) setView("editor");
+      });
+    },
+  });
   return (
     <div className="application-shell">
       <a className="skip-link" href={view === "capture" ? "#workspace" : view === "editor" ? "#code-workspace" : "#settings-workspace"}>{t("skip")}</a>
@@ -73,8 +98,8 @@ export function ApplicationShell({
         </span>
       </nav>
       <div className="shell-content">
-        <div hidden={view !== "capture"}><Workspace onGenerated={openProject} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
+        <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} /></div>
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}>{editorStatus}<EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>

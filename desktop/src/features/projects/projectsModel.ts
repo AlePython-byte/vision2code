@@ -1,4 +1,4 @@
-import type { ProjectDetail, ProjectSummary } from "@vision2code/contracts";
+import type { GenerationSummary, ProjectDetail, ProjectSummary } from "@vision2code/contracts";
 import { ProjectsClientError } from "./projectsClient.ts";
 import type { ProjectsClient, ProjectsErrorCode } from "./projectsClient.ts";
 
@@ -18,6 +18,18 @@ function safeCode(error: unknown): ProjectsErrorCode {
 
 function byUpdatedAt(projects: readonly ProjectSummary[]): ProjectSummary[] {
   return [...projects].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+function latest(current: string, candidate: string): string {
+  return Date.parse(candidate) > Date.parse(current) ? candidate : current;
+}
+
+function toSummary(generation: GenerationSummary): GenerationSummary {
+  return {
+    id: generation.id, projectId: generation.projectId, sourceImagePath: generation.sourceImagePath,
+    sourceImageName: generation.sourceImageName, sourceImageMimeType: generation.sourceImageMimeType,
+    generationTarget: generation.generationTarget, fidelityMode: generation.fidelityMode, createdAt: generation.createdAt,
+  };
 }
 
 export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () => void) {
@@ -66,17 +78,44 @@ export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () 
       const wrapped = listRequest;
       return wrapped;
     },
-    async createProject(name: string): Promise<void> {
+    /** Resolves with the confirmed project, or null on failure; it never changes the selection. */
+    async createProject(name: string): Promise<ProjectSummary | null> {
       ++listEpoch;
       listRequest = null;
       const session = sessionEpoch;
       update({ status: "SAVING", error: null });
       try {
         const project = await client.createProject({ name });
-        if (session !== sessionEpoch) return;
+        if (session !== sessionEpoch) return null;
         loaded = true;
         update({ projects: Object.freeze([project, ...state.projects.filter((item) => item.id !== project.id)]), status: "READY" });
-      } catch (error) { if (session === sessionEpoch) fail(error); }
+        return project;
+      } catch (error) {
+        if (session === sessionEpoch) fail(error);
+        return null;
+      }
+    },
+    /** Applies a confirmed generation locally so the list and detail stay current without a refetch. */
+    recordGeneration(projectId: string, generation: GenerationSummary): void {
+      if (generation.projectId !== projectId) return;
+      const summary = toSummary(generation);
+      const known = state.projects.some((item) => item.id === projectId);
+      const selected = state.selectedProject?.id === projectId ? state.selectedProject : null;
+      if (!known && !selected) return;
+      const projects = state.projects.map((item) => item.id !== projectId ? item : {
+        ...item,
+        updatedAt: latest(item.updatedAt, summary.createdAt),
+        ...(item.generationCount === undefined ? {} : { generationCount: item.generationCount + 1 }),
+        latestGenerationId: summary.id,
+      });
+      update({
+        projects: Object.freeze(byUpdatedAt(projects)),
+        selectedProject: selected ? {
+          ...selected,
+          updatedAt: latest(selected.updatedAt, summary.createdAt),
+          generations: [summary, ...selected.generations.filter((item) => item.id !== summary.id)],
+        } : state.selectedProject,
+      });
     },
     async selectProject(id: string | null): Promise<void> {
       const epoch = ++selectionEpoch;
@@ -141,3 +180,4 @@ export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () 
     },
   };
 }
+export type ProjectsModel = ReturnType<typeof createProjectsModel>;
