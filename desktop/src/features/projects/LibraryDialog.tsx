@@ -100,7 +100,7 @@ function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscar
                   {[0, 1].map((row) => <li key={row} className="history-entry" aria-hidden="true"><span className="history-led" /><span className="history-bar" /></li>)}
                 </ul>}
                 {entry?.status === "ERROR" && <div className="history-error" role="alert">
-                  <p>{t("libraryError")}</p>
+                  <p>{t(entry.items.length > 0 ? "libraryStale" : "libraryError")}</p>
                   <button type="button" className="action-button secondary-button" onClick={() => { void library.retry(project.id); }}>
                     <RotateCw aria-hidden="true" />{t("historyRetry")}
                   </button>

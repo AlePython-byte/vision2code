@@ -1,3 +1,4 @@
+import { createAnalysisClient, type AnalyzeScreenshot } from "../analysis/analysisClient.ts";
 import type { AuthState } from "../auth/authTypes.ts";
 import { createEditorModel, type EditorModel } from "../editor/editorModel.ts";
 import { bindGenerationToasts } from "../feedback/generationToasts.ts";
@@ -26,6 +27,8 @@ export interface WorkspaceServices {
   readonly toasts: ToastModel;
   /** Loads a project into the editor and the preview without touching persistence. */
   readonly loadProject: (project: GeneratedProject) => void;
+  /** Screenshot analysis with the session's bearer token; a 401 calls onUnauthorized. */
+  readonly analyzeScreenshot: AnalyzeScreenshot;
   /** Clears every user-scoped state: projects, selection, generation session, editor, preview and toasts. */
   readonly reset: () => void;
 }
@@ -33,7 +36,7 @@ export interface WorkspaceServices {
 export interface WorkspaceServicesOptions {
   /** Token source owned by the auth feature; no model stores the token. */
   readonly getAccessToken: () => Promise<string | null>;
-  /** Injected so projects and generation never import the auth feature. */
+  /** Injected so projects, generation and analysis never import the auth feature. */
   readonly onUnauthorized: () => void;
   readonly baseUrl?: string;
   readonly transport?: typeof fetch;
@@ -48,6 +51,9 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const previewModel = options.previewModel ?? createPreviewModel();
   const client = createProjectsClient(options.getAccessToken, options.baseUrl, options.transport);
   const projectsModel = createProjectsModel(client, options.onUnauthorized);
+  const analyzeScreenshot = createAnalysisClient(options.baseUrl, options.transport, {
+    getAccessToken: options.getAccessToken, onUnauthorized: options.onUnauthorized,
+  });
   function loadProject(project: GeneratedProject) {
     editorModel.setProject(project);
     previewModel.setProject(project);
@@ -64,7 +70,7 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const toasts = createToastModel(options.toastScheduler);
   const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
   return {
-    editorModel, previewModel, projectsModel, generationSession, history, library, discardGuard, toasts, loadProject,
+    editorModel, previewModel, projectsModel, generationSession, history, library, discardGuard, toasts, loadProject, analyzeScreenshot,
     reset() {
       discardGuard.cancel();
       generationSession.reset();

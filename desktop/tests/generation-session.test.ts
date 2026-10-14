@@ -451,6 +451,94 @@ test("reset discards in-flight save and restore responses", async () => {
   assert.equal(expired, 0, "responses from a previous session cannot expire the next one");
 });
 
+// ---- Generating again after a restore (TASK 009F) -------------------------------------------
+
+/** Analysis result A completed into the session, then generation one restored over it. */
+async function analyzedThenRestored(save: ProjectsClient["createGeneration"] = async (projectId, body) => detailFrom(projectId, body, generationTwo)) {
+  const s = setup({ createGeneration: (projectId, body) => { s.calls.push({ method: "createGeneration", projectId, body }); return save(projectId, body); } });
+  const analysis = countedAnalysis();
+  analysis.model.setScreenshot(screenshot());
+  const run = analysis.model.analyze({ targetProjectId: projectA, fidelity: "balanced" });
+  analysis.pending[0]!.resolve(analysisResult());
+  await run;
+  return { ...s, analysis, saving: s.session.complete(analysis.model.generateArtifact()!) };
+}
+const saveCount = (calls: { method: string }[]) => calls.filter((call) => call.method === "createGeneration").length;
+
+test("restoring and then generating the same analysis result again never saves it twice", async () => {
+  const s = await analyzedThenRestored();
+  await s.saving;
+  assert.equal(s.session.getSnapshot().generationId, generationTwo);
+  assert.equal(await s.session.openGeneration(projectA, generationOne), true);
+  assert.equal(s.session.getSnapshot().origin, "RESTORED");
+  await s.session.complete(s.analysis.model.generateArtifact()!);
+  assert.equal(saveCount(s.calls), 1, "the analysis result is persisted once");
+  const state = s.session.getSnapshot();
+  assert.equal(state.origin, "GENERATED");
+  assert.equal(state.saveStatus, "SAVED");
+  assert.equal(state.generationId, generationTwo, "returns to the generation it was saved as");
+  assert.equal(state.projectId, projectA);
+  assert.equal(s.analysis.counts.analyze, 1, "no new analysis");
+  assert.equal(s.loads.length, 3, "generated, restored, then the generated code again");
+});
+
+test("a save still in flight when restoring finishes in the background and is never repeated", async () => {
+  const save = deferred<GenerationDetail>();
+  const s = await analyzedThenRestored(() => save.promise);
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVING");
+  await s.session.openGeneration(projectA, generationOne);
+  save.resolve(storedGeneration(projectA, generationTwo));
+  await s.saving;
+  assert.equal(s.session.getSnapshot().origin, "RESTORED", "the late save never overwrites the restored result");
+  assert.equal(s.session.getSnapshot().generationId, generationOne);
+  await s.session.complete(s.analysis.model.generateArtifact()!);
+  assert.equal(saveCount(s.calls), 1);
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVED");
+  assert.equal(s.session.getSnapshot().generationId, generationTwo);
+});
+
+test("returning to a result whose save is still pending waits for that same save", async () => {
+  const save = deferred<GenerationDetail>();
+  const s = await analyzedThenRestored(() => save.promise);
+  await s.session.openGeneration(projectA, generationOne);
+  await s.session.complete(s.analysis.model.generateArtifact()!);
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVING");
+  save.resolve(storedGeneration(projectA, generationTwo));
+  await s.saving;
+  assert.equal(saveCount(s.calls), 1);
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVED");
+  assert.equal(s.session.getSnapshot().generationId, generationTwo);
+});
+
+test("a failed save survives a restore: returning keeps SAVE_FAILED and retry reuses the stored artifact", async () => {
+  let fail = true;
+  const s = await analyzedThenRestored(async (projectId, body) => {
+    if (fail) throw new ProjectsClientError("SERVER_ERROR");
+    return detailFrom(projectId, body, generationTwo);
+  });
+  await s.saving;
+  const failedArtifact = s.session.getSnapshot().artifact;
+  await s.session.openGeneration(projectA, generationOne);
+  await s.session.complete(s.analysis.model.generateArtifact()!);
+  assert.equal(saveCount(s.calls), 1, "returning never re-sends on its own");
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVE_FAILED");
+  assert.equal(s.session.getSnapshot().artifact, failedArtifact, "same stored artifact");
+  fail = false;
+  await s.session.retrySave();
+  assert.equal(saveCount(s.calls), 2);
+  assert.equal(s.session.getSnapshot().saveStatus, "SAVED");
+  assert.equal(s.analysis.counts.analyze, 1);
+});
+
+test("a new analysis result after a restore is saved normally", async () => {
+  const s = await analyzedThenRestored();
+  await s.saving;
+  await s.session.openGeneration(projectA, generationOne);
+  await s.session.complete(artifact({ fidelityMode: "FAST" }));
+  assert.equal(saveCount(s.calls), 2);
+  assert.equal(s.session.getSnapshot().origin, "GENERATED");
+});
+
 test("generator stays pure: no projects, auth, api or persistence imports", () => {
   const source = readFileSync(new URL("../src/features/generation/generateReactProject.ts", import.meta.url), "utf8");
   const imports = [...source.matchAll(/^import .* from "([^"]+)";$/gm)].map((match) => match[1]);

@@ -89,7 +89,7 @@ There is no frontend router or global state library. Screenshot selection remain
 
 ## Backend foundation
 
-The NestJS server exposes `GET /api/v1/health`, `POST /api/v1/analyses`, `GET /api/v1/auth/me`, and the authenticated `/api/v1/projects` routes described in [Projects and persistence](#projects-and-persistence). Health returns:
+The NestJS server exposes the public `GET /api/v1/health` and the authenticated `POST /api/v1/analyses`, `GET /api/v1/auth/me`, and `/api/v1/projects` routes described in [Projects and persistence](#projects-and-persistence). Every authenticated route uses `SupabaseAuthGuard` and answers 401 `UNAUTHORIZED` without a valid bearer token. Health returns:
 
 ```json
 { "status": "ok", "service": "vision2code-api" }
@@ -131,11 +131,13 @@ Ordinary HTTP exceptions retain their status. A 404 maps to `NOT_FOUND`, other o
 
 CORS explicitly allows the Vite origins `http://localhost:1420` and `http://127.0.0.1:1420`, plus packaged desktop origins `tauri://localhost`, `http://tauri.localhost`, and `https://tauri.localhost`. GET, POST, PATCH, and DELETE are permitted without credentials (PATCH and DELETE serve project rename and delete), with `Content-Type`, `X-Request-Id`, and `Authorization` as allowed request headers; `X-Request-Id` is exposed. Unlisted browser origins receive no CORS permission; CORS is not authentication. No wildcard origin, HTTP plugin, or new native capability is used.
 
-`AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. The production adapter uses the official `openai` SDK. The analysis path has no persistence, provider fallback, or code generation; authentication and persistence belong to the separate `auth` and `projects` modules.
+`AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. The production adapter uses the official `openai` SDK. The analysis path has no persistence, provider fallback, or code generation; it reuses `SupabaseAuthGuard` from the `auth` module, and persistence belongs to the separate `projects` module.
 
 ## Screenshot analysis API
 
 `POST /api/v1/analyses` accepts `multipart/form-data` with exactly one file named `image` and two text fields, `viewportWidth` and `viewportHeight`. Dimensions must be positive safe integers in decimal notation. `targetStack`, other extra fields, duplicate dimensions, additional files, JSON bodies, and user-supplied image URLs are rejected.
+
+The route requires `Authorization: Bearer <Supabase access token>`, verified exactly like the projects routes. Nest runs guards before interceptors, so a request without a valid token is rejected with 401 before the upload is parsed or validated and before the AI provider is called; an invalid body without a token is also 401. The provider costs money per call, so this route is never public.
 
 The server independently accepts only PNG (`image/png`), JPEG (`image/jpeg`), and WEBP (`image/webp`), up to and including 10,000,000 bytes (10 decimal MB). Nest's Multer interceptor buffers the upload in memory with bounded file and field limits; no destination path or disk storage is configured. Validation checks MIME, non-empty bytes, file signature, size, and dimensions. It does not fully decode the image or verify that supplied dimensions match encoded dimensions. A supported signature is not proof of a fully decodable image; malformed image data may still be rejected by the provider. Filenames and paths are not sent to OpenAI or returned to clients.
 
@@ -153,6 +155,7 @@ The API excludes generated code, reasoning, token usage, and raw provider intern
 
 | Failure | HTTP | API code |
 | --- | --- | --- |
+| Missing, malformed, expired or foreign-signed bearer token | 401 | `UNAUTHORIZED` |
 | Missing file, invalid dimensions, malformed multipart or extra fields | 400 | `INVALID_REQUEST` |
 | Unsupported MIME, empty bytes or mismatched signature | 415 | `UNSUPPORTED_IMAGE` |
 | Image above 10 MB | 413 | `IMAGE_TOO_LARGE` |
@@ -167,10 +170,16 @@ Development analysis diagnostics are emitted as JSON console records with contex
 
 ### Optional manual live request
 
-This procedure performs one real analysis and consumes paid OpenAI API usage. It is never executed by automated tests. Set `OPENAI_API_KEY` in your ignored `server/.env`, retain `OPENAI_MODEL=gpt-6.1-sol`, and run `npm.cmd run server:dev`. In a second PowerShell terminal, replace the example path and dimensions with those of a real supported screenshot, then execute once:
+This procedure performs one real analysis and consumes paid OpenAI API usage. It is never executed by automated tests. Set `OPENAI_API_KEY` and `SUPABASE_URL` in your ignored `server/.env`, retain `OPENAI_MODEL=gpt-6.1-sol`, and run `npm.cmd run server:dev`. Obtain a current access token by signing in through the desktop or Supabase (never paste it into files or logs). In a second PowerShell terminal, replace the token, example path and dimensions, then execute once:
 
 ```powershell
-curl.exe --request POST "http://localhost:3000/api/v1/analyses" --header "X-Request-Id: manual-analysis-001" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
+curl.exe --request POST "http://localhost:3000/api/v1/analyses" --header "X-Request-Id: manual-analysis-001" --header "Authorization: Bearer <access-token>" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
+```
+
+Without the `Authorization` header the same command returns HTTP 401 with code `UNAUTHORIZED` and makes no OpenAI call, which is a free way to check the protection:
+
+```powershell
+curl.exe --include --request POST "http://localhost:3000/api/v1/analyses" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
 ```
 
 Expect HTTP 200 with the same request ID and validated UISchema v1. A provider or validation failure returns the standard Spanish error envelope. The desktop also exposes this analysis through its Capture Console; neither entry point generates code.
@@ -208,7 +217,7 @@ The desktop retains the original validated File and decoded dimensions in memory
 
 The Capture Console composes screenshot selection with a small feature boundary in `desktop/src/features/analysis/`:
 
-- `analysisClient.ts`: browser fetch transport, multipart construction, shared success/error contract validation, and fixed Spanish error messages. It sends only `image`, `viewportWidth`, and `viewportHeight` using browser-decoded dimensions and the validated MIME. The browser sets the multipart boundary. No profile settings, output stack, provider key, or provider configuration are sent.
+- `analysisClient.ts`: browser fetch transport, multipart construction, shared success/error contract validation, and fixed Spanish error messages. The workspace services build it with the injected `getAccessToken` and `onUnauthorized` (the analysis feature never imports auth): it sends `Authorization: Bearer <token>`, sends nothing without a token, and a missing token or HTTP 401 calls `onUnauthorized` once per request; 5xx, rate limits and network errors never expire the session. It sends only `image`, `viewportWidth`, and `viewportHeight` using browser-decoded dimensions and the validated MIME. The browser sets the multipart boundary. No profile settings, output stack, provider key, or provider configuration are sent.
 - `analysisModel.ts`: React-independent screen-scoped state with `IDLE`, `READY`, `ANALYZING`, `SUCCESS`, and `ERROR`. `getSnapshot().result` stores validated `{ requestId, uiSchema }`. The model exposes synchronous React/Tailwind generation from `result.uiSchema` without importing a component or invoking the provider. State is not persisted.
 - `useAnalysis.ts`: subscribes React to the model, synchronizes validated selection, and aborts/disposes work on unmount.
 - `CaptureConsole.tsx`: presentation and feature composition, including the profile panel, primary action, cancellation, and Spanish announcements.
@@ -318,8 +327,10 @@ Desktop (`desktop/src/features/projects/` and `generation/`):
 
 - `projectsClient.ts`: typed HTTP client that validates responses with the shared contracts and maps failures to safe codes (`UNAUTHORIZED`, `NOT_FOUND`, `VALIDATION_FAILED`, `NETWORK_ERROR`, `SERVER_ERROR`, `UNKNOWN`).
 - `projectsModel.ts`: project list, selection, create/rename/delete, with epochs that discard stale responses.
-- `generationSessionModel.ts`: single owner of the current result. The target project is captured at analysis start (`targetProjectId`); the result is shown immediately and then saved in the background. Retrying reuses the stored artifact and project, and never analyzes or generates again. Save status is `IDLE`, `PROJECT_REQUIRED`, `NOT_PERSISTABLE`, `SAVING`, `SAVED`, or `SAVE_FAILED`. Opening a stored generation restores its code into the editor and preview without analysis or generation. `sourceImagePath` is always sent as `null`; screenshot storage is deferred.
-- `ProjectVault.tsx`, `NewProjectDialog.tsx`, `ProjectChip.tsx` with `vaultActions.ts`, `vaultSelectors.ts`, `vaultKeyboard.ts`, and `projectTargetActions.ts`: searchable vault, create/rename/delete flows, opening a project or its latest generation, and the project chip used in the Capture Console. Navigation lives in the shell (`projects`, `capture`, `editor`, `settings`; the library entry is disabled).
+- `generationSessionModel.ts`: single owner of the current result. The target project is captured at analysis start (`targetProjectId`); the result is shown immediately and then saved in the background. Retrying reuses the stored artifact and project, and never analyzes or generates again. Save status is `IDLE`, `PROJECT_REQUIRED`, `NOT_PERSISTABLE`, `SAVING`, `SAVED`, or `SAVE_FAILED`. Opening a stored generation restores its code into the editor and preview without analysis or generation. An analysis result is persisted at most once per session: restoring keeps the last generated result and its save outcome, so generating that same result again returns to it (same stored artifact, generation id and status, including a pending or failed save) instead of saving a duplicate. `sourceImagePath` is always sent as `null`; screenshot storage is deferred.
+- `ProjectVault.tsx`, `NewProjectDialog.tsx`, `ProjectChip.tsx` with `vaultActions.ts`, `vaultSelectors.ts`, `vaultKeyboard.ts`, and `projectTargetActions.ts`: searchable vault, create/rename/delete flows, opening a project or its latest generation, and the project chip used in the Capture Console. Navigation lives in the shell (`projects`, `capture`, `editor`, `settings`).
+- `generationHistoryModel.ts`, `GenerationHistoryTray.tsx`, `discardGuard.ts`, `DiscardDialog.tsx`: per-project history of the current result in the Code view and the single app-level confirmation before unsaved edits are replaced.
+- `libraryModel.ts`, `LibraryDialog.tsx`, `libraryActions.ts`: the Library dialog opened from the rail or the Code view project name; it lazily loads each project's generations with its own model and opens them through the same discard guard and restore flow. A failed refresh keeps the cached list and says so.
 
 Known limitation: there are no idempotency keys, so retrying a save after a response was lost post-commit can store a duplicate generation.
 

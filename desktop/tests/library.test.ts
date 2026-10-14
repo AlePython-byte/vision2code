@@ -297,6 +297,25 @@ test("per-project states: loading skeleton, no generations, error with Retry, no
   assert.ok(dialogHtml("es", empty).includes(es.projectsLoading) || dialogHtml("es", empty).includes(es.libraryEmpty));
 });
 
+test("a failed refresh over a cached list says the list is stale, not that there is no data (ES/EN)", async () => {
+  let fail = false;
+  const w = world(async (id) => { if (fail) throw new ProjectsClientError("NETWORK_ERROR"); return id === projectA ? [a1, a2] : []; });
+  await w.projects.loadProjects();
+  await w.library.loadProject(projectA);
+  fail = true;
+  await w.library.loadProject(projectA);
+  w.library.openDialog(projectA, null);
+  for (const [language, labels] of [["es", es], ["en", en]] as const) {
+    const out = dialogHtml(language, w);
+    const escaped = (value: string) => value.replaceAll("'", "&#x27;");
+    assert.ok(out.includes(escaped(labels.libraryStale)), language);
+    assert.ok(!out.includes(escaped(labels.libraryError)), "not the empty-load message");
+    assert.ok(out.includes(labels.historyRetry), "Retry stays available");
+    assert.equal((out.match(/class="history-entry"/g) ?? []).length, 2, "cached entries stay visible");
+  }
+  assert.equal(es.libraryStale, "No se pudo actualizar. Mostrando lo último cargado.");
+});
+
 test("accordion expands lazily: only the expanded project is requested, one open at a time", async () => {
   const w = world();
   await w.projects.loadProjects();

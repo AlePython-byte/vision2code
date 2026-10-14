@@ -54,20 +54,27 @@ function own<T>(value: T): T {
   return deepFreeze(structuredClone(value));
 }
 
+type SaveOutcome = Pick<GenerationSessionState, "artifact" | "projectId" | "generationId" | "saveStatus" | "saveError" | "saveAttempts">;
+
 /**
  * Single owner of the current generation result and its cloud persistence.
- * Every complete/open/clear/reset starts a new epoch; responses from an older epoch are discarded.
+ * A save response only updates the session while that same stored artifact is shown; responses for
+ * a replaced result are discarded (the project list still records committed generations).
  * Retrying reuses the stored artifact and its captured project; it never analyzes or generates again.
+ *
+ * One analysis result is persisted at most once per session: restoring another generation keeps the
+ * last generated result and its save outcome, so generating that same result again returns to it
+ * (same stored artifact, generation id and status, a pending save included) instead of saving twice.
  */
 export function createGenerationSessionModel(deps: GenerationSessionDependencies) {
   const initial = { artifact: null, origin: null, projectId: null, generationId: null,
     saveStatus: "IDLE", saveError: null, saveAttempts: 0, restoreStatus: "IDLE", restoreError: null } as const;
   let state: GenerationSessionState = Object.freeze({ ...initial, revision: 0 });
-  let epoch = 0;
   let restoreEpoch = 0;
   let resetEpoch = 0;
   // Identity of the last artifact handed to complete(); re-opening the same result never saves twice.
-  let lastInput: { artifact: CompletedGenerationArtifact; loadable: boolean } | null = null;
+  // While a restored generation is shown, `outcome` keeps this result's own save state.
+  let lastInput: { artifact: CompletedGenerationArtifact; loadable: boolean; outcome: SaveOutcome | null } | null = null;
   const listeners = new Set<() => void>();
 
   function update(changes: Partial<Omit<GenerationSessionState, "revision">>) {
@@ -79,7 +86,15 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
     if (code === "UNAUTHORIZED" && reset === resetEpoch) deps.onUnauthorized?.();
   }
 
-  async function save(artifact: CompletedGenerationArtifact, projectId: string, current: number): Promise<void> {
+  const showing = (artifact: CompletedGenerationArtifact) => state.origin === "GENERATED" && state.artifact === artifact;
+
+  /** Applies a save result to the session, or to the remembered outcome while a restore is shown. */
+  function settle(artifact: CompletedGenerationArtifact, changes: Partial<SaveOutcome>) {
+    if (showing(artifact)) update(changes);
+    else if (lastInput?.outcome?.artifact === artifact) lastInput.outcome = { ...lastInput.outcome, ...changes };
+  }
+
+  async function save(artifact: CompletedGenerationArtifact, projectId: string): Promise<void> {
     const reset = resetEpoch;
     update({ saveStatus: "SAVING", saveError: null, saveAttempts: state.saveAttempts + 1 });
     const body: CreateGenerationInput = {
@@ -96,13 +111,12 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
       if (reset !== resetEpoch) return;
       // The server committed this generation, so the project list reflects it even if the session moved on.
       deps.projects?.recordGeneration(projectId, generation);
-      if (current !== epoch) return;
-      update({ saveStatus: "SAVED", saveError: null, generationId: generation.id });
+      settle(artifact, { saveStatus: "SAVED", saveError: null, generationId: generation.id });
     } catch (error) {
       const code = safeCode(error);
       unauthorized(code, reset);
-      if (current !== epoch || reset !== resetEpoch) return;
-      update({ saveStatus: "SAVE_FAILED", saveError: code });
+      if (reset !== resetEpoch) return;
+      settle(artifact, { saveStatus: "SAVE_FAILED", saveError: code });
     }
   }
 
@@ -117,13 +131,22 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
         if (lastInput.loadable) deps.loadProject(state.artifact.generatedProject);
         return Promise.resolve();
       }
-      const current = ++epoch;
+      const remembered = lastInput?.artifact === artifact ? lastInput.outcome : null;
+      if (lastInput && remembered?.artifact) {
+        // Same analysis result after a restore: return to it with its own save outcome; never save again.
+        ++restoreEpoch;
+        const loadable = lastInput.loadable;
+        lastInput = { artifact, loadable, outcome: null };
+        if (loadable) deps.loadProject(remembered.artifact.generatedProject);
+        update({ ...remembered, origin: "GENERATED", restoreStatus: "IDLE", restoreError: null });
+        return Promise.resolve();
+      }
       ++restoreEpoch;
       const project = GeneratedProjectSchema.safeParse(artifact.generatedProject);
       const schema = UISchemaSchema.safeParse(artifact.uiSchema);
       const stored = own(project.success && schema.success
         ? { ...artifact, generatedProject: project.data, uiSchema: schema.data } : artifact);
-      lastInput = { artifact, loadable: project.success };
+      lastInput = { artifact, loadable: project.success, outcome: null };
       if (project.success) deps.loadProject(stored.generatedProject);
       const base = { artifact: stored, origin: "GENERATED" as const, projectId: artifact.targetProjectId,
         generationId: null, saveError: null, saveAttempts: 0, restoreStatus: "IDLE" as const, restoreError: null };
@@ -136,7 +159,7 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
         return Promise.resolve();
       }
       update({ ...base, saveStatus: "IDLE" });
-      return save(stored, artifact.targetProjectId, current);
+      return save(stored, artifact.targetProjectId);
     },
 
     /**
@@ -147,7 +170,7 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
     retrySave(): Promise<void> {
       const { artifact, saveStatus, projectId } = state;
       if (saveStatus !== "SAVE_FAILED" || artifact === null || projectId === null) return Promise.resolve();
-      return save(artifact, projectId, epoch);
+      return save(artifact, projectId);
     },
 
     /** Restores a stored generation without analysis or generation; failures keep the current work untouched. */
@@ -169,8 +192,11 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
         update({ restoreStatus: "FAILED", restoreError: "UNKNOWN" });
         return false;
       }
-      ++epoch;
-      lastInput = null;
+      // Keep the generated result (and its save outcome) so generating it again never saves twice.
+      if (lastInput && state.origin === "GENERATED") {
+        const { artifact: shown, projectId: shownProject, generationId, saveStatus, saveError, saveAttempts } = state;
+        lastInput.outcome = { artifact: shown, projectId: shownProject, generationId, saveStatus, saveError, saveAttempts };
+      }
       const artifact = own<CompletedGenerationArtifact>({
         uiSchema: generation.uiSchema,
         generatedProject: generation.generatedProject,
@@ -192,7 +218,6 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
 
     /** A new analysis or screenshot replaces the result; pending responses for it are discarded. */
     clear() {
-      ++epoch;
       ++restoreEpoch;
       lastInput = null;
       if (state.artifact !== null || state.restoreStatus !== "IDLE") update(initial);
@@ -200,7 +225,6 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
 
     /** Session boundary (sign-out or expiration): drop everything and ignore every in-flight response. */
     reset() {
-      ++epoch;
       ++restoreEpoch;
       ++resetEpoch;
       lastInput = null;

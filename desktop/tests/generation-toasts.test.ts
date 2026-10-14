@@ -211,6 +211,25 @@ test("dismissing a toast never changes the session status or the stored artifact
   assert.equal(s.session.getSnapshot().saveStatus, "SAVE_FAILED");
 });
 
+test("toast viewport floats over the app without blocking clicks; toasts themselves stay interactive", () => {
+  const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const rules = (selector: string) => [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter((match) => match[1]!.split(",").some((part) => part.trim() === selector))
+    .map((match) => match[2]!);
+  const declares = (body: string, property: string) => body.match(new RegExp(`(?:^|;)\\s*${property}\\s*:\\s*([^;]+)`))?.[1]?.trim();
+  const viewport = rules(".toast-viewport");
+  assert.ok(viewport.length > 0, "the viewport rule exists");
+  assert.equal(declares(viewport[0]!, "position"), "fixed");
+  assert.equal(declares(viewport[0]!, "pointer-events"), "none");
+  for (const body of viewport) {
+    assert.ok([undefined, "fixed"].includes(declares(body, "position")), "no override un-fixes the viewport");
+    assert.ok([undefined, "none"].includes(declares(body, "pointer-events")), "no override makes the viewport catch clicks");
+  }
+  const capsule = rules(".toast-capsule");
+  assert.equal(declares(capsule[0]!, "pointer-events"), "auto");
+  assert.ok(capsule.every((body) => [undefined, "auto"].includes(declares(body, "pointer-events"))));
+});
+
 test("domain models and the generator never import toast code", () => {
   for (const file of ["generation/generationSessionModel.ts", "projects/projectsModel.ts", "generation/generateReactProject.ts"]) {
     const source = readFileSync(new URL("../src/features/" + file, import.meta.url), "utf8");

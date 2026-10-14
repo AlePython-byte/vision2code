@@ -1,6 +1,7 @@
 import { ScanLine, Code2 } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
+import type { AnalyzeScreenshot } from "./analysisClient";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { OutputStackSchema } from "@vision2code/contracts";
 import { ScreenshotInput } from "../screenshot/ScreenshotInput";
@@ -24,14 +25,17 @@ export function CaptureConsole({
   onGenerated,
   profileModel: externalProfileModel,
   projectTarget,
+  analyzeScreenshot,
 }: {
   onGenerated: (artifact: CompletedGenerationArtifact) => void;
   profileModel?: GenerationProfileModel;
   projectTarget?: CaptureProjectTarget | undefined;
+  /** Authenticated analysis client from the workspace services. */
+  analyzeScreenshot?: AnalyzeScreenshot | undefined;
 }) {
   const { t, message } = useLabels();
   const screenshot = useScreenshot();
-  const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING", projectTarget?.onAnalysisReplaced);
+  const { state, model } = useAnalysis(screenshot.screenshot, screenshot.status === "VALIDATING", projectTarget?.onAnalysisReplaced, analyzeScreenshot);
   const [profileModel] = useState(() => externalProfileModel ?? createGenerationProfileModel());
   const profile = useSyncExternalStore(profileModel.subscribe, profileModel.getSnapshot, profileModel.getSnapshot);
   const analyzing = state.status === "ANALYZING";

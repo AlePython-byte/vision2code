@@ -21,19 +21,30 @@ const errorMessages: Record<ApiErrorCode, string> = {
 
 export class AnalysisClientError extends Error {
   readonly requestId: string | null;
-  constructor(message: string, requestId: string | null = null) {
+  /** Safe API error code when the server sent one (or UNAUTHORIZED for a missing token). */
+  readonly code: ApiErrorCode | null;
+  constructor(message: string, requestId: string | null = null, code: ApiErrorCode | null = null) {
     super(message);
     this.name = "AnalysisClientError";
     this.requestId = requestId;
+    this.code = code;
   }
 }
 
 export type AnalyzeScreenshot = (screenshot: Screenshot, signal: AbortSignal) => Promise<AnalysisResponse>;
 
+/** Session access supplied by the composition root; the analysis feature never imports auth. */
+export interface AnalysisAuth {
+  /** Token source owned by the auth feature; the client never stores the token. */
+  readonly getAccessToken: () => Promise<string | null>;
+  /** Called once per request rejected as unauthenticated (missing token or HTTP 401), never for 5xx or network errors. */
+  readonly onUnauthorized?: (() => void) | undefined;
+}
+
 export function createAnalysisClient(
   baseUrl?: string,
   transport: typeof fetch = globalThis.fetch,
-  getAccessToken?: () => Promise<string | null>
+  auth?: AnalysisAuth
 ): AnalyzeScreenshot {
   return async (screenshot, signal) => {
     const controller = new AbortController();
@@ -41,6 +52,10 @@ export function createAnalysisClient(
     const abort = () => controller.abort();
     signal.addEventListener("abort", abort, { once: true });
     const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, ANALYSIS_REQUEST_TIMEOUT_MS);
+    const unauthorized = (requestId: string | null) => {
+      auth?.onUnauthorized?.();
+      return new AnalysisClientError(errorMessages.UNAUTHORIZED, requestId, "UNAUTHORIZED");
+    };
     try {
       if (signal.aborted) controller.abort();
       controller.signal.throwIfAborted();
@@ -60,11 +75,14 @@ export function createAnalysisClient(
         credentials: "omit",
         redirect: "error",
       };
-      if (getAccessToken) {
-        const token = await getAccessToken();
-        if (token) {
-          init.headers = { Authorization: `Bearer ${token}` };
-        }
+      if (auth) {
+        let token: string | null;
+        try { token = await auth.getAccessToken(); }
+        catch { token = null; }
+        controller.signal.throwIfAborted();
+        // Without a session there is nothing to send: the request would only be rejected.
+        if (!token?.trim()) throw unauthorized(null);
+        init.headers = { Authorization: `Bearer ${token}` };
       }
       const response = await transport(`${endpoint}/analyses`, init);
       controller.signal.throwIfAborted();
@@ -72,7 +90,8 @@ export function createAnalysisClient(
       controller.signal.throwIfAborted();
       if (!response.ok) {
         const parsed = ApiErrorResponseSchema.safeParse(payload);
-        if (parsed.success) throw new AnalysisClientError(errorMessages[parsed.data.error.code], parsed.data.error.requestId);
+        if (response.status === 401) throw unauthorized(parsed.success ? parsed.data.error.requestId : null);
+        if (parsed.success) throw new AnalysisClientError(errorMessages[parsed.data.error.code], parsed.data.error.requestId, parsed.data.error.code);
         throw new AnalysisClientError(response.status >= 500
           ? "El servicio de análisis no está disponible temporalmente. Inténtalo de nuevo."
           : "El servicio devolvió una respuesta no válida. Inténtalo de nuevo.");
