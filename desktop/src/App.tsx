@@ -1,7 +1,7 @@
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { ApplicationShell } from "./features/workspace/ApplicationShell";
 import { Login } from "./features/login/Login";
-import { GenerationSaveStatus } from "./features/generation/GenerationSaveStatus";
+import { ToastViewport } from "./features/feedback/ToastViewport";
 import { bindWorkspaceToAuth, createWorkspaceServices } from "./features/workspace/workspaceServices";
 import {
   createAuthModel,
@@ -73,7 +73,6 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
           key={authState.user?.id}
           user={authState.user}
           services={services}
-          editorStatus={<GenerationSaveStatus session={services.generationSession} projects={services.projectsModel} />}
           onLogin={() => {
             if (authState.status === "AUTHENTICATED") {
               void model.signOut();
@@ -81,6 +80,8 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
           }}
         />
       )}
+      {/* Single floating feedback layer; cleared with the rest of the user state on sign-out. */}
+      <ToastViewport model={services.toasts} />
     </>
   );
 }

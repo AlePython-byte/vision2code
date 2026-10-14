@@ -1,5 +1,7 @@
 import type { AuthState } from "../auth/authTypes.ts";
 import { createEditorModel, type EditorModel } from "../editor/editorModel.ts";
+import { bindGenerationToasts } from "../feedback/generationToasts.ts";
+import { createToastModel, type ToastModel, type ToastScheduler } from "../feedback/toastModel.ts";
 import type { GeneratedProject } from "../generation/generatedProject.ts";
 import { createGenerationSessionModel, type GenerationSessionModel } from "../generation/generationSessionModel.ts";
 import { createPreviewModel, type PreviewModel } from "../preview/previewModel.ts";
@@ -11,9 +13,11 @@ export interface WorkspaceServices {
   readonly previewModel: PreviewModel;
   readonly projectsModel: ProjectsModel;
   readonly generationSession: GenerationSessionModel;
+  /** Floating feedback; generation save/restore outcomes are bound to it here, not in the domain models. */
+  readonly toasts: ToastModel;
   /** Loads a project into the editor and the preview without touching persistence. */
   readonly loadProject: (project: GeneratedProject) => void;
-  /** Clears every user-scoped state: projects, selection, generation session, editor and preview. */
+  /** Clears every user-scoped state: projects, selection, generation session, editor, preview and toasts. */
   readonly reset: () => void;
 }
 
@@ -26,6 +30,8 @@ export interface WorkspaceServicesOptions {
   readonly transport?: typeof fetch;
   readonly editorModel?: EditorModel;
   readonly previewModel?: PreviewModel;
+  /** Injected for deterministic tests; defaults to system timers. */
+  readonly toastScheduler?: ToastScheduler;
 }
 
 export function createWorkspaceServices(options: WorkspaceServicesOptions): WorkspaceServices {
@@ -41,13 +47,16 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const generationSession = createGenerationSessionModel({
     client, projects: projectsModel, loadProject, onUnauthorized: options.onUnauthorized,
   });
+  const toasts = createToastModel(options.toastScheduler);
+  const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
   return {
-    editorModel, previewModel, projectsModel, generationSession, loadProject,
+    editorModel, previewModel, projectsModel, generationSession, toasts, loadProject,
     reset() {
       generationSession.reset();
       projectsModel.reset();
       editorModel.setProject(null);
       previewModel.clear();
+      generationToasts.reset();
     },
   };
 }

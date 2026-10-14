@@ -275,10 +275,7 @@ export const es = {
   "projectSelectFailed": "No se pudo cargar el proyecto seleccionado.",
   "analysisTargetProject": "Este análisis se guardará en: {{name}}",
   "analysisTargetLocal": "Este análisis no tiene proyecto: el resultado quedará solo en esta sesión.",
-  "resultTargetProject": "El resultado actual pertenece a: {{name}}",
-  "resultTargetLocal": "El resultado actual es solo local (sin proyecto).",
   "unknownProject": "proyecto no disponible",
-  "saveStatusSaving": "Código generado. Guardando en la nube…",
   "saveStatusSaved": "Guardado en la nube.",
   "saveStatusFailed": "Código generado, pero no se pudo guardar en la nube.",
   "saveStatusProjectRequired": "Código generado solo localmente: no había un proyecto seleccionado al iniciar el análisis.",
@@ -288,7 +285,18 @@ export const es = {
   "openingGeneration": "Abriendo generación…",
   "restoreNotFound": "Esa generación ya no existe. Tu trabajo actual se mantiene.",
   "restoreFailed": "No se pudo abrir la generación. Tu trabajo actual se mantiene.",
-  "restoredResult": "Generación restaurada desde el historial."
+  "toastEyebrowSaving": "Estado / Guardando",
+  "toastEyebrowSaved": "Estado / Guardado",
+  "toastEyebrowError": "Estado / Error",
+  "toastEyebrowLocal": "Estado / Local",
+  "toastEyebrowHistory": "Estado / Historial",
+  "toastSaving": "Guardando…",
+  "toastRestored": "Generación restaurada",
+  "toastDismiss": "Cerrar notificación",
+  "resultLinked": "Resultado asociado a: {{name}}",
+  "resultUnlinked": "Resultado sin proyecto asociado",
+  "resultUnsaved": "Sin guardar",
+  "resultRetry": "Reintentar"
 };
 export const en: Record<keyof typeof es, string> = {
   "skip": "Skip to workspace",
@@ -567,10 +575,7 @@ export const en: Record<keyof typeof es, string> = {
   "projectSelectFailed": "The selected project could not be loaded.",
   "analysisTargetProject": "This analysis will be saved to: {{name}}",
   "analysisTargetLocal": "This analysis has no project: the result stays in this session only.",
-  "resultTargetProject": "The current result belongs to: {{name}}",
-  "resultTargetLocal": "The current result is local only (no project).",
   "unknownProject": "unavailable project",
-  "saveStatusSaving": "Code generated. Saving to the cloud…",
   "saveStatusSaved": "Saved to the cloud.",
   "saveStatusFailed": "Code generated, but the cloud save failed.",
   "saveStatusProjectRequired": "Code generated locally only: no project was selected when the analysis started.",
@@ -580,7 +585,18 @@ export const en: Record<keyof typeof es, string> = {
   "openingGeneration": "Opening generation…",
   "restoreNotFound": "That generation no longer exists. Your current work is unchanged.",
   "restoreFailed": "The generation could not be opened. Your current work is unchanged.",
-  "restoredResult": "Generation restored from history."
+  "toastEyebrowSaving": "Status / Saving",
+  "toastEyebrowSaved": "Status / Saved",
+  "toastEyebrowError": "Status / Error",
+  "toastEyebrowLocal": "Status / Local",
+  "toastEyebrowHistory": "Status / History",
+  "toastSaving": "Saving…",
+  "toastRestored": "Generation restored",
+  "toastDismiss": "Dismiss notification",
+  "resultLinked": "Result linked to: {{name}}",
+  "resultUnlinked": "Result not linked to a project",
+  "resultUnsaved": "Not saved",
+  "resultRetry": "Retry"
 };
 
 // Compatibility boundary for messages produced by existing framework-independent models.

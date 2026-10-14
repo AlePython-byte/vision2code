@@ -1,6 +1,6 @@
 import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { Workspace } from "./Workspace";
 import { EditorWorkspace } from "../editor/EditorWorkspace";
 import { SettingsScreen } from "../settings/SettingsScreen";
@@ -17,14 +17,11 @@ export function ApplicationShell({
   onLogin,
   user,
   services,
-  editorStatus,
 }: {
   onLogin: () => void;
   user?: AuthUser | null;
   /** User-scoped models owned by the app boundary; without them the shell keeps local, unsaved state only. */
   services?: WorkspaceServices | undefined;
-  /** Optional status line rendered above the code workspace (temporary save feedback, TASK 009C). */
-  editorStatus?: ReactNode;
 }) {
   const { t } = useLabels();
   const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
@@ -99,7 +96,7 @@ export function ApplicationShell({
       </nav>
       <div className="shell-content">
         <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}>{editorStatus}<EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>

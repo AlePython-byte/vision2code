@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
@@ -11,13 +11,14 @@ import type { GenerationDetail } from "@vision2code/contracts";
 import { generateReactProject } from "../src/features/generation/generateReactProject.ts";
 import { createGenerationArtifact } from "../src/features/generation/generationArtifact.ts";
 import { createGenerationSessionModel } from "../src/features/generation/generationSessionModel.ts";
-import * as sessionModule from "../src/features/generation/generationSessionModel.ts";
 import { i18n } from "../src/features/preferences/i18n.ts";
 import { en, es } from "../src/features/preferences/resources.ts";
 import { ProjectsClientError } from "../src/features/projects/projectsClient.ts";
 import type { ProjectsClient } from "../src/features/projects/projectsClient.ts";
 import { createProjectsModel } from "../src/features/projects/projectsModel.ts";
 import * as actions from "../src/features/projects/projectTargetActions.ts";
+import { createToastModel } from "../src/features/feedback/toastModel.ts";
+import { fakeScheduler } from "./fake-scheduler.ts";
 import { deferred, fakeClient, generationOne, projectA, screenshot, summaryA, summaryB, uiSchemaFixture } from "./generation-fixtures.ts";
 
 function loadComponent(file: string, language: "es" | "en", overrides: Record<string, unknown> = {}) {
@@ -32,7 +33,6 @@ function loadComponent(file: string, language: "es" | "en", overrides: Record<st
       if (name === "lucide-react") return lucide;
       if (name.endsWith("/useLabels")) return { useLabels: () => ({ t: i18n.getFixedT(language) }) };
       if (name.endsWith("/projectTargetActions")) return actions;
-      if (name.endsWith("/generationSessionModel")) return sessionModule;
       return require(name);
     },
   });
@@ -40,11 +40,9 @@ function loadComponent(file: string, language: "es" | "en", overrides: Record<st
 }
 
 function components(language: "es" | "en") {
-  const { GenerationSaveStatus } = loadComponent("generation/GenerationSaveStatus.tsx", language);
-  const { ProjectTargetPanel } = loadComponent("projects/ProjectTargetPanel.tsx", language, {
-    "../generation/GenerationSaveStatus": { GenerationSaveStatus },
-  });
-  return { GenerationSaveStatus, ProjectTargetPanel };
+  const { ProjectTargetPanel } = loadComponent("projects/ProjectTargetPanel.tsx", language);
+  const { ToastViewport } = loadComponent("feedback/ToastViewport.tsx", language);
+  return { ProjectTargetPanel, ToastViewport };
 }
 
 function models(overrides: Partial<ProjectsClient> = {}) {
@@ -101,64 +99,105 @@ test("analysis target shows which project a pending result belongs to", async ()
   assert.ok(!render("es", m, undefined).includes("Este análisis"));
 });
 
-test("save status is localized for saving, saved, failed + retry, project required and non-persistable", async () => {
+test("inline result line: linked, not linked, and SAVE_FAILED with a compact retry", async () => {
   for (const language of ["es", "en"] as const) {
     const labels = language === "es" ? es : en;
-    const { GenerationSaveStatus } = components(language);
-    const renderStatus = (m: ReturnType<typeof models>) => renderToStaticMarkup(React.createElement(GenerationSaveStatus, { session: m.session, projects: m.projects }));
-
-    const pending = deferred<GenerationDetail>();
-    const saving = models({ createGeneration: () => pending.promise });
-    await saving.projects.loadProjects();
-    void saving.session.complete(artifact());
-    let html = renderStatus(saving);
-    assert.ok(html.includes(escape(labels.saveStatusSaving)), "saving");
-    assert.ok(html.includes(labels.resultTargetProject.replace("{{name}}", "Alpha")));
-    assert.ok(!html.includes(labels.saveRetry), "no retry during the first attempt");
-
     const saved = models();
+    await saved.projects.loadProjects();
     await saved.session.complete(artifact());
-    assert.ok(renderStatus(saved).includes(labels.saveStatusSaved));
-
-    let fail = true;
-    const retryPending = deferred<GenerationDetail>();
-    const failed = models({ createGeneration: () => fail ? Promise.reject(new ProjectsClientError("SERVER_ERROR")) : retryPending.promise });
-    await failed.session.complete(artifact());
-    html = renderStatus(failed);
-    assert.match(html, /data-state="SAVE_FAILED"/);
-    assert.ok(html.includes(escape(labels.saveStatusFailed)));
-    assert.match(html, new RegExp(`<button type="button" class="action-button secondary-button">${labels.saveRetry}</button>`));
-    fail = false;
-    void failed.session.retrySave();
-    assert.match(renderStatus(failed), new RegExp(`disabled="">${labels.saveRetry}</button>`), "retry disabled while saving");
+    let html = render(language, saved);
+    assert.ok(html.includes(`class="project-result-line input-help" data-state="SAVED">${labels.resultLinked.replace("{{name}}", "Alpha")}</p>`));
 
     const local = models();
     await local.session.complete(artifact(null));
-    html = renderStatus(local);
-    assert.ok(html.includes(escape(labels.saveStatusProjectRequired)));
-    assert.ok(html.includes(escape(labels.resultTargetLocal)));
+    html = render(language, local);
+    assert.ok(html.includes(`data-state="PROJECT_REQUIRED">${labels.resultUnlinked}</p>`));
 
-    const broken = models();
-    await broken.session.complete({ ...artifact(), generatedProject: { target: "react-tailwind", generatorVersion: "1", files: [] } });
-    html = renderStatus(broken);
-    assert.match(html, /data-state="NOT_PERSISTABLE"/);
-    assert.ok(html.includes(escape(labels.saveStatusNotPersistable)));
+    let fail = true;
+    const retry = deferred<GenerationDetail>();
+    const failed = models({ createGeneration: () => fail ? Promise.reject(new ProjectsClientError("SERVER_ERROR")) : retry.promise });
+    await failed.projects.loadProjects();
+    await failed.session.complete(artifact());
+    html = render(language, failed);
+    assert.ok(html.includes(` · ${labels.resultUnsaved} · `));
+    assert.ok(html.includes(`<button type="button" class="text-button" aria-label="${labels.saveRetry}">${labels.resultRetry}</button>`));
+    fail = false;
+    void failed.session.retrySave();
+    assert.ok(render(language, failed).includes(`aria-label="${labels.saveRetry}" disabled="">${labels.resultRetry}</button>`), "disabled while retrying");
   }
 });
 
-test("restore failure is reported as a localized alert", async () => {
-  const m = models({ getGeneration: async () => { throw new ProjectsClientError("NOT_FOUND"); } });
-  await m.session.openGeneration(projectA, generationOne);
-  const { GenerationSaveStatus } = components("en");
-  const html = renderToStaticMarkup(React.createElement(GenerationSaveStatus, { session: m.session, projects: m.projects }));
-  assert.match(html, /role="alert"/);
-  assert.ok(html.includes(en.restoreNotFound));
+test("no status banner remains in the capture flow", async () => {
+  const m = models({ createGeneration: async () => { throw new ProjectsClientError("SERVER_ERROR"); } });
+  await m.session.complete(artifact());
+  const html = render("es", m);
+  assert.doesNotMatch(html, /generation-save-status|role="status"/);
+  assert.ok(!html.includes(es.saveStatusFailed), "the long failure text lives in the toast");
+  assert.ok(!existsSync(new URL("../src/features/generation/GenerationSaveStatus.tsx", import.meta.url)));
+  const shell = readFileSync(new URL("../src/features/workspace/ApplicationShell.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(shell, /editorStatus/);
+  const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
+  assert.match(css, /\.project-result-line \{[^}]*height: 1\.6em;[^}]*white-space: nowrap;/, "fixed one-line height");
 });
 
-test("empty session renders no status block", () => {
-  const m = models();
-  const { GenerationSaveStatus } = components("es");
-  assert.equal(renderToStaticMarkup(React.createElement(GenerationSaveStatus, { session: m.session, projects: m.projects })), "");
+function renderViewport(language: "es" | "en", toasts: ReturnType<typeof createToastModel>) {
+  const { ToastViewport } = components(language);
+  return renderToStaticMarkup(React.createElement(ToastViewport, { model: toasts }));
+}
+
+test("toasts: errors are alerts, everything else is a polite status; icon + text always", () => {
+  const toasts = createToastModel(fakeScheduler());
+  toasts.show({ key: "a", tone: "success", eyebrow: "toastEyebrowSaved", message: "saveStatusSaved", persistent: false, durationMs: 2500 });
+  toasts.show({ key: "b", tone: "progress", eyebrow: "toastEyebrowSaving", message: "toastSaving", persistent: true });
+  toasts.show({ key: "c", tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusNotPersistable", persistent: true });
+  const html = renderViewport("es", toasts);
+  assert.match(html, /^<div class="toast-viewport">/);
+  assert.match(html, /data-tone="success" role="status" aria-live="polite"/);
+  assert.match(html, /data-tone="progress" role="status" aria-live="polite"/);
+  assert.match(html, /data-tone="error" role="alert" aria-live="assertive"/);
+  assert.equal(html.match(/class="toast-lamp" aria-hidden="true"><svg/g)?.length, 3);
+  assert.match(html, /lucide-check/);
+  assert.match(html, /lucide-loader[^"]*toast-spin|toast-spin[^"]*lucide-loader/);
+  assert.ok(html.includes(es.saveStatusSaved) && html.includes(es.toastSaving) && html.includes(es.toastEyebrowError));
+  assert.doesNotMatch(html, /autofocus|tabindex/i, "never moves focus");
+});
+
+test("toast buttons are real buttons with localized labels in ES and EN", () => {
+  for (const language of ["es", "en"] as const) {
+    const labels = language === "es" ? es : en;
+    const toasts = createToastModel(fakeScheduler());
+    toasts.show({ key: "save", tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusFailed", persistent: true, action: { label: "saveRetry", run() {} } });
+    const html = renderViewport(language, toasts);
+    assert.ok(html.includes(`<button type="button" class="toast-action" aria-label="${labels.saveRetry}">`));
+    assert.ok(html.includes(`<button type="button" class="toast-close" aria-label="${labels.toastDismiss}" title="${labels.toastDismiss}">`));
+    assert.ok(html.includes(escape(labels.saveStatusFailed)));
+  }
+});
+
+test("restore failure toast offers close only", () => {
+  const toasts = createToastModel(fakeScheduler());
+  toasts.show({ key: "generation-restore", tone: "error", eyebrow: "toastEyebrowHistory", message: "restoreNotFound", persistent: true });
+  const html = renderViewport("en", toasts);
+  assert.match(html, /role="alert"/);
+  assert.ok(html.includes(en.restoreNotFound));
+  assert.doesNotMatch(html, /toast-action/);
+  assert.match(html, /toast-close/);
+});
+
+test("viewport is fixed, out of flow, click-through, and honors reduced motion", () => {
+  const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
+  const rule = (selector: string) => css.split("\n").find((line) => line.trimStart().startsWith(selector + " {")) ?? "";
+  const viewport = rule(".toast-viewport");
+  assert.match(viewport, /position: fixed;/);
+  assert.match(viewport, /top: 16px; right: 24px;/);
+  assert.match(viewport, /pointer-events: none;/);
+  assert.match(viewport, /width: min\(360px, calc\(100vw - 32px\)\);/);
+  assert.match(rule(".toast-capsule"), /pointer-events: auto;/);
+  assert.match(css, /@media \(max-width: 560px\) \{\s*\.toast-viewport \{ top: 12px; left: 12px; right: 12px; width: auto; \}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.toast-capsule, \.toast-spin \{ animation: none !important; \}/);
+  for (const line of css.split("\n").filter((item) => /\.toast-/.test(item))) {
+    assert.doesNotMatch(line, /position: (static|sticky)|margin-(top|bottom)/, line);
+  }
 });
 
 test("selector styles reuse console tokens and every new label exists in ES and EN", () => {

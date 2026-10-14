@@ -1,7 +1,6 @@
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { FolderPlus, History } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import { GenerationSaveStatus } from "../generation/GenerationSaveStatus";
 import type { GenerationSessionModel } from "../generation/generationSessionModel";
 import type { ProjectsModel } from "./projectsModel";
 import {
@@ -32,6 +31,9 @@ export function ProjectTargetPanel({
   const [createFailed, setCreateFailed] = useState(false);
   const [creating, setCreating] = useState(false);
   const latest = latestGenerationOf(state);
+  // Shown while the save failed, and kept (disabled) during the retry so the line never jumps.
+  const unsaved = sessionState.artifact !== null && (sessionState.saveStatus === "SAVE_FAILED"
+    || (sessionState.saveStatus === "SAVING" && sessionState.saveAttempts > 1));
   const selectedId = state.selectedProjectId;
   const loadingList = state.status === "LOADING" && state.projects.length === 0;
   const selectionFailed = state.status === "ERROR" && selectedId !== null && state.selectedProject === null;
@@ -86,7 +88,7 @@ export function ProjectTargetPanel({
       <button type="button" className="action-button secondary-button"
         disabled={!selectedId || !latest || sessionState.restoreStatus === "LOADING"}
         onClick={() => { if (selectedId && latest) onOpenGeneration(selectedId, latest); }}>
-        <History aria-hidden="true" />{t("openLatestGeneration")}
+        <History aria-hidden="true" />{sessionState.restoreStatus === "LOADING" ? t("openingGeneration") : t("openLatestGeneration")}
       </button>
       {analysisTargetProjectId !== undefined && (
         <p className="input-help">
@@ -95,7 +97,19 @@ export function ProjectTargetPanel({
             : t("analysisTargetLocal")}
         </p>
       )}
-      <GenerationSaveStatus session={session} projects={projects} />
+      {/* Save/restore outcomes are floating toasts; this fixed-height line is the persistent fallback. */}
+      <p className="project-result-line input-help" data-state={sessionState.saveStatus}>
+        {sessionState.artifact && (sessionState.projectId
+          ? t("resultLinked", { name: projectName(state, sessionState.projectId) ?? t("unknownProject") })
+          : t("resultUnlinked"))}
+        {unsaved && <>
+          {" · "}{t("resultUnsaved")}{" · "}
+          <button type="button" className="text-button" aria-label={t("saveRetry")}
+            disabled={sessionState.saveStatus === "SAVING"} onClick={() => { void session.retrySave(); }}>
+            {t("resultRetry")}
+          </button>
+        </>}
+      </p>
     </div>
   );
 }
