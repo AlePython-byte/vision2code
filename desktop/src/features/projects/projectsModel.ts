@@ -12,6 +12,9 @@ export interface ProjectsState {
   readonly revision: number;
 }
 
+/** Outcome of a confirmed-by-server mutation; null when the session ended while it ran. */
+export type ProjectMutation = { readonly ok: true } | { readonly ok: false; readonly code: ProjectsErrorCode };
+
 function safeCode(error: unknown): ProjectsErrorCode {
   return error instanceof ProjectsClientError ? error.code : "UNKNOWN";
 }
@@ -56,6 +59,32 @@ export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () 
   }
 
   function stableStatus(): ProjectsStatus { return loaded ? "READY" : "IDLE"; }
+
+  /** A confirmed change wins over any list response requested before it. */
+  function supersedeList() {
+    ++listEpoch;
+    listRequest = null;
+    return state.status === "LOADING" ? stableStatus() : state.status;
+  }
+
+  /** Drops a project the server no longer has (deleted, or reported missing). */
+  function removeLocal(id: string) {
+    const status = supersedeList();
+    const selected = state.selectedProjectId === id;
+    if (selected) ++selectionEpoch;
+    update({
+      projects: Object.freeze(state.projects.filter((item) => item.id !== id)),
+      ...(selected ? { selectedProjectId: null, selectedProject: null } : {}),
+      status,
+    });
+  }
+
+  function mutationFailure(error: unknown, id: string): ProjectMutation {
+    const code = safeCode(error);
+    if (code === "UNAUTHORIZED") onUnauthorized?.();
+    if (code === "NOT_FOUND") removeLocal(id);
+    return { ok: false, code };
+  }
 
   return {
     getSnapshot: () => state,
@@ -135,40 +164,46 @@ export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () 
         if (epoch === selectionEpoch) fail(error);
       }
     },
-    async renameProject(id: string, name: string): Promise<void> {
-      ++listEpoch;
-      listRequest = null;
+    /**
+     * Pessimistic rename: nothing changes until the server confirms. The list keeps its generation
+     * counts (the rename response carries none) and re-sorts, because a rename bumps updatedAt.
+     * NOT_FOUND removes the project locally; failures never touch the list-level status or error.
+     */
+    async renameProject(id: string, name: string): Promise<ProjectMutation | null> {
       const session = sessionEpoch;
-      update({ status: "SAVING", error: null });
       try {
         const project = await client.renameProject(id, { name });
-        if (session !== sessionEpoch) return;
-        const projects = state.projects.map((item) => item.id === id ? project : item);
+        if (session !== sessionEpoch) return null;
+        const status = supersedeList();
+        const projects = state.projects.map((item) => item.id === id ? { ...item, ...project } : item);
         update({
           projects: Object.freeze(byUpdatedAt(projects)),
           selectedProject: state.selectedProjectId === id && state.selectedProject
             ? { ...state.selectedProject, name: project.name, updatedAt: project.updatedAt }
             : state.selectedProject,
-          status: stableStatus(),
+          status,
         });
-      } catch (error) { if (session === sessionEpoch) fail(error); }
+        return { ok: true };
+      } catch (error) {
+        return session === sessionEpoch ? mutationFailure(error, id) : null;
+      }
     },
-    async deleteProject(id: string): Promise<void> {
-      ++listEpoch;
-      listRequest = null;
+    /**
+     * Pessimistic delete: the project leaves the list (and the selection) only after the server confirms.
+     * NOT_FOUND means it is already gone, so it counts as success. Failures keep everything intact.
+     */
+    async deleteProject(id: string): Promise<ProjectMutation | null> {
       const session = sessionEpoch;
-      update({ status: "SAVING", error: null });
       try {
         await client.deleteProject(id);
-        if (session !== sessionEpoch) return;
-        const selected = state.selectedProjectId === id;
-        if (selected) ++selectionEpoch;
-        update({
-          projects: Object.freeze(state.projects.filter((item) => item.id !== id)),
-          ...(selected ? { selectedProjectId: null, selectedProject: null } : {}),
-          status: stableStatus(),
-        });
-      } catch (error) { if (session === sessionEpoch) fail(error); }
+        if (session !== sessionEpoch) return null;
+        removeLocal(id);
+        return { ok: true };
+      } catch (error) {
+        if (session !== sessionEpoch) return null;
+        const failure = mutationFailure(error, id);
+        return !failure.ok && failure.code === "NOT_FOUND" ? { ok: true } : failure;
+      }
     },
     clearError() {
       if (state.error !== null) update({ error: null, status: stableStatus() });

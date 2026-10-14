@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Search, Plus, ArrowUpRight, RotateCw } from "lucide-react";
+import { Search, Plus, ArrowUpRight, RotateCw, Pencil, Trash2 } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import { i18n } from "../preferences/i18n";
 import type { ProjectsModel } from "./projectsModel";
 import type { GenerationSessionModel } from "../generation/generationSessionModel";
 import type { ToastModel } from "../feedback/toastModel";
+import type { ProjectManageKind } from "./projectManageActions";
 import { openVaultLatest, openVaultProject } from "./vaultActions";
 import { projectAccent, projectState, relativeProjectDate, vaultTotals, visibleProjects,
   type VaultSort, type VaultStateFilter } from "./vaultSelectors";
 import { NewProjectDialog } from "./NewProjectDialog";
 import { isVaultSearchShortcut } from "./vaultKeyboard";
 
-export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters, hasLocalEdits, confirmDiscard }: {
+export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters, hasLocalEdits, confirmDiscard, onManageProject }: {
   projects: ProjectsModel;
   session: GenerationSessionModel;
   toasts: ToastModel;
@@ -22,6 +23,8 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
   /** Opening a generation replaces the working copy; unsaved editor drafts must be confirmed first. */
   hasLocalEdits?: () => boolean;
   confirmDiscard?: (trigger: HTMLElement | null) => Promise<boolean>;
+  /** Opens the app-level rename/delete confirmation; the Vault never mutates projects itself. */
+  onManageProject?: ((kind: ProjectManageKind, projectId: string, trigger: HTMLElement) => void) | undefined;
 }) {
   const { t } = useLabels();
   const language = i18n.language.startsWith("en") ? "en" : "es";
@@ -136,7 +139,15 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
           const accent = projectAccent(project.id);
           return <li key={project.id} className="vault-card raised-panel" data-accent={accent}>
             <div className="vault-card-top"><span className={`vault-led ${active ? "active" : "draft"}`} aria-hidden="true" />
-              <span className="eyebrow">{active ? t("vaultActive") : t("vaultDraft")}</span></div>
+              <span className="eyebrow">{active ? t("vaultActive") : t("vaultDraft")}</span>
+              {onManageProject && <span className="vault-card-tools">
+                <button type="button" className="vault-card-tool" disabled={opening !== null}
+                  aria-label={t("vaultRenameProject", { name: project.name })} title={t("vaultRenameProject", { name: project.name })}
+                  onClick={(event) => onManageProject("RENAME", project.id, event.currentTarget)}><Pencil aria-hidden="true" /></button>
+                <button type="button" className="vault-card-tool" data-tone="danger" disabled={opening !== null}
+                  aria-label={t("vaultDeleteProject", { name: project.name })} title={t("vaultDeleteProject", { name: project.name })}
+                  onClick={(event) => onManageProject("DELETE", project.id, event.currentTarget)}><Trash2 aria-hidden="true" /></button>
+              </span>}</div>
             <div className="vault-thumbnail" aria-hidden="true"><span /><span /><span /></div>
             <button type="button" className="vault-card-open" title={project.name} disabled={opening !== null}
               aria-label={t("vaultOpenProject", { name: project.name })} onClick={() => { void open(project.id); }}>

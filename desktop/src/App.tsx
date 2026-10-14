@@ -4,6 +4,7 @@ import { Login } from "./features/login/Login";
 import { ToastViewport } from "./features/feedback/ToastViewport";
 import { DiscardDialog } from "./features/projects/DiscardDialog";
 import { LibraryDialog } from "./features/projects/LibraryDialog";
+import { ProjectManageDialog } from "./features/projects/ProjectManageDialogs";
 import { LibraryNavButton } from "./features/workspace/LibraryNavButton";
 import { CodeContext } from "./features/workspace/CodeContext";
 import { bindWorkspaceToAuth, createWorkspaceServices } from "./features/workspace/workspaceServices";
@@ -94,6 +95,8 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
       )}
       {/* Single floating feedback layer; cleared with the rest of the user state on sign-out. */}
       <DiscardDialog guard={services.discardGuard} />
+      {/* Single host for the Vault's rename/delete confirmations; reset() also closes it on sign-out. */}
+      {showApplication && <ProjectManageDialog manager={services.projectManager} />}
       <ToastViewport model={services.toasts} />
     </>
   );

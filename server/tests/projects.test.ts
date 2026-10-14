@@ -11,7 +11,10 @@ import { configureApplication } from "../src/configure-application.js";
 import { AI_PROVIDER } from "../src/analysis/analysis.constants.js";
 import { PROJECT_REPOSITORY } from "../src/projects/project.repository.js";
 import { InMemoryProjectRepository } from "../src/projects/in-memory-project.repository.js";
+import { readFileSync, readdirSync } from "node:fs";
 import {
+  ApiErrorResponseSchema,
+  ProjectSummarySchema,
   type UISchema,
   type GeneratedProject,
 } from "@vision2code/contracts";
@@ -605,6 +608,97 @@ describe("Projects Domain & Persistence Architecture", () => {
       assert.equal(createGen.data.sourceImagePath, null);
       assert.equal(createGen.data.sourceImageName, null);
       assert.equal(createGen.data.sourceImageMimeType, null);
+    });
+  });
+
+  // TASK 009G: rename and delete contracts relied on by the desktop's pessimistic flows.
+  describe("Project rename and delete", () => {
+    const missingId = "99999999-9999-4999-8999-999999999999";
+    const generationBody = { sourceImagePath: null, sourceImageName: null, sourceImageMimeType: null, uiSchema: validUiSchema, generatedProject: validGeneratedProject };
+
+    async function expectEnvelope(res: { status: number; data: any; headers: Headers }, status: number, code: string) {
+      assert.equal(res.status, status);
+      const body = ApiErrorResponseSchema.parse(res.data);
+      assert.equal(body.error.code, code);
+      assert.equal(body.error.requestId, res.headers.get("x-request-id"), "stable envelope correlated with the response");
+    }
+
+    it("rename trims the name with the create validation and returns a valid summary", async () => {
+      const created = await api("/api/v1/projects", { token: tokenUserA, body: { name: "Before" } });
+      const renamed = await api(`/api/v1/projects/${created.data.id}`, { method: "PATCH", token: tokenUserA, body: { name: "   After   " } });
+      assert.equal(renamed.status, 200);
+      assert.equal(ProjectSummarySchema.parse(renamed.data).name, "After");
+    });
+
+    it("rename rejects empty, whitespace, overlong and extra-field bodies with INVALID_REQUEST and keeps the name", async () => {
+      const created = await api("/api/v1/projects", { token: tokenUserA, body: { name: "Keep me" } });
+      for (const body of [{ name: "" }, { name: "    " }, { name: "X".repeat(101) }, { name: "Ok", userId: userB.id }, {}]) {
+        const res = await api(`/api/v1/projects/${created.data.id}`, { method: "PATCH", token: tokenUserA, body });
+        await expectEnvelope(res, 400, "INVALID_REQUEST");
+      }
+      assert.equal((await inMemoryRepo.findProjectById(created.data.id))?.name, "Keep me");
+      const exact = await api(`/api/v1/projects/${created.data.id}`, { method: "PATCH", token: tokenUserA, body: { name: "Y".repeat(100) } });
+      assert.equal(exact.status, 200, "100 characters is the inclusive limit");
+    });
+
+    it("rename and delete of a nonexistent project answer 404 NOT_FOUND", async () => {
+      await expectEnvelope(await api(`/api/v1/projects/${missingId}`, { method: "PATCH", token: tokenUserA, body: { name: "Ghost" } }), 404, "NOT_FOUND");
+      await expectEnvelope(await api(`/api/v1/projects/${missingId}`, { method: "DELETE", token: tokenUserA }), 404, "NOT_FOUND");
+    });
+
+    it("cross-user rename and delete answer 404 (never 403) and leave the project and its generations intact", async () => {
+      const created = await api("/api/v1/projects", { token: tokenUserB, body: { name: "B owns this" } });
+      const generation = await api(`/api/v1/projects/${created.data.id}/generations`, { token: tokenUserB, body: generationBody });
+      await expectEnvelope(await api(`/api/v1/projects/${created.data.id}`, { method: "PATCH", token: tokenUserA, body: { name: "Taken" } }), 404, "NOT_FOUND");
+      await expectEnvelope(await api(`/api/v1/projects/${created.data.id}`, { method: "DELETE", token: tokenUserA }), 404, "NOT_FOUND");
+      assert.equal((await inMemoryRepo.findProjectById(created.data.id))?.name, "B owns this");
+      assert.ok(await inMemoryRepo.findGenerationById(generation.data.id));
+    });
+
+    it("rename and delete require a valid bearer token", async () => {
+      const created = await api("/api/v1/projects", { token: tokenUserA, body: { name: "Guarded" } });
+      for (const token of [undefined, "not-a-jwt"]) {
+        await expectEnvelope(await api(`/api/v1/projects/${created.data.id}`, { method: "PATCH", ...(token ? { token } : {}), body: { name: "Nope" } }), 401, "UNAUTHORIZED");
+        await expectEnvelope(await api(`/api/v1/projects/${created.data.id}`, { method: "DELETE", ...(token ? { token } : {}) }), 401, "UNAUTHORIZED");
+      }
+      assert.equal((await inMemoryRepo.findProjectById(created.data.id))?.name, "Guarded");
+    });
+
+    it("rename bumps updatedAt, so the project moves to the top of the Recent order", async () => {
+      const first = await api("/api/v1/projects", { token: tokenUserA, body: { name: "First" } });
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      const second = await api("/api/v1/projects", { token: tokenUserA, body: { name: "Second" } });
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      const renamed = await api(`/api/v1/projects/${first.data.id}`, { method: "PATCH", token: tokenUserA, body: { name: "First renamed" } });
+      assert.ok(Date.parse(renamed.data.updatedAt) > Date.parse(first.data.updatedAt));
+      const list = await api("/api/v1/projects", { token: tokenUserA });
+      assert.deepEqual(list.data.map((project: { id: string }) => project.id), [first.data.id, second.data.id]);
+      assert.equal(Object.hasOwn(renamed.data, "generationCount"), false, "the rename response carries no counts");
+    });
+
+    it("deleting through HTTP cascades to generations created through HTTP; a second delete is 404", async () => {
+      const created = await api("/api/v1/projects", { token: tokenUserA, body: { name: "Cascade over HTTP" } });
+      const generations = [
+        await api(`/api/v1/projects/${created.data.id}/generations`, { token: tokenUserA, body: generationBody }),
+        await api(`/api/v1/projects/${created.data.id}/generations`, { token: tokenUserA, body: generationBody }),
+      ];
+      const removed = await api(`/api/v1/projects/${created.data.id}`, { method: "DELETE", token: tokenUserA });
+      assert.equal(removed.status, 204);
+      for (const generation of generations) {
+        assert.equal(await inMemoryRepo.findGenerationById(generation.data.id), null);
+        await expectEnvelope(await api(`/api/v1/projects/${created.data.id}/generations/${generation.data.id}`, { token: tokenUserA }), 404, "NOT_FOUND");
+      }
+      await expectEnvelope(await api(`/api/v1/projects/${created.data.id}/generations`, { token: tokenUserA }), 404, "NOT_FOUND");
+      await expectEnvelope(await api(`/api/v1/projects/${created.data.id}`, { method: "DELETE", token: tokenUserA }), 404, "NOT_FOUND");
+    });
+
+    it("the Prisma schema and migration cascade generations on project delete (not assumed)", () => {
+      const schema = readFileSync(new URL("../../prisma/schema.prisma", import.meta.url), "utf8");
+      assert.match(schema, /project\s+Project\s+@relation\(fields: \[projectId\], references: \[id\], onDelete: Cascade\)/);
+      const migrations = new URL("../../prisma/migrations/", import.meta.url);
+      const sql = readdirSync(migrations, { withFileTypes: true }).filter((entry) => entry.isDirectory())
+        .map((entry) => readFileSync(new URL(`${entry.name}/migration.sql`, migrations), "utf8")).join("\n");
+      assert.match(sql, /FOREIGN KEY \("project_id"\) REFERENCES "projects"\("id"\) ON DELETE CASCADE/);
     });
   });
 });

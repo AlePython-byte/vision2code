@@ -35,6 +35,8 @@ export function saveToastFor(state: SaveSession, retry: () => void): ToastInput 
     case "NOT_PERSISTABLE":
       // No retry: sending the same artifact again cannot fix a generator or contract defect.
       return { key, tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusNotPersistable", persistent: true };
+    // The project deletion already reported its own outcome; a stale save toast must not linger.
+    case "DETACHED":
     case "IDLE":
       return null;
   }

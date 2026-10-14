@@ -9,6 +9,7 @@ import { createPreviewModel, type PreviewModel } from "../preview/previewModel.t
 import { createDiscardGuard, type DiscardGuard } from "../projects/discardGuard.ts";
 import { createGenerationHistoryModel, type GenerationHistoryModel } from "../projects/generationHistoryModel.ts";
 import { createLibraryModel, type LibraryModel } from "../projects/libraryModel.ts";
+import { createProjectManager, type ProjectManager } from "../projects/projectManageActions.ts";
 import { createProjectsClient } from "../projects/projectsClient.ts";
 import { createProjectsModel, type ProjectsModel } from "../projects/projectsModel.ts";
 
@@ -21,6 +22,8 @@ export interface WorkspaceServices {
   readonly history: GenerationHistoryModel;
   /** Cross-project library dialog: lazily loaded generation summaries per project. */
   readonly library: LibraryModel;
+  /** Rename/delete confirmations; a removed project detaches the result and clears history and library caches. */
+  readonly projectManager: ProjectManager;
   /** Confirmation before unsaved editor drafts are replaced by another generation. */
   readonly discardGuard: DiscardGuard;
   /** Floating feedback; generation save/restore outcomes are bound to it here, not in the domain models. */
@@ -69,10 +72,21 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const discardGuard = createDiscardGuard();
   const toasts = createToastModel(options.toastScheduler);
   const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
+  const projectManager = createProjectManager({
+    projects: projectsModel,
+    toasts,
+    // The projects model already dropped the project and its selection (so the history follows);
+    // the result keeps its code as local only and the library forgets the project's cache.
+    onProjectRemoved(projectId) {
+      generationSession.detachProject(projectId);
+      library.forgetProject(projectId);
+    },
+  });
   return {
-    editorModel, previewModel, projectsModel, generationSession, history, library, discardGuard, toasts, loadProject, analyzeScreenshot,
+    editorModel, previewModel, projectsModel, generationSession, history, library, projectManager, discardGuard, toasts, loadProject, analyzeScreenshot,
     reset() {
       discardGuard.cancel();
+      projectManager.reset();
       generationSession.reset();
       projectsModel.reset();
       history.reset();

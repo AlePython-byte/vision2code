@@ -132,6 +132,22 @@
   .library-dialog .history-note, .library-dialog .history-error p { margin: 0; }
   .danger-action { background: var(--color-surface); color: var(--color-error); border-color: var(--color-error); }
   .danger-action:hover:not(:disabled) { background: var(--color-tint); }
+  /* TASK 009G: per-card rename/delete tools (siblings of the open button, never nested in it). */
+  .vault-card-tools { display: inline-flex; gap: 4px; margin-left: auto; }
+  .vault-card-tool { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--color-muted); cursor: pointer; transition: background-color 120ms var(--transition-timing), color 120ms var(--transition-timing), box-shadow 120ms var(--transition-timing); }
+  .vault-card-tool svg { width: 14px; height: 14px; }
+  .vault-card-tool:hover:not(:disabled) { background: var(--color-tint); color: var(--color-ink); box-shadow: var(--shadow-control); }
+  .vault-card-tool[data-tone="danger"]:hover:not(:disabled) { color: var(--color-error); }
+  .vault-card-tool:active:not(:disabled) { box-shadow: var(--shadow-inset); }
+  .vault-card-tool:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .vault-card-tool:disabled { opacity: .45; cursor: default; }
+  .delete-dialog-title { overflow-wrap: anywhere; }
+  .delete-dialog-copy { display: grid; gap: 6px; margin: 4px 0 12px; }
+  .delete-dialog-copy p { margin: 0; }
+  .delete-dialog-copy strong { color: var(--color-error); }
+  @media (prefers-reduced-motion: reduce) {
+    .vault-card-tool { transition: none; }
+  }
   @media (max-width: 560px) {
     .code-identity { max-width: none; flex: 1 1 100%; }
     .code-context > .history { flex: 1 1 100%; }

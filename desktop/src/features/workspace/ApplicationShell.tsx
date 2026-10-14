@@ -103,7 +103,11 @@ export function ApplicationShell({
         {view === "projects" && services && <ProjectVault projects={services.projectsModel} session={services.generationSession}
           toasts={services.toasts} onCapture={() => setView("capture")} onEditor={() => setView("editor")}
           hasLocalEdits={() => editorModel.getSnapshot().drafts.size > 0}
-          confirmDiscard={(trigger) => services.discardGuard.request(trigger)} />}
+          confirmDiscard={(trigger) => services.discardGuard.request(trigger)}
+          onManageProject={(kind, projectId, trigger) => {
+            if (kind === "RENAME") services.projectManager.requestRename(projectId, trigger);
+            else services.projectManager.requestDelete(projectId, trigger);
+          }} />}
         <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
         {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}

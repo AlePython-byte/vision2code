@@ -107,6 +107,15 @@ export function createLibraryModel(deps: LibraryDependencies) {
     /** Same as loadProject; named for the error state's Retry action. */
     retry: loadProject,
 
+    /** The project is gone: drop its cached list and focus, and ignore its responses still in flight. */
+    forgetProject(projectId: string) {
+      epochs.set(projectId, (epochs.get(projectId) ?? 0) + 1);
+      inFlight.delete(projectId);
+      if (!(projectId in state.entries) && state.focusProjectId !== projectId) return;
+      const entries = Object.fromEntries(Object.entries(state.entries).filter(([id]) => id !== projectId));
+      update({ entries: Object.freeze(entries), focusProjectId: state.focusProjectId === projectId ? null : state.focusProjectId });
+    },
+
     /** Session boundary: close the dialog, drop every cached list and ignore responses still in flight. */
     reset() {
       ++resetEpoch;

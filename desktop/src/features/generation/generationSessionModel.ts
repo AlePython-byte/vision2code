@@ -8,8 +8,9 @@ import type { GeneratedProject } from "./generatedProject.ts";
 /**
  * IDLE: no result. PROJECT_REQUIRED: generated locally without a project selected at analysis start.
  * NOT_PERSISTABLE: the artifact failed the shared contracts (a generator defect, never sent to the API).
+ * DETACHED: the result's project was deleted; the code stays as a local-only result and is never saved.
  */
-export type GenerationSaveStatus = "IDLE" | "PROJECT_REQUIRED" | "NOT_PERSISTABLE" | "SAVING" | "SAVED" | "SAVE_FAILED";
+export type GenerationSaveStatus = "IDLE" | "PROJECT_REQUIRED" | "NOT_PERSISTABLE" | "SAVING" | "SAVED" | "SAVE_FAILED" | "DETACHED";
 export type GenerationRestoreStatus = "IDLE" | "LOADING" | "FAILED";
 export type GenerationOrigin = "GENERATED" | "RESTORED";
 
@@ -75,6 +76,8 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
   // Identity of the last artifact handed to complete(); re-opening the same result never saves twice.
   // While a restored generation is shown, `outcome` keeps this result's own save state.
   let lastInput: { artifact: CompletedGenerationArtifact; loadable: boolean; outcome: SaveOutcome | null } | null = null;
+  // Projects deleted during this session: never saved to, restored from or re-attached.
+  const detached = new Set<string>();
   const listeners = new Set<() => void>();
 
   function update(changes: Partial<Omit<GenerationSessionState, "revision">>) {
@@ -111,11 +114,13 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
       if (reset !== resetEpoch) return;
       // The server committed this generation, so the project list reflects it even if the session moved on.
       deps.projects?.recordGeneration(projectId, generation);
+      // A late answer for a deleted project can neither re-attach the result nor report anything.
+      if (detached.has(projectId)) return;
       settle(artifact, { saveStatus: "SAVED", saveError: null, generationId: generation.id });
     } catch (error) {
       const code = safeCode(error);
       unauthorized(code, reset);
-      if (reset !== resetEpoch) return;
+      if (reset !== resetEpoch || detached.has(projectId)) return;
       settle(artifact, { saveStatus: "SAVE_FAILED", saveError: code });
     }
   }
@@ -158,6 +163,11 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
         update({ ...base, saveStatus: "PROJECT_REQUIRED" });
         return Promise.resolve();
       }
+      if (detached.has(artifact.targetProjectId)) {
+        // The analysis targeted a project deleted meanwhile: keep the code local, never recreate or save.
+        update({ ...base, projectId: null, saveStatus: "DETACHED" });
+        return Promise.resolve();
+      }
       update({ ...base, saveStatus: "IDLE" });
       return save(stored, artifact.targetProjectId);
     },
@@ -184,10 +194,16 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
       } catch (error) {
         const code = safeCode(error);
         unauthorized(code, reset);
-        if (request === restoreEpoch && reset === resetEpoch) update({ restoreStatus: "FAILED", restoreError: code });
+        if (request === restoreEpoch && reset === resetEpoch) {
+          update(detached.has(projectId) ? { restoreStatus: "IDLE", restoreError: null } : { restoreStatus: "FAILED", restoreError: code });
+        }
         return false;
       }
       if (request !== restoreEpoch || reset !== resetEpoch) return false;
+      if (detached.has(projectId)) {
+        update({ restoreStatus: "IDLE", restoreError: null });
+        return false;
+      }
       if (generation.projectId !== projectId || generation.id !== generationId) {
         update({ restoreStatus: "FAILED", restoreError: "UNKNOWN" });
         return false;
@@ -212,6 +228,22 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
       return true;
     },
 
+    /**
+     * The project was deleted: a result that belonged to it keeps its code (and the editor its drafts)
+     * but becomes local only, with no project, generation or history. Pending saves or restores for it
+     * are ignored when they answer. Nothing is discarded, so no confirmation is needed.
+     */
+    detachProject(projectId: string) {
+      detached.add(projectId);
+      const outcome = lastInput?.outcome;
+      if (lastInput && outcome?.projectId === projectId) {
+        lastInput.outcome = { ...outcome, projectId: null, generationId: null, saveStatus: "DETACHED", saveError: null };
+      }
+      if (state.artifact !== null && state.projectId === projectId) {
+        update({ projectId: null, generationId: null, saveStatus: "DETACHED", saveError: null, restoreStatus: "IDLE", restoreError: null });
+      }
+    },
+
     clearRestoreError() {
       if (state.restoreError !== null) update({ restoreStatus: "IDLE", restoreError: null });
     },
@@ -228,6 +260,7 @@ export function createGenerationSessionModel(deps: GenerationSessionDependencies
       ++restoreEpoch;
       ++resetEpoch;
       lastInput = null;
+      detached.clear();
       update(initial);
     },
   };

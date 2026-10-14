@@ -74,6 +74,8 @@ export function deriveResultChip(input: {
 }): ResultChip | null {
   if (input.origin === null) return null;
   const edited = input.draftCount > 0;
+  // A result whose project was deleted is local only, whatever its origin.
+  if (input.saveStatus === "DETACHED") return { tone: "neutral", label: "chipLocal", number: null, edited };
   if (input.origin === "RESTORED") return { tone: "info", label: "chipRestored", number: input.generationNumber, edited };
   switch (input.saveStatus) {
     case "SAVED": return { tone: "success", label: "chipGenerated", number: null, edited };
