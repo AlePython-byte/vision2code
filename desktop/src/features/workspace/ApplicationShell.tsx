@@ -80,10 +80,9 @@ export function ApplicationShell({
         <span className="navigation-note" title={user?.email || "Vision2Code"}>
           {user?.email ? (
             <>
-              <span style={{ maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block", verticalAlign: "bottom" }}>
+              <span className="navigation-note-email" title={user.email}>
                 {user.email}
               </span>
-              <br />
             </>
           ) : (
             <>V/2<br /></>

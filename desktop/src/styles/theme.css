@@ -63,19 +63,20 @@
   .brand-mark:hover { transform: translateY(-1px) scale(1.02); box-shadow: var(--shadow-raised), 0 6px 18px #6550dc66; filter: brightness(1.06); }
   .brand-mark:active { transform: translateY(1px) scale(0.98); box-shadow: var(--shadow-inset); }
   .brand-mark:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
-  .navigation-links { display: grid; gap: 16px; width: 100%; }
-  .navigation-item { display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1px solid transparent; background: transparent; padding: 12px 4px; border-radius: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); cursor: pointer; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast), border-color var(--motion-fast); position: relative; width: 100%; box-sizing: border-box; }
+  .navigation-links { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; width: 100%; min-width: 0; }
+  .navigation-item { display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1px solid transparent; background: transparent; padding: 12px 4px; border-radius: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); cursor: pointer; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast), border-color var(--motion-fast); position: relative; width: 100%; min-width: 0; box-sizing: border-box; }
   /* Sora is ~13% wider than the previous body font; tracking keeps "Configuración" inside the 66–88px rail. */
-  .navigation-item small { font-family: var(--font-display); font-size: 10px; font-weight: 500; line-height: 1.2; letter-spacing: -.03em; }
+  .navigation-item small { font-family: var(--font-display); font-size: 10px; font-weight: 500; line-height: 1.2; letter-spacing: -.03em; max-width: 100%; overflow-wrap: anywhere; text-align: center; }
   .navigation-item:hover:not(:disabled):not([aria-current]) { color: var(--color-ink); background: var(--color-surface-hover); box-shadow: var(--shadow-control); transform: translateY(-1px); }
   .navigation-item:active:not(:disabled):not([aria-current]) { transform: translateY(1px); box-shadow: var(--shadow-inset); }
-  .navigation-item[aria-current] { color: var(--color-primary); background: var(--color-primary-subtle); box-shadow: var(--shadow-inset); border: 1px solid var(--color-line); border-left: 3px solid var(--color-primary); font-weight: 600; cursor: default; }
+  .navigation-item[aria-current] { color: var(--color-primary); background: var(--color-primary-subtle); box-shadow: var(--shadow-inset), inset 3px 0 0 var(--color-primary); border: 1px solid var(--color-line); font-weight: 600; cursor: default; }
   .navigation-item[aria-current] svg { color: var(--color-primary); filter: drop-shadow(0 0 6px #7662f566); }
   .navigation-item:disabled { color: var(--color-muted); opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; }
   .navigation-item:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   :root[data-theme="dark"] .navigation { border-color: var(--color-line); }
-  :root[data-theme="dark"] .navigation-item[aria-current] { background: var(--color-tint); color: var(--color-accent); box-shadow: var(--shadow-inset), inset 0 0 12px #7662f52e; border-color: var(--color-line); border-left-color: var(--color-primary); }
-  .navigation-note { margin-top: auto; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; line-height: 1.8; text-align: center; }
+  :root[data-theme="dark"] .navigation-item[aria-current] { background: var(--color-tint); color: var(--color-accent); box-shadow: var(--shadow-inset), inset 0 0 12px #7662f52e, inset 3px 0 0 var(--color-primary); border-color: var(--color-line); }
+  .navigation-note { margin-top: auto; align-self: stretch; min-width: 0; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; line-height: 1.8; text-align: center; }
+  .navigation-note-email { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere; }
   .workspace { display: flex; flex-direction: column; gap: 24px; padding: 18px 12px 20px; min-width: 0; flex: 1; }
   .workspace-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
   .eyebrow { color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; line-height: 1.7; }
@@ -314,8 +315,10 @@
     display: none;
   }
   .navigation-item[aria-current] {
-    border-left-width: 1px;
     border: 1.5px solid var(--color-primary);
+  }
+  .navigation-note-email {
+    display: none;
   }
   .navigation-note {
     font-size: 9px;
@@ -393,7 +396,6 @@
   }
   .navigation-item[aria-current] {
     border: 1px solid var(--color-primary);
-    border-left-width: 1px;
   }
   .navigation-item:disabled {
     display: none;
@@ -542,6 +544,9 @@
   .empty-workspace { min-height: clamp(170px, 28vh, 240px); }
   .fidelity-description { min-height: 0; }
   .setting-card-desc { line-height: 1.45; }
+}
+@media (max-width: 760px) and (min-width: 561px) {
+  .navigation { padding-inline: 7px; }
 }
 @media (max-width: 1050px) and (min-width: 851px) {
   .profile-fields { grid-template-columns: minmax(0, 1fr); }

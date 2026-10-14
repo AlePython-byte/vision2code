@@ -66,7 +66,6 @@
   .primary-action:hover:not(:disabled) { background: var(--color-primary-hover); }
   .action-button:disabled { opacity: .55; }
   .navigation-item[aria-current], .file-explorer button[aria-current] { background: var(--color-primary-subtle); color: var(--color-accent); box-shadow: var(--shadow-inset); }
-  .navigation-item[aria-current] { border-left: 3px solid var(--color-primary); }
   .workflow-strip [data-current="true"] .workflow-number { background: var(--color-primary); color: #fff; }
   .raised-panel { border-color: var(--color-highlight); }
   .setting-card[aria-checked="true"], .setting-card.active { border-color: var(--color-primary); }
