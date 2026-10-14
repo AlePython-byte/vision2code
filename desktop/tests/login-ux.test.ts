@@ -33,6 +33,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
       if (name in overrides) return overrides[name];
       if (name.endsWith(".css")) return {};
       if (name === "lucide-react") return lucide;
+      if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
       if (name.endsWith("/useLabels") || name === "./useLabels") {
         return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
       }

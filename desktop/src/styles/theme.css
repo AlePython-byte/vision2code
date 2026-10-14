@@ -11,6 +11,7 @@
 @import "../features/editor/editor.css";
 @import "../features/preview/preview.css";
 @import "./foundation.css";
+@import "../features/projects/vault.css";
 
 @theme {
   --color-canvas: #e8edf2;
@@ -148,15 +149,8 @@
   .output-stack-control { display: grid; gap: 6px; }
   .output-stack-control select { width: 100%; min-width: 0; background: var(--color-tint); color: var(--color-ink); border: 1px solid var(--color-line); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; box-shadow: var(--shadow-inset); transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
   .output-stack-control select:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-inset), 0 0 0 2px #7662f53d; }
-  /* TEMPORARY (TASK 009C): minimal project selector; replaced in 009D. */
+  /* Compact capture link to the Project Vault. */
   .project-target { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-tint); min-width: 0; }
-  .project-create { display: grid; gap: 6px; margin: 0; }
-  .project-create-row { display: flex; gap: 8px; min-width: 0; }
-  .project-create-row input { flex: 1; min-width: 0; background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-line); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; box-shadow: var(--shadow-inset); transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
-  .project-create-row input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-inset), 0 0 0 2px #7662f53d; }
-  .project-create-row input[aria-invalid="true"] { border-color: var(--color-error); }
-  .project-create-row input::placeholder { color: var(--color-muted); opacity: 1; }
-  .project-target .action-button svg { width: 14px; height: 14px; }
   .text-button { appearance: none; border: 0; background: none; padding: 0; color: var(--color-primary); font-weight: 600; text-decoration: underline; cursor: pointer; }
   .text-button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   .text-button:disabled { opacity: .5; cursor: not-allowed; }

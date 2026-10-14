@@ -76,6 +76,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
   const require = createRequire(import.meta.url);
   runInNewContext(code, { exports, require: (name: string) => {
     if (name in overrides) return overrides[name];
+    if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
     if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
     if (name.endsWith("/preferences") || name === "./preferences") return { preferences };
     if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };

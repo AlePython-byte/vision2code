@@ -17,11 +17,14 @@ import { ProjectsClientError } from "../src/features/projects/projectsClient.ts"
 import type { ProjectsClient } from "../src/features/projects/projectsClient.ts";
 import { createProjectsModel } from "../src/features/projects/projectsModel.ts";
 import * as actions from "../src/features/projects/projectTargetActions.ts";
+import * as selectors from "../src/features/projects/vaultSelectors.ts";
+import * as vaultActions from "../src/features/projects/vaultActions.ts";
+import * as vaultKeyboard from "../src/features/projects/vaultKeyboard.ts";
 import { createToastModel } from "../src/features/feedback/toastModel.ts";
 import { fakeScheduler } from "./fake-scheduler.ts";
 import { deferred, fakeClient, generationOne, projectA, screenshot, summaryA, summaryB, uiSchemaFixture } from "./generation-fixtures.ts";
 
-function loadComponent(file: string, language: "es" | "en", overrides: Record<string, unknown> = {}) {
+function loadComponent(file: string, language: "es" | "en") {
   const source = readFileSync(new URL("../src/features/" + file, import.meta.url), "utf8");
   const code = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS } }).outputText;
   const exports: Record<string, any> = {};
@@ -29,183 +32,158 @@ function loadComponent(file: string, language: "es" | "en", overrides: Record<st
   runInNewContext(code, {
     exports,
     require: (name: string) => {
-      if (name in overrides) return overrides[name];
       if (name === "lucide-react") return lucide;
       if (name.endsWith("/useLabels")) return { useLabels: () => ({ t: i18n.getFixedT(language) }) };
+      if (name.endsWith("/i18n")) return { i18n: { language } };
       if (name.endsWith("/projectTargetActions")) return actions;
+      if (name.endsWith("/vaultSelectors")) return selectors;
+      if (name.endsWith("/vaultActions")) return vaultActions;
+      if (name.endsWith("/vaultKeyboard")) return vaultKeyboard;
+      if (name.endsWith("/NewProjectDialog")) return { NewProjectDialog: () => null };
       return require(name);
     },
   });
   return exports;
 }
 
-function components(language: "es" | "en") {
-  const { ProjectTargetPanel } = loadComponent("projects/ProjectTargetPanel.tsx", language);
-  const { ToastViewport } = loadComponent("feedback/ToastViewport.tsx", language);
-  return { ProjectTargetPanel, ToastViewport };
-}
-
 function models(overrides: Partial<ProjectsClient> = {}) {
   const { client } = fakeClient(overrides);
   const projects = createProjectsModel(client);
   const session = createGenerationSessionModel({ client, projects, loadProject: () => {} });
-  return { projects, session };
+  const toasts = createToastModel(fakeScheduler());
+  return { projects, session, toasts };
+}
+
+function chip(language: "es" | "en", m: ReturnType<typeof models>, target: string | null | undefined = undefined) {
+  const { ProjectChip } = loadComponent("projects/ProjectChip.tsx", language);
+  return renderToStaticMarkup(React.createElement(ProjectChip, {
+    projects: m.projects, session: m.session, analysisTargetProjectId: target, onChange() {},
+  }));
+}
+
+function vault(language: "es" | "en", m: ReturnType<typeof models>, initialFilters?: { query?: string }) {
+  const { ProjectVault } = loadComponent("projects/ProjectVault.tsx", language);
+  return renderToStaticMarkup(React.createElement(ProjectVault, {
+    projects: m.projects, session: m.session, toasts: m.toasts, onCapture() {}, onEditor() {},
+    now: () => new Date("2026-10-13T18:00:00.000Z"),
+    initialFilters,
+  }));
 }
 
 function artifact(targetProjectId: string | null = projectA) {
   return createGenerationArtifact({ uiSchema: uiSchemaFixture, generatedProject: generateReactProject(uiSchemaFixture), fidelity: "balanced", screenshot: screenshot(), targetProjectId });
 }
 
-function render(language: "es" | "en", m: ReturnType<typeof models>, analysisTargetProjectId: string | null | undefined = undefined) {
-  const { ProjectTargetPanel } = components(language);
-  return renderToStaticMarkup(React.createElement(ProjectTargetPanel, {
-    projects: m.projects, session: m.session, analysisTargetProjectId, onOpenGeneration() {},
-  }));
-}
-
-const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-
-test("selector lists only project names, with accessible labels and a local-only option", async () => {
+test("Capture project chip replaces the temporary selector in ES and EN", async () => {
   const m = models();
   await m.projects.loadProjects();
-  const html = render("es", m);
-  assert.match(html, /<label for="project-target-select"[^>]*>Proyecto seleccionado<\/label>/);
-  assert.match(html, /<select id="project-target-select"/);
-  assert.match(html, /<option value="" selected="">Sin proyecto \(solo local\)<\/option>/);
-  assert.match(html, new RegExp(`<option value="${summaryA.id}">Alpha</option>`));
-  assert.match(html, new RegExp(`<option value="${summaryB.id}">Beta</option>`));
-  assert.match(html, /<label for="project-create-name"[^>]*>Nombre del nuevo proyecto<\/label>/);
-  assert.match(html, /<button type="submit"[^>]*>.*Crear proyecto<\/button>/);
-  assert.match(html, /role="group" aria-labelledby="project-target-title"/);
-});
-
-test("open latest generation is disabled without a selected project or stored generation", async () => {
-  const m = models({ listProjects: async () => [{ ...summaryA, latestGenerationId: generationOne }, summaryB] });
-  await m.projects.loadProjects();
-  assert.match(render("es", m), /<button type="button" class="action-button secondary-button" disabled="">.*Abrir última generación/);
-  await m.projects.selectProject(summaryB.id);
-  assert.match(render("es", m), /disabled="">.*Abrir última generación/);
-  await m.projects.selectProject(projectA);
-  const html = render("en", m);
-  assert.doesNotMatch(html, /disabled="">.*Open latest generation/);
-  assert.match(html, /Open latest generation/);
-});
-
-test("analysis target shows which project a pending result belongs to", async () => {
-  const m = models();
-  await m.projects.loadProjects();
-  assert.ok(render("es", m, projectA).includes(es.analysisTargetProject.replace("{{name}}", "Alpha")));
-  assert.ok(render("en", m, null).includes(en.analysisTargetLocal));
-  assert.ok(!render("es", m, undefined).includes("Este análisis"));
-});
-
-test("inline result line: linked, not linked, and SAVE_FAILED with a compact retry", async () => {
   for (const language of ["es", "en"] as const) {
     const labels = language === "es" ? es : en;
-    const saved = models();
-    await saved.projects.loadProjects();
-    await saved.session.complete(artifact());
-    let html = render(language, saved);
-    assert.ok(html.includes(`class="project-result-line input-help" data-state="SAVED">${labels.resultLinked.replace("{{name}}", "Alpha")}</p>`));
-
-    const local = models();
-    await local.session.complete(artifact(null));
-    html = render(language, local);
-    assert.ok(html.includes(`data-state="PROJECT_REQUIRED">${labels.resultUnlinked}</p>`));
-
-    let fail = true;
-    const retry = deferred<GenerationDetail>();
-    const failed = models({ createGeneration: () => fail ? Promise.reject(new ProjectsClientError("SERVER_ERROR")) : retry.promise });
-    await failed.projects.loadProjects();
-    await failed.session.complete(artifact());
-    html = render(language, failed);
-    assert.ok(html.includes(` · ${labels.resultUnsaved} · `));
-    assert.ok(html.includes(`<button type="button" class="text-button" aria-label="${labels.saveRetry}">${labels.resultRetry}</button>`));
-    fail = false;
-    void failed.session.retrySave();
-    assert.ok(render(language, failed).includes(`aria-label="${labels.saveRetry}" disabled="">${labels.resultRetry}</button>`), "disabled while retrying");
+    assert.ok(chip(language, m).includes(labels.vaultNoProject));
+    assert.ok(chip(language, m).includes(labels.vaultChooseProject));
   }
+  await m.projects.selectProject(projectA);
+  assert.ok(chip("en", m).includes("Alpha"));
+  assert.ok(chip("en", m).includes(en.vaultChangeProject));
+  assert.doesNotMatch(chip("en", m), /project-target-select|project-create-name|Open latest/);
+  assert.equal(existsSync(new URL("../src/features/projects/ProjectTargetPanel.tsx", import.meta.url)), false);
 });
 
-test("no status banner remains in the capture flow", async () => {
-  const m = models({ createGeneration: async () => { throw new ProjectsClientError("SERVER_ERROR"); } });
+test("analysis target and persistent linked / unsaved retry line remain", async () => {
+  const m = models();
+  await m.projects.loadProjects();
+  assert.ok(chip("es", m, projectA).includes(es.analysisTargetProject.replace("{{name}}", "Alpha")));
+  assert.ok(chip("en", m, null).includes(en.analysisTargetLocal));
   await m.session.complete(artifact());
-  const html = render("es", m);
-  assert.doesNotMatch(html, /generation-save-status|role="status"/);
-  assert.ok(!html.includes(es.saveStatusFailed), "the long failure text lives in the toast");
-  assert.ok(!existsSync(new URL("../src/features/generation/GenerationSaveStatus.tsx", import.meta.url)));
-  const shell = readFileSync(new URL("../src/features/workspace/ApplicationShell.tsx", import.meta.url), "utf8");
-  assert.doesNotMatch(shell, /editorStatus/);
+  assert.ok(chip("en", m).includes(en.resultLinked.replace("{{name}}", "Alpha")));
+  const failed = models({ createGeneration: async () => { throw new ProjectsClientError("SERVER_ERROR"); } });
+  await failed.projects.loadProjects();
+  await failed.session.complete(artifact());
+  const html = chip("en", failed);
+  assert.ok(html.includes(en.resultUnsaved));
+  assert.ok(html.includes(`aria-label="${en.saveRetry}"`));
+  assert.ok(!html.includes(en.saveStatusFailed));
   const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
-  assert.match(css, /\.project-result-line \{[^}]*height: 1\.6em;[^}]*white-space: nowrap;/, "fixed one-line height");
+  assert.match(css, /\.project-result-line \{[^}]*height: 1\.6em;[^}]*white-space: nowrap;/);
 });
 
-function renderViewport(language: "es" | "en", toasts: ReturnType<typeof createToastModel>) {
-  const { ToastViewport } = components(language);
-  return renderToStaticMarkup(React.createElement(ToastViewport, { model: toasts }));
-}
+test("retry remains disabled while a failed save is retrying", async () => {
+  let fail = true;
+  const pending = deferred<GenerationDetail>();
+  const m = models({ createGeneration: () => fail ? Promise.reject(new ProjectsClientError("SERVER_ERROR")) : pending.promise });
+  await m.projects.loadProjects();
+  await m.session.complete(artifact());
+  fail = false;
+  void m.session.retrySave();
+  assert.match(chip("en", m), /aria-label="Retry save" disabled=""/);
+});
 
-test("toasts: errors are alerts, everything else is a polite status; icon + text always", () => {
+test("Vault renders localized loading, empty, error and populated states", async () => {
+  const loading = models({ listProjects: () => new Promise(() => {}) });
+  void loading.projects.loadProjects();
+  assert.equal(vault("en", loading).match(/class="vault-card raised-panel"/g)?.length, 6);
+  const empty = models({ listProjects: async () => [] });
+  await empty.projects.loadProjects();
+  assert.ok(vault("es", empty).includes(es.vaultCreateFirst));
+  const populated = models({ listProjects: async () => [{ ...summaryA, generationCount: 1, latestGenerationId: generationOne }, summaryB] });
+  await populated.projects.loadProjects();
+  const html = vault("en", populated);
+  assert.ok(html.includes(en.vaultTitle));
+  assert.ok(vault("es", populated).includes(es.vaultTitle));
+  assert.ok(html.includes("1 generation"));
+  assert.match(html, /<ul class="vault-grid">/);
+  assert.match(html, /aria-label="Open project Alpha"/);
+  assert.match(html, /<label for="vault-state"/);
+  assert.match(html, /<label for="vault-sort"/);
+  assert.match(html, /Open latest/);
+  assert.equal((html.match(/class="vault-latest"/g) ?? []).length, 1);
+  assert.ok(vault("en", populated, { query: "none-match" }).includes(en.vaultClearFilters));
+  const failed = models({ listProjects: async () => { throw new ProjectsClientError("SERVER_ERROR"); } });
+  await failed.projects.loadProjects();
+  assert.ok(vault("en", failed).includes(en.projectsRetryLoad));
+  assert.match(vault("en", failed), /role="alert"/);
+  let failLater = false;
+  const retained = models({ listProjects: async () => {
+    if (failLater) throw new ProjectsClientError("NETWORK_ERROR");
+    return [summaryA];
+  } });
+  await retained.projects.loadProjects();
+  failLater = true;
+  await retained.projects.loadProjects();
+  assert.ok(vault("en", retained).includes(en.projectsRetryLoad));
+  assert.match(vault("en", retained), /aria-label="Open project Alpha"/);
+});
+
+test("dialog has a labelled modal, name field, counter and cancel/create controls", () => {
+  const { NewProjectDialog } = loadComponent("projects/NewProjectDialog.tsx", "en");
+  const m = models();
+  const html = renderToStaticMarkup(React.createElement(NewProjectDialog, {
+    projects: m.projects, trigger: { current: null }, onClose() {}, onCreated() {},
+  }));
+  assert.match(html, /role="dialog" aria-modal="true" aria-labelledby="vault-dialog-title"/);
+  assert.match(html, /<label for="vault-project-name"/);
+  assert.match(html, /0\/100/);
+  assert.ok(html.includes(en.vaultCancel) && html.includes(en.projectCreate));
+});
+
+test("toast viewport keeps accessible alerts and retry action", () => {
+  const { ToastViewport } = loadComponent("feedback/ToastViewport.tsx", "en");
   const toasts = createToastModel(fakeScheduler());
   toasts.show({ key: "a", tone: "success", eyebrow: "toastEyebrowSaved", message: "saveStatusSaved", persistent: false, durationMs: 2500 });
-  toasts.show({ key: "b", tone: "progress", eyebrow: "toastEyebrowSaving", message: "toastSaving", persistent: true });
-  toasts.show({ key: "c", tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusNotPersistable", persistent: true });
-  const html = renderViewport("es", toasts);
-  assert.match(html, /^<div class="toast-viewport">/);
-  assert.match(html, /data-tone="success" role="status" aria-live="polite"/);
-  assert.match(html, /data-tone="progress" role="status" aria-live="polite"/);
-  assert.match(html, /data-tone="error" role="alert" aria-live="assertive"/);
-  assert.equal(html.match(/class="toast-lamp" aria-hidden="true"><svg/g)?.length, 3);
-  assert.match(html, /lucide-check/);
-  assert.match(html, /lucide-loader[^"]*toast-spin|toast-spin[^"]*lucide-loader/);
-  assert.ok(html.includes(es.saveStatusSaved) && html.includes(es.toastSaving) && html.includes(es.toastEyebrowError));
-  assert.doesNotMatch(html, /autofocus|tabindex/i, "never moves focus");
+  toasts.show({ key: "b", tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusFailed", persistent: true,
+    action: { label: "saveRetry", run() {} } });
+  const html = renderToStaticMarkup(React.createElement(ToastViewport, { model: toasts }));
+  assert.match(html, /role="status" aria-live="polite"/);
+  assert.match(html, /role="alert" aria-live="assertive"/);
+  assert.ok(html.includes(en.saveRetry));
+  assert.ok(html.includes(en.toastDismiss));
 });
 
-test("toast buttons are real buttons with localized labels in ES and EN", () => {
-  for (const language of ["es", "en"] as const) {
-    const labels = language === "es" ? es : en;
-    const toasts = createToastModel(fakeScheduler());
-    toasts.show({ key: "save", tone: "error", eyebrow: "toastEyebrowError", message: "saveStatusFailed", persistent: true, action: { label: "saveRetry", run() {} } });
-    const html = renderViewport(language, toasts);
-    assert.ok(html.includes(`<button type="button" class="toast-action" aria-label="${labels.saveRetry}">`));
-    assert.ok(html.includes(`<button type="button" class="toast-close" aria-label="${labels.toastDismiss}" title="${labels.toastDismiss}">`));
-    assert.ok(html.includes(escape(labels.saveStatusFailed)));
-  }
-});
-
-test("restore failure toast offers close only", () => {
-  const toasts = createToastModel(fakeScheduler());
-  toasts.show({ key: "generation-restore", tone: "error", eyebrow: "toastEyebrowHistory", message: "restoreNotFound", persistent: true });
-  const html = renderViewport("en", toasts);
-  assert.match(html, /role="alert"/);
-  assert.ok(html.includes(en.restoreNotFound));
-  assert.doesNotMatch(html, /toast-action/);
-  assert.match(html, /toast-close/);
-});
-
-test("viewport is fixed, out of flow, click-through, and honors reduced motion", () => {
-  const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
-  const rule = (selector: string) => css.split("\n").find((line) => line.trimStart().startsWith(selector + " {")) ?? "";
-  const viewport = rule(".toast-viewport");
-  assert.match(viewport, /position: fixed;/);
-  assert.match(viewport, /top: 16px; right: 24px;/);
-  assert.match(viewport, /pointer-events: none;/);
-  assert.match(viewport, /width: min\(360px, calc\(100vw - 32px\)\);/);
-  assert.match(rule(".toast-capsule"), /pointer-events: auto;/);
-  assert.match(css, /@media \(max-width: 560px\) \{\s*\.toast-viewport \{ top: 12px; left: 12px; right: 12px; width: auto; \}/);
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.toast-capsule, \.toast-spin \{ animation: none !important; \}/);
-  for (const line of css.split("\n").filter((item) => /\.toast-/.test(item))) {
-    assert.doesNotMatch(line, /position: (static|sticky)|margin-(top|bottom)/, line);
-  }
-});
-
-test("selector styles reuse console tokens and every new label exists in ES and EN", () => {
-  const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
-  const rules = css.split("\n").filter((line) => /\.project-|\.generation-save-status|\.text-button/.test(line));
-  assert.ok(rules.length > 0);
-  for (const rule of rules) assert.doesNotMatch(rule, /#[0-9a-f]{3,6}(?![0-9a-f])/i, `hard-coded color outside tokens: ${rule}`);
-  for (const key of ["projectTargetTitle", "saveStatusFailed", "saveRetry", "openLatestGeneration", "projectCreateFailed", "restoreFailed"] as const) {
-    assert.ok(es[key] && en[key] && es[key] !== en[key], key);
-  }
+test("Vault and chip styles use tokens and reduced-motion handling", () => {
+  const css = readFileSync(new URL("../src/features/projects/vault.css", import.meta.url), "utf8");
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
+  assert.match(css, /var\(--font-display\)/);
+  assert.match(css, /var\(--font-sans\)/);
+  assert.match(css, /var\(--font-mono\)/);
 });

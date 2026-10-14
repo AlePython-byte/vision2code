@@ -1,7 +1,7 @@
 import type { ProjectSummary } from "@vision2code/contracts";
 import type { ProjectsState } from "./projectsModel.ts";
 
-// TEMPORARY (TASK 009C): logic behind the minimal Capture Console project selector; 009D replaces it.
+// Shared validation and selection rules used by the Project Vault and Capture chip.
 
 export const PROJECT_NAME_MAX_LENGTH = 100;
 

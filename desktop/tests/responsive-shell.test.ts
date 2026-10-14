@@ -21,6 +21,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     require: (name: string) => {
       if (name in overrides) return overrides[name];
       if (name === "lucide-react") return lucide;
+      if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
       if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
       if (name.endsWith("/previewModel") || name === "./previewModel") {
         return {
@@ -72,6 +73,21 @@ test("shell navigation contains semantic landmarks, brand mark, and accessible d
   assert.match(html, /aria-label="Ver pantalla de acceso"/);
   // Active state for initial capture view
   assert.match(html, /aria-current="page"/);
+});
+
+test("authenticated services land in the Project Vault and mark Projects current", () => {
+  const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
+    "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
+    "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
+    "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
+    "../editor/editorModel": { createEditorModel: () => ({}) },
+  });
+  const services = { editorModel: {}, previewModel: {}, projectsModel: {}, generationSession: {}, toasts: {} };
+  const html = renderToStaticMarkup(React.createElement(ApplicationShell, { onLogin() {}, services }));
+  assert.match(html, /id="project-vault"/);
+  assert.match(html, /href="#project-vault"/);
+  assert.match(html, /aria-current="page"[^>]*aria-label="Proyectos"/);
+  assert.match(html, /<div hidden=""><div id="workspace"/);
 });
 
 test("workflow strip maintains semantic ordered list and 5 stage steps", () => {

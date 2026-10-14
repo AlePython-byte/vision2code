@@ -59,6 +59,9 @@ export function createProjectsModel(client: ProjectsClient, onUnauthorized?: () 
 
   return {
     getSnapshot: () => state,
+    /** Operation counters let callers distinguish a replaced selection from session teardown. */
+    getSelectionEpoch: () => selectionEpoch,
+    getSessionEpoch: () => sessionEpoch,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     loadProjects(): Promise<void> {
       if (listRequest) return listRequest;

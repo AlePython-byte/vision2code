@@ -7,6 +7,7 @@ import { SettingsScreen } from "../settings/SettingsScreen";
 import { createEditorModel } from "../editor/editorModel";
 import { createPreviewModel } from "../preview/previewModel";
 import { PreviewPanel } from "../preview/PreviewPanel";
+import { ProjectVault } from "../projects/ProjectVault";
 import { syncEditorToPreview } from "../preview/previewSync";
 import type { GeneratedProject } from "../generation/generatedProject";
 import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
@@ -24,7 +25,7 @@ export function ApplicationShell({
   services?: WorkspaceServices | undefined;
 }) {
   const { t } = useLabels();
-  const [view, setView] = useState<"capture" | "editor" | "settings">("capture");
+  const [view, setView] = useState<"projects" | "capture" | "editor" | "settings">(services ? "projects" : "capture");
   const [editorModel] = useState(() => services?.editorModel ?? createEditorModel());
   const [previewModel] = useState(() => services?.previewModel ?? createPreviewModel());
 
@@ -52,21 +53,17 @@ export function ApplicationShell({
   const [projects] = useState(() => services && {
     projectsModel: services.projectsModel,
     generationSession: services.generationSession,
-    onOpenGeneration: (projectId: string, generationId: string) => {
-      void services.generationSession.openGeneration(projectId, generationId).then((opened) => {
-        if (opened) setView("editor");
-      });
-    },
+    onChangeProject: () => setView("projects"),
   });
   return (
     <div className="application-shell">
-      <a className="skip-link" href={view === "capture" ? "#workspace" : view === "editor" ? "#code-workspace" : "#settings-workspace"}>{t("skip")}</a>
+      <a className="skip-link" href={view === "projects" ? "#project-vault" : view === "capture" ? "#workspace" : view === "editor" ? "#code-workspace" : "#settings-workspace"}>{t("skip")}</a>
       <nav className="navigation" aria-label={t("navigation")}>
         <button type="button" className="brand-mark" aria-label={t("brandLabel")} onClick={() => setView("capture")}>V</button>
         <div className="navigation-links">
           <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined} aria-label={t("capture")} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
           <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined} aria-label={t("code")} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
-          <button className="navigation-item" disabled aria-label={t("projectsSoon")} title={t("projectsSoon")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
+          <button className="navigation-item" onClick={() => setView("projects")} aria-current={view === "projects" ? "page" : undefined} aria-label={t("projects")} title={t("projects")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
           <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
           <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} aria-label={t("settings")} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
         </div>
@@ -95,6 +92,8 @@ export function ApplicationShell({
         </span>
       </nav>
       <div className="shell-content">
+        {view === "projects" && services && <ProjectVault projects={services.projectsModel} session={services.generationSession}
+          toasts={services.toasts} onCapture={() => setView("capture")} onEditor={() => setView("editor")} />}
         <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} /></div>
         {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}

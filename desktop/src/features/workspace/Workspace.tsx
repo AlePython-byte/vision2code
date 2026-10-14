@@ -4,7 +4,7 @@ import type { CompletedGenerationArtifact } from "../generation/generationArtifa
 import type { GenerationSessionModel } from "../generation/generationSessionModel";
 import type { ProjectsModel } from "../projects/projectsModel";
 import { CaptureConsole, type CaptureProjectTarget } from "../analysis/CaptureConsole";
-import { ProjectTargetPanel } from "../projects/ProjectTargetPanel";
+import { ProjectChip } from "../projects/ProjectChip";
 
 export function Workspace({
   onGenerated,
@@ -14,7 +14,7 @@ export function Workspace({
   projects?: {
     projectsModel: ProjectsModel;
     generationSession: GenerationSessionModel;
-    onOpenGeneration: (projectId: string, generationId: string) => void;
+    onChangeProject: () => void;
   } | undefined;
 }) {
   const { t } = useLabels();
@@ -22,8 +22,8 @@ export function Workspace({
     getSelectedProjectId: () => projects.projectsModel.getSnapshot().selectedProjectId,
     onAnalysisReplaced: () => projects.generationSession.clear(),
     render: (analysisTargetProjectId) => (
-      <ProjectTargetPanel projects={projects.projectsModel} session={projects.generationSession}
-        analysisTargetProjectId={analysisTargetProjectId} onOpenGeneration={projects.onOpenGeneration} />
+      <ProjectChip projects={projects.projectsModel} session={projects.generationSession}
+        analysisTargetProjectId={analysisTargetProjectId} onChange={projects.onChangeProject} />
     ),
   });
   return (
