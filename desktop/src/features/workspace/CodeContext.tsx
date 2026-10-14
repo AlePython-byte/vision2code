@@ -10,13 +10,15 @@ import type { ProjectsModel } from "../projects/projectsModel";
 import { projectName } from "../projects/projectTargetActions";
 
 /** Project identity, result status chip and history key shown in the Code view header. */
-export function CodeContext({ editor, session, projects, history, discardGuard, now }: {
+export function CodeContext({ editor, session, projects, history, discardGuard, now, onOpenLibrary }: {
   editor: EditorModel;
   session: GenerationSessionModel;
   projects: ProjectsModel;
   history: GenerationHistoryModel;
   discardGuard: DiscardGuard;
   now?: () => Date;
+  /** Opens the library dialog with this project expanded. */
+  onOpenLibrary?: (projectId: string | null, trigger: HTMLElement | null) => void;
 }) {
   const { t } = useLabels();
   const editorState = useSyncExternalStore(editor.subscribe, editor.getSnapshot, editor.getSnapshot);
@@ -38,7 +40,9 @@ export function CodeContext({ editor, session, projects, history, discardGuard, 
     <div className="code-context">
       <div className="code-identity" role="group" aria-label={t("vaultProjectEyebrow")}>
         <p className="eyebrow">{t("vaultProjectEyebrow")}</p>
-        <p className="code-identity-name" title={name}>{name}</p>
+        <button type="button" className="code-identity-name" title={name} aria-haspopup="dialog"
+          aria-label={t("libraryOpenFor", { name })} disabled={!onOpenLibrary}
+          onClick={(event) => onOpenLibrary?.(projectId, event.currentTarget)}>{name}</button>
       </div>
       <div className="code-chips">
         {chip && <span className="result-chip" data-tone={chip.tone}><span className="result-led" aria-hidden="true" />{chipLabel}</span>}

@@ -19,6 +19,8 @@ export function ApplicationShell({
   user,
   services,
   codeContext,
+  libraryNav,
+  libraryDialog,
 }: {
   onLogin: () => void;
   user?: AuthUser | null;
@@ -26,6 +28,10 @@ export function ApplicationShell({
   services?: WorkspaceServices | undefined;
   /** Project identity, status chip and history key for the Code view header (built at the app boundary). */
   codeContext?: ReactNode;
+  /** Enabled "Library" rail entry (opens the library dialog); disabled placeholder when omitted. */
+  libraryNav?: ReactNode;
+  /** Renders the library dialog host; receives the shell navigation it needs after picking a generation. */
+  libraryDialog?: (navigation: { openCode: () => void }) => ReactNode;
 }) {
   const { t } = useLabels();
   const [view, setView] = useState<"projects" | "capture" | "editor" | "settings">(services ? "projects" : "capture");
@@ -67,8 +73,8 @@ export function ApplicationShell({
           <button className="navigation-item" onClick={() => setView("capture")} aria-current={view === "capture" ? "page" : undefined} aria-label={t("capture")} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
           <button className="navigation-item" onClick={() => setView("editor")} aria-current={view === "editor" ? "page" : undefined} aria-label={t("code")} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
           <button className="navigation-item" onClick={() => setView("projects")} aria-current={view === "projects" ? "page" : undefined} aria-label={t("projects")} title={t("projects")}><Folder aria-hidden="true" /><small>{t("projects")}</small></button>
-          <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>
-          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} aria-label={t("settings")} title={t("settings")}><Settings aria-hidden="true" /><small>{t("settings")}</small></button>
+          {libraryNav ?? <button className="navigation-item" disabled aria-label={t("librarySoon")} title={t("librarySoon")}><Library aria-hidden="true" /><small>{t("library")}</small></button>}
+          <button className="navigation-item" onClick={() => setView("settings")} aria-current={view === "settings" ? "page" : undefined} aria-label={t("settings")} title={t("settings")}><Settings aria-hidden="true" /><small>{t("navSettings")}</small></button>
         </div>
         <button
           type="button"
@@ -78,7 +84,7 @@ export function ApplicationShell({
           onClick={onLogin}
         >
           {user ? <LogOut aria-hidden="true" /> : <LogIn aria-hidden="true" />}
-          <small>{user ? t("signOut") : t("login")}</small>
+          <small>{user ? t("navSignOut") : t("login")}</small>
         </button>
         <span className="navigation-note" title={user?.email || "Vision2Code"}>
           {user?.email ? (
@@ -103,6 +109,7 @@ export function ApplicationShell({
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>
+      {libraryDialog?.({ openCode: () => setView("editor") })}
     </div>
   );
 }

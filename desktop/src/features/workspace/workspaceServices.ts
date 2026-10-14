@@ -7,6 +7,7 @@ import { createGenerationSessionModel, type GenerationSessionModel } from "../ge
 import { createPreviewModel, type PreviewModel } from "../preview/previewModel.ts";
 import { createDiscardGuard, type DiscardGuard } from "../projects/discardGuard.ts";
 import { createGenerationHistoryModel, type GenerationHistoryModel } from "../projects/generationHistoryModel.ts";
+import { createLibraryModel, type LibraryModel } from "../projects/libraryModel.ts";
 import { createProjectsClient } from "../projects/projectsClient.ts";
 import { createProjectsModel, type ProjectsModel } from "../projects/projectsModel.ts";
 
@@ -17,6 +18,8 @@ export interface WorkspaceServices {
   readonly generationSession: GenerationSessionModel;
   /** Saved generations of the project the Code view is about (summaries only). */
   readonly history: GenerationHistoryModel;
+  /** Cross-project library dialog: lazily loaded generation summaries per project. */
+  readonly library: LibraryModel;
   /** Confirmation before unsaved editor drafts are replaced by another generation. */
   readonly discardGuard: DiscardGuard;
   /** Floating feedback; generation save/restore outcomes are bound to it here, not in the domain models. */
@@ -56,16 +59,18 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const history = createGenerationHistoryModel({
     client, session: generationSession, projects: projectsModel, onUnauthorized: options.onUnauthorized,
   });
+  const library = createLibraryModel({ client, onUnauthorized: options.onUnauthorized });
   const discardGuard = createDiscardGuard();
   const toasts = createToastModel(options.toastScheduler);
   const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
   return {
-    editorModel, previewModel, projectsModel, generationSession, history, discardGuard, toasts, loadProject,
+    editorModel, previewModel, projectsModel, generationSession, history, library, discardGuard, toasts, loadProject,
     reset() {
       discardGuard.cancel();
       generationSession.reset();
       projectsModel.reset();
       history.reset();
+      library.reset();
       editorModel.setProject(null);
       previewModel.clear();
       generationToasts.reset();

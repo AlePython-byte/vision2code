@@ -358,7 +358,18 @@ export const es = {
   "discardEyebrow": "Editor / Cambios locales",
   "discardTitle": "¿Descartar los cambios?",
   "discardDescription": "Tienes cambios sin guardar en el editor. Si abres otra generación se descartarán.",
-  "discardConfirm": "Descartar y abrir"
+  "discardConfirm": "Descartar y abrir",
+  "libraryEyebrow": "Biblioteca / Proyectos",
+  "libraryTitle": "Biblioteca de proyectos",
+  "libraryClose": "Cerrar biblioteca",
+  "libraryEmpty": "Aún no tienes proyectos. Créalos desde la vista Proyectos.",
+  "libraryLoading": "Cargando generaciones…",
+  "libraryNoGenerations": "Este proyecto aún no tiene generaciones.",
+  "libraryError": "No se pudieron cargar las generaciones de este proyecto.",
+  "libraryRegion": "Generaciones de {{name}}",
+  "libraryOpenFor": "Abrir biblioteca: {{name}}",
+  "navSettings": "Ajustes",
+  "navSignOut": "Salir"
 };
 export const en: Record<keyof typeof es, string> = {
   "skip": "Skip to workspace",
@@ -720,7 +731,18 @@ export const en: Record<keyof typeof es, string> = {
   "discardEyebrow": "Editor / Local changes",
   "discardTitle": "Discard changes?",
   "discardDescription": "You have unsaved changes in the editor. If you open another generation they will be discarded.",
-  "discardConfirm": "Discard and open"
+  "discardConfirm": "Discard and open",
+  "libraryEyebrow": "Library / Projects",
+  "libraryTitle": "Project library",
+  "libraryClose": "Close library",
+  "libraryEmpty": "You have no projects yet. Create one from the Projects view.",
+  "libraryLoading": "Loading generations…",
+  "libraryNoGenerations": "This project has no generations yet.",
+  "libraryError": "This project's generations could not be loaded.",
+  "libraryRegion": "Generations of {{name}}",
+  "libraryOpenFor": "Open library: {{name}}",
+  "navSettings": "Settings",
+  "navSignOut": "Sign out"
 };
 
 // Compatibility boundary for messages produced by existing framework-independent models.

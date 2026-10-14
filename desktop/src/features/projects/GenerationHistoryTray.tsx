@@ -102,10 +102,8 @@ export function GenerationHistoryTray({ history, session, hasLocalEdits, confirm
                     {current && <span className="history-current-tag">{t("historyCurrent")}</span>}
                   </span>
                   <time dateTime={item.createdAt}>{relativeTimeLabel(item.createdAt, language, now())}</time>
-                  <span className="history-entry-meta">
-                    {t("historyFidelity", { value: t(fidelityKeys[item.fidelityMode]) })}
-                    {source && <> · <span className="history-source" title={source}>{source}</span></>}
-                  </span>
+                  <span className="history-entry-fidelity">{t("historyFidelity", { value: t(fidelityKeys[item.fidelityMode]) })}</span>
+                  {source && <span className="history-source" title={source}>{source}</span>}
                 </span>
                 {opening === item.id && <span className="history-busy">{t("openingGeneration")}</span>}
               </button>

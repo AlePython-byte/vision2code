@@ -186,10 +186,10 @@ test("identity shows the project name (title for truncation) and the PROJECT eye
     const labels = language === "es" ? es : en;
     const out = codeContextHtml(language, w);
     assert.match(out, new RegExp(`<p class="eyebrow">${labels.vaultProjectEyebrow}</p>`));
-    assert.match(out, /<p class="code-identity-name" title="Alpha">Alpha<\/p>/);
+    assert.ok(out.includes('class="code-identity-name" title="Alpha" aria-haspopup="dialog"') && out.includes(">Alpha</button>"));
   }
   await w.session.complete(artifact(null));
-  assert.match(codeContextHtml("en", w), /title="No project">No project</);
+  assert.ok(codeContextHtml("en", w).includes('title="No project"') && codeContextHtml("en", w).includes(">No project</button>"));
 });
 
 test("status chip variants render with LED, localized label and the Edited marker", async () => {
