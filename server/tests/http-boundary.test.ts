@@ -104,7 +104,7 @@ describe("HTTP boundary", () => {
     });
     assert.equal(response.status, 204);
     assert.match(response.headers.get("x-request-id") ?? "", uuidPattern);
-    assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST");
+    assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST,PATCH,DELETE");
   });
 
   it("allows POST preflight from explicit packaged Tauri origins", async () => {
@@ -114,9 +114,43 @@ describe("HTTP boundary", () => {
       });
       assert.equal(response.status, 204);
       assert.equal(response.headers.get("access-control-allow-origin"), origin);
-      assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST");
+      assert.equal(response.headers.get("access-control-allow-methods"), "GET,POST,PATCH,DELETE");
       assert.equal(response.headers.get("access-control-allow-credentials"), null);
     }
+  });
+
+  const allowedOrigins = ["http://localhost:1420", "http://127.0.0.1:1420", "tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"];
+
+  it("permits PATCH and DELETE preflights used by project rename and delete from every allowed origin", async () => {
+    for (const origin of allowedOrigins) {
+      for (const [method, path] of [["PATCH", "/api/v1/projects/p1"], ["DELETE", "/api/v1/projects/p1/generations/g1"]] as const) {
+        const response = await request(path, {
+          method: "OPTIONS",
+          headers: { Origin: origin, "Access-Control-Request-Method": method, "Access-Control-Request-Headers": "authorization,content-type" },
+        });
+        assert.equal(response.status, 204, `${method} preflight from ${origin}`);
+        assert.equal(response.headers.get("access-control-allow-origin"), origin);
+        const methods = (response.headers.get("access-control-allow-methods") ?? "").split(",").map((value) => value.trim());
+        assert.ok(methods.includes(method), `${method} must be allowed from ${origin}, got ${methods.join(",")}`);
+        assert.equal(response.headers.get("access-control-allow-credentials"), null);
+      }
+    }
+  });
+
+  it("keeps the method allowlist closed: no PUT, no wildcard, and no access for unlisted origins", async () => {
+    const methods = async (origin: string, method: string) => {
+      const response = await request("/api/v1/projects/p1", {
+        method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": method },
+      });
+      return {
+        allowOrigin: response.headers.get("access-control-allow-origin"),
+        allowMethods: (response.headers.get("access-control-allow-methods") ?? "").split(",").map((value) => value.trim()),
+      };
+    };
+    const allowed = await methods("http://localhost:1420", "PUT");
+    assert.ok(!allowed.allowMethods.includes("PUT") && !allowed.allowMethods.includes("*"));
+    const unlisted = await methods("https://unlisted.example", "PATCH");
+    assert.equal(unlisted.allowOrigin, null);
   });
 
 });
