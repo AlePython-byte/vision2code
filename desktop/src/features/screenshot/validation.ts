@@ -10,6 +10,11 @@ const formats = {
   WEBP: { extensions: ["webp"], mime: "image/webp" },
 } satisfies Record<ScreenshotFormat, { extensions: string[]; mime: string }>;
 
+/** MIME type for a validated screenshot format; never derived from File.type. */
+export function screenshotMimeType(format: ScreenshotFormat): string {
+  return formats[format].mime;
+}
+
 export class ScreenshotValidationError extends Error {}
 
 function detectFormat(bytes: Uint8Array): ScreenshotFormat | null {

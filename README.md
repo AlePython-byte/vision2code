@@ -1,6 +1,8 @@
 # Vision2Code
 
-A desktop workspace for translating interface screenshots into frontend code. The desktop supports local screenshot selection, validation, image preview, and output-stack selection. An independent NestJS backend provides health and screenshot analysis through OpenAI, returning validated UISchema v1. The desktop Capture Console sends validated screenshots to that backend on explicit user action. A deterministic React + Tailwind generator feeds a Monaco Workspace for session-local code editing after successful analysis.
+A desktop workspace for translating interface screenshots into frontend code. Users sign in with Supabase Auth, pick or create a Project, and send a validated screenshot to an independent NestJS backend that analyzes it through OpenAI and returns validated UISchema v1. A deterministic React + Tailwind generator feeds a Monaco workspace with a sandboxed live preview. Each successful generation is saved under the selected Project through the backend (PostgreSQL via Prisma) and can be restored later from the Project Vault.
+
+Architecture rules and working conventions live in [docs/engineering-rules.md](docs/engineering-rules.md); this README is the narrative reference.
 
 ## Requirements
 
@@ -8,6 +10,7 @@ A desktop workspace for translating interface screenshots into frontend code. Th
 - Stable Rust with the MSVC toolchain on Windows.
 - Windows: Microsoft C++ Build Tools with the Desktop development with C++ workload and WebView2 Runtime.
 - Other platforms: install the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+- A Supabase project (Auth) and a PostgreSQL database for sign-in and project persistence, plus an OpenAI API key for analysis. Variable names are listed in the `.env.example` files.
 
 ## Development
 
@@ -18,7 +21,7 @@ npm install
 npm run desktop:dev
 ```
 
-For the browser-only shell, run `npm run dev` and open `http://localhost:1420`.
+For the browser-only shell, run `npm run dev` and open `http://localhost:1420`. Vite is configured with `strictPort` because Tauri expects port 1420: if it reports `Port 1420 is already in use`, a previous `tauri dev` or `npm run dev` session is still running. Inspect the owner before closing anything (`Get-NetTCPConnection -LocalPort 1420` then `Get-Process -Id <pid>`), and close the whole earlier session instead of changing the port.
 On Windows PowerShell systems that restrict scripts, use `npm.cmd` instead of `npm`.
 
 ```sh
@@ -38,20 +41,30 @@ The root `npm test` command runs the complete repository test suite: contracts, 
 ```text
 package.json                     Private npm workspace and root commands
 package-lock.json                Single npm dependency lockfile
+docs/engineering-rules.md        Shared architecture rules and working conventions
 desktop/
   src/
-    App.tsx                      Application composition
-    features/workspace/          Shell, navigation, and workspace region
-    features/settings/           Dedicated settings workspace and skeuomorphic preference controls
+    App.tsx                      Composition: auth model, workspace services, login or shell
+    features/api/                API base URL resolution
+    features/auth/               Auth model, Supabase provider, Stronghold session storage, backend probe
+    features/login/              Sign-in, registration, and email-confirmation screen
+    features/workspace/          Shell, navigation, capture workspace, and workspaceServices composition root
+    features/projects/           Projects client and model, Project Vault, new-project dialog, project chip
+    features/generation/         Pure generator, generation artifact, and generation session model
+    features/feedback/           Toast model, generation toasts, and floating toast viewport
+    features/settings/           Settings workspace and preference controls
     features/screenshot/         Input UI, feature state, validation, and decoding
-    features/analysis/           HTTP client, React-independent model, and Capture Console
-    features/generation/         Pure deterministic React + Tailwind source generation
+    features/analysis/           Analysis client and model, generation profile, and Capture Console
     features/editor/             Local Monaco adapter, file explorer, and session edits
-    styles/theme.css             Design tokens and responsive shell styling
-  tests/                         File validation and decoder lifecycle tests
-  src-tauri/                     Minimal native runner, window configuration, icons
-packages/contracts/              Zod output-stack, API error, UISchema, and analysis response contracts
+    features/preview/            Sandboxed live preview (compiler, resolver, runtime, controls)
+    features/preferences/        Theme and language preferences, i18n resources
+    styles/                      theme.css (tokens, fonts, shell) and foundation.css (light/dark tokens)
+  tests/                         Desktop unit and UI tests
+  src-tauri/                     Native runner, Stronghold plugin, window configuration, icons
+packages/contracts/              Zod contracts: UISchema, GeneratedProject, Project/Generation, API errors, analysis response
 server/
+  prisma/                        schema.prisma and migrations
+  scripts/                       Manual database smoke test
   src/
     health/                      Health endpoint and feature module
     http/                        Request IDs, global error filter, and Zod pipe
@@ -59,21 +72,24 @@ server/
     analysis/                    Analysis core, multipart HTTP boundary, and provider infrastructure
       providers/                 OpenAI Responses adapter and provider configuration
       http/                      Analysis controller and in-memory upload validation
+    auth/                        Supabase JWT guard (JWKS verification) and GET /auth/me
+    projects/                    Projects controller, service, and repository (Prisma and in-memory)
+    prisma/                      Prisma module and service
     configuration.ts             Validated startup configuration
   tests/                         HTTP integration and boundary unit tests
 ```
 
-The frontend uses React, strict TypeScript, Vite, and Tailwind CSS 4 through `@tailwindcss/vite`. The official Tauri React/TypeScript scaffold is the starting point. IBM Plex Sans and IBM Plex Mono are bundled locally through Fontsource; no remote fonts are requested.
+The frontend uses React, strict TypeScript, Vite, and Tailwind CSS 4 through `@tailwindcss/vite`. The official Tauri React/TypeScript scaffold is the starting point. Typography follows a three-family system bundled locally through Fontsource: Sora for headings and UI labels, Space Grotesk for body text, inputs and values, and IBM Plex Mono for technical data and code. No remote fonts are requested.
 
 The Capture Console follows the approved visual direction: a light blue-gray canvas, raised and inset surfaces, restrained shadows, purple primary actions, cyan/green status accents, a navigation rail, a workflow strip, and reference/profile panels. This is an initial adaptation of the written direction; exact Figma frame parity has not been verified. CSS theme variables define color, typography, spacing, radius, borders, and motion. The layout adapts to smaller windows and keeps content scrollable. Keyboard users have a skip link and visible focus states; reduced-motion preferences are respected.
 
-Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. No custom Rust commands, plugins, or native permissions are enabled. The production content security policy permits local assets and `blob:` images for in-memory previews, plus explicit HTTP connections to localhost:3000 and 127.0.0.1:3000 for the backend. The scaffold's default bundle icons are retained as development placeholders.
+Tauri opens a 1280 x 820 window with a 720 x 540 minimum and native window decorations. The native side registers the Stronghold plugin and two commands, `get_vault_key` and `get_vault_path`. The vault master key is generated once with the OS random source and kept in the operating system credential store; the capability file grants only the Stronghold initialize/client/store/save permissions used for session storage. The content security policy permits local assets and `blob:` images for in-memory previews, plus connections to IPC and to `localhost:3000` / `127.0.0.1:3000` for the backend. `connect-src` also lists the explicit HTTPS origin of the Supabase project used for authentication (no wildcard); changing `VITE_SUPABASE_URL` to another project requires updating that origin. The same policy applies to `tauri dev` and packaged builds, while the browser-only shell (`npm run dev`) has no CSP. The scaffold's default bundle icons are retained as development placeholders.
 
-There is no frontend router or global state library. Screenshot selection remains in its feature hook. The Capture Console composes it with a screen-scoped analysis model and keeps the existing output-stack selection local to the future generation profile. The contracts workspace exports `OutputStackSchema` and its inferred `OutputStack` type with exactly `REACT_TAILWIND` and `HTML_CSS`, plus the API error envelope, request ID validation, and UISchema v1. It builds JavaScript and declarations consumed by the desktop and ESM backend, with no browser dependencies.
+There is no frontend router or global state library. Screenshot selection remains in its feature hook. The Capture Console composes it with a screen-scoped analysis model and keeps the output-stack selection local to the generation profile. The contracts workspace exports `OutputStackSchema` (`REACT_TAILWIND` and `HTML_CSS`), the API error envelope, request ID validation, UISchema v1, the `GeneratedProject` schema, and the Project and Generation schemas used by the projects API. It builds JavaScript and declarations consumed by the desktop and ESM backend, with no browser dependencies.
 
 ## Backend foundation
 
-The NestJS server exposes `GET /api/v1/health` and `POST /api/v1/analyses`. Health returns:
+The NestJS server exposes the public `GET /api/v1/health` and the authenticated `POST /api/v1/analyses`, `GET /api/v1/auth/me`, and `/api/v1/projects` routes described in [Projects and persistence](#projects-and-persistence). Every authenticated route uses `SupabaseAuthGuard` and answers 401 `UNAUTHORIZED` without a valid bearer token. Health returns:
 
 ```json
 { "status": "ok", "service": "vision2code-api" }
@@ -86,9 +102,9 @@ npm install
 npm run server:dev
 ```
 
-Before starting, copy `server/.env.example` to `server/.env` and set `OPENAI_API_KEY` locally, or supply it through the process environment. The provider fails construction with an English configuration error if the key is missing. This is required to start the application, including its health endpoint. `OPENAI_MODEL` defaults to `gpt-6.1-sol`; an explicitly empty value is rejected. `PORT` defaults to 3000, and invalid ports fail startup. Never put a real key in `.env.example`.
+Before starting, copy `server/.env.example` to `server/.env` and set `OPENAI_API_KEY` locally, or supply it through the process environment. The provider fails construction with an English configuration error if the key is missing. This is required to start the application, including its health endpoint. `OPENAI_MODEL` defaults to `gpt-6.1-sol`; an explicitly empty value is rejected. `PORT` defaults to 3000, and invalid ports fail startup. `SUPABASE_URL` is the Supabase project URL used only to fetch the public JWKS and verify access tokens; without it every authenticated route answers 401. `DATABASE_URL` is the PostgreSQL connection string used by Prisma for projects. Never put a real key, token, or connection string in `.env.example`.
 
-The development command compiles contracts and the server, then starts it at `http://localhost:3000`. It does not watch source files; restart the command after edits. The server binds to `127.0.0.1` for local development. Node loads `server/.env`; existing process environment values take precedence. Actual `.env` files and variants remain ignored by Git; `.env.example` is the non-secret template.
+The development command compiles contracts and the server, then starts it at `http://localhost:3000`. It does not watch source files; restart the command after edits. The server binds to `127.0.0.1` for local development. Node loads `server/.env`; existing process environment values take precedence. Actual `.env` files and variants remain ignored by Git; `.env.example` is the non-secret template. The Prisma schema and its migration live in `server/prisma/`; apply them to the database behind `DATABASE_URL` with the Prisma CLI (`prisma migrate deploy`) before using projects.
 
 ```sh
 npm run server:build
@@ -97,7 +113,7 @@ npm run server:test
 
 Server TypeScript is strict and emits ESM using the existing compiler. Tests compile TypeScript before running Node's built-in test runner; no Nest CLI, Jest, or Supertest is needed. `@nestjs/testing` overrides the AI provider before constructing the application. HTTP integration tests use an ephemeral loopback port and Node fetch. Provider tests inject a simulated transport into the official SDK. Normal automated tests require no API key, make zero real OpenAI calls, and consume zero AI credits. No production test routes exist.
 
-`AppModule` imports `HealthModule` and `AnalysisModule`. The `AI_PROVIDER` injection token binds the production `OpenAIProvider` to `AnalyzeInterfaceUseCase`, which depends only on the provider abstraction. Bootstrap applies the `api/v1` prefix, request ID middleware, explicit CORS policy, and global exception filter. The middleware runs before CORS and body parsing. Every application HTTP response includes `X-Request-Id`. Incoming IDs must be 1–128 ASCII letters, digits, dots, underscores, colons, or hyphens, beginning with a letter or digit. Invalid or missing IDs receive a platform-generated UUID. IDs are correlation metadata, not authentication or trusted identity.
+`AppModule` imports `HealthModule`, `AnalysisModule`, `AuthModule`, and `ProjectsModule`. The `AI_PROVIDER` injection token binds the production `OpenAIProvider` to `AnalyzeInterfaceUseCase`, which depends only on the provider abstraction. Bootstrap applies the `api/v1` prefix, request ID middleware, explicit CORS policy, and global exception filter. The middleware runs before CORS and body parsing. Every application HTTP response includes `X-Request-Id`. Incoming IDs must be 1–128 ASCII letters, digits, dots, underscores, colons, or hyphens, beginning with a letter or digit. Invalid or missing IDs receive a platform-generated UUID. IDs are correlation metadata, not authentication or trusted identity.
 
 Errors use the shared `ApiErrorResponseSchema`:
 
@@ -113,13 +129,15 @@ Errors use the shared `ApiErrorResponseSchema`:
 
 Ordinary HTTP exceptions retain their status. A 404 maps to `NOT_FOUND`, other ordinary client errors to `INVALID_REQUEST`, and unexpected errors to `INTERNAL_ERROR`. Analysis-specific mappings are listed below. All client error messages are Spanish. Responses never copy exception messages, provider bodies, validation issues, or stack traces; global exception-filter logs include only correlation ID and HTTP status. Unknown routes also use this envelope. The existing `ZodValidationPipe` remains available for route-bound schemas; multipart metadata is validated by a dedicated upload boundary.
 
-CORS explicitly allows the Vite origins `http://localhost:1420` and `http://127.0.0.1:1420`, plus packaged desktop origins `tauri://localhost`, `http://tauri.localhost`, and `https://tauri.localhost`. GET and POST are permitted without credentials; `X-Request-Id` is exposed. Unlisted browser origins receive no CORS permission; CORS is not authentication. No wildcard origin, HTTP plugin, or new native capability is used.
+CORS explicitly allows the Vite origins `http://localhost:1420` and `http://127.0.0.1:1420`, plus packaged desktop origins `tauri://localhost`, `http://tauri.localhost`, and `https://tauri.localhost`. GET, POST, PATCH, and DELETE are permitted without credentials (PATCH and DELETE serve project rename and delete), with `Content-Type`, `X-Request-Id`, and `Authorization` as allowed request headers; `X-Request-Id` is exposed. Unlisted browser origins receive no CORS permission; CORS is not authentication. No wildcard origin, HTTP plugin, or new native capability is used.
 
-`AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. The production adapter uses the official `openai` SDK. There is no persistence, authentication, provider fallback, or code generation.
+`AIProvider` defines an asynchronous, cancellable analysis boundary independent of Nest HTTP objects. It accepts `AnalysisImageInput` and returns `Promise<unknown>` so external output cannot bypass application validation. The production adapter uses the official `openai` SDK. The analysis path has no persistence, provider fallback, or code generation; it reuses `SupabaseAuthGuard` from the `auth` module, and persistence belongs to the separate `projects` module.
 
 ## Screenshot analysis API
 
 `POST /api/v1/analyses` accepts `multipart/form-data` with exactly one file named `image` and two text fields, `viewportWidth` and `viewportHeight`. Dimensions must be positive safe integers in decimal notation. `targetStack`, other extra fields, duplicate dimensions, additional files, JSON bodies, and user-supplied image URLs are rejected.
+
+The route requires `Authorization: Bearer <Supabase access token>`, verified exactly like the projects routes. Nest runs guards before interceptors, so a request without a valid token is rejected with 401 before the upload is parsed or validated and before the AI provider is called; an invalid body without a token is also 401. The provider costs money per call, so this route is never public.
 
 The server independently accepts only PNG (`image/png`), JPEG (`image/jpeg`), and WEBP (`image/webp`), up to and including 10,000,000 bytes (10 decimal MB). Nest's Multer interceptor buffers the upload in memory with bounded file and field limits; no destination path or disk storage is configured. Validation checks MIME, non-empty bytes, file signature, size, and dimensions. It does not fully decode the image or verify that supplied dimensions match encoded dimensions. A supported signature is not proof of a fully decodable image; malformed image data may still be rejected by the provider. Filenames and paths are not sent to OpenAI or returned to clients.
 
@@ -137,6 +155,7 @@ The API excludes generated code, reasoning, token usage, and raw provider intern
 
 | Failure | HTTP | API code |
 | --- | --- | --- |
+| Missing, malformed, expired or foreign-signed bearer token | 401 | `UNAUTHORIZED` |
 | Missing file, invalid dimensions, malformed multipart or extra fields | 400 | `INVALID_REQUEST` |
 | Unsupported MIME, empty bytes or mismatched signature | 415 | `UNSUPPORTED_IMAGE` |
 | Image above 10 MB | 413 | `IMAGE_TOO_LARGE` |
@@ -151,10 +170,16 @@ Development analysis diagnostics are emitted as JSON console records with contex
 
 ### Optional manual live request
 
-This procedure performs one real analysis and consumes paid OpenAI API usage. It is never executed by automated tests. Set `OPENAI_API_KEY` in your ignored `server/.env`, retain `OPENAI_MODEL=gpt-6.1-sol`, and run `npm.cmd run server:dev`. In a second PowerShell terminal, replace the example path and dimensions with those of a real supported screenshot, then execute once:
+This procedure performs one real analysis and consumes paid OpenAI API usage. It is never executed by automated tests. Set `OPENAI_API_KEY` and `SUPABASE_URL` in your ignored `server/.env`, retain `OPENAI_MODEL=gpt-6.1-sol`, and run `npm.cmd run server:dev`. Obtain a current access token by signing in through the desktop or Supabase (never paste it into files or logs). In a second PowerShell terminal, replace the token, example path and dimensions, then execute once:
 
 ```powershell
-curl.exe --request POST "http://localhost:3000/api/v1/analyses" --header "X-Request-Id: manual-analysis-001" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
+curl.exe --request POST "http://localhost:3000/api/v1/analyses" --header "X-Request-Id: manual-analysis-001" --header "Authorization: Bearer <access-token>" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
+```
+
+Without the `Authorization` header the same command returns HTTP 401 with code `UNAUTHORIZED` and makes no OpenAI call, which is a free way to check the protection:
+
+```powershell
+curl.exe --include --request POST "http://localhost:3000/api/v1/analyses" --form "image=@C:/path/to/screenshot.png;type=image/png" --form "viewportWidth=1280" --form "viewportHeight=820"
 ```
 
 Expect HTTP 200 with the same request ID and validated UISchema v1. A provider or validation failure returns the standard Spanish error envelope. The desktop also exposes this analysis through its Capture Console; neither entry point generates code.
@@ -186,13 +211,13 @@ Only PNG, JPEG, and WEBP are supported. `MAX_SCREENSHOT_BYTES` defines the limit
 
 The UI exposes `EMPTY`, `DRAGGING`, `VALIDATING`, `READY`, and `ERROR` states through Spanish copy and accessible announcements. It shows the file name, dimensions, size, and detected format. Invalid replacements retain the previous image; cancelling the file chooser leaves the selection unchanged. Multiple files are rejected. Removal cancels pending work and returns to the empty state. A newer selection cancels the previous request so stale work cannot replace the current image.
 
-The desktop retains the original validated File and decoded dimensions in memory. It uploads the selected screenshot only when the user activates analysis; it does not persist images or analysis results. Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. Product copy supports Spanish and English, while source identifiers and technical documentation remain English.
+The desktop retains the original validated File and decoded dimensions in memory. It uploads the selected screenshot only when the user activates analysis; the image itself is never persisted. Only the generated artifact is saved, and only when a Project is selected (see [Projects and persistence](#projects-and-persistence)). Object URLs are revoked after decoding failure, cancellation, successful replacement, removal, and feature cleanup. The preview preserves aspect ratio and constrains its width and height; long file names wrap. Product copy supports Spanish and English, while source identifiers and technical documentation remain English.
 
 ## Desktop analysis integration
 
 The Capture Console composes screenshot selection with a small feature boundary in `desktop/src/features/analysis/`:
 
-- `analysisClient.ts`: browser fetch transport, multipart construction, shared success/error contract validation, and fixed Spanish error messages. It sends only `image`, `viewportWidth`, and `viewportHeight` using browser-decoded dimensions and the validated MIME. The browser sets the multipart boundary. No profile settings, output stack, provider key, or provider configuration are sent.
+- `analysisClient.ts`: browser fetch transport, multipart construction, shared success/error contract validation, and fixed Spanish error messages. The workspace services build it with the injected `getAccessToken` and `onUnauthorized` (the analysis feature never imports auth): it sends `Authorization: Bearer <token>`, sends nothing without a token, and a missing token or HTTP 401 calls `onUnauthorized` once per request; 5xx, rate limits and network errors never expire the session. It sends only `image`, `viewportWidth`, and `viewportHeight` using browser-decoded dimensions and the validated MIME. The browser sets the multipart boundary. No profile settings, output stack, provider key, or provider configuration are sent.
 - `analysisModel.ts`: React-independent screen-scoped state with `IDLE`, `READY`, `ANALYZING`, `SUCCESS`, and `ERROR`. `getSnapshot().result` stores validated `{ requestId, uiSchema }`. The model exposes synchronous React/Tailwind generation from `result.uiSchema` without importing a component or invoking the provider. State is not persisted.
 - `useAnalysis.ts`: subscribes React to the model, synchronizes validated selection, and aborts/disposes work on unmount.
 - `CaptureConsole.tsx`: presentation and feature composition, including the profile panel, primary action, cancellation, and Spanish announcements.
@@ -201,7 +226,7 @@ The Capture Console composes screenshot selection with a small feature boundary 
 
 The primary action is labeled “Activar generador” (the Spanish product label for “Engage generator”), with an explanation that this stage only analyzes. It is disabled without a validated image, during image validation, and during analysis. An active request preserves the preview and cannot be submitted twice. Failures allow manual retry with the same image. Cancelling, replacing/removing an image, or unmounting aborts work; obsolete responses cannot replace newer state. There are no automatic retries or invented progress percentages. A 150-second client transport deadline allows time beyond the backend's 120-second analysis deadline.
 
-The profile preserves the existing React/Tailwind versus HTML/CSS selection. The Visual Fidelity selector provides an interactive animated three-state dial (Fast at -35°, Balanced at 0°, Precise at +35°) with tactile segmented buttons defaulting to Balanced. Profile settings and fidelity selection do not alter analysis HTTP requests or backend contracts. React/Tailwind generation opens the code workspace after success. Projects, library, export and HTML/CSS generation remain unavailable. The code workspace hosts the sandboxed Live Preview described below.
+The profile preserves the existing React/Tailwind versus HTML/CSS selection. The Visual Fidelity selector provides an interactive animated three-state dial (Fast at -35°, Balanced at 0°, Precise at +35°) with tactile segmented buttons defaulting to Balanced. Profile settings and fidelity selection do not alter analysis HTTP requests or backend contracts. React/Tailwind generation opens the code workspace after success. The library entry is disabled, and export and HTML/CSS generation remain unavailable. The code workspace hosts the sandboxed Live Preview described below.
 
 Copy `desktop/.env.example` to an ignored `desktop/.env` only when overriding the default `VITE_API_BASE_URL=http://localhost:3000/api/v1`. Vite embeds `VITE_` values in public client code: never place provider secrets there. Start the backend separately with `npm.cmd run server:dev`, then the desktop with `npm.cmd run desktop:dev` (or browser mode with `npm.cmd run dev`). Real analysis consumes provider usage. A custom API origin must also be explicitly allowed by packaged Tauri `connect-src`; a custom frontend origin must be allowed by backend CORS. Restart/rebuild after environment or CSP changes.
 
@@ -226,7 +251,7 @@ Mapping rules:
 
 Schema strings are encoded as JavaScript string literals inside JSX expressions, including Unicode escaping for markup delimiters and line separators. They never become raw HTML, event handlers, imports, identifiers, or executable expressions. Colors and numeric values come from the validated shared contract; font-family syntax is allowlisted. No inline style objects are emitted.
 
-Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation, export, persistence, and component inference are not implemented.
+Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation, export, and component inference are not implemented. The generator itself never persists anything: saving generations is done by the generation session model, outside the generator.
 
 Generation tests cover every current node type, layouts, styles, hostile and multiline strings, deterministic output, an assembled dashboard fixture, full generated TypeScript checking, Tailwind compilation, and the validated analysis boundary. Run them separately with `node --experimental-strip-types --test desktop/tests/generation.test.ts` from the repository root. They use fixture transports and make no real backend, OpenAI, or external network calls.
 
@@ -252,7 +277,7 @@ Monaco and its Spanish messages/workers are bundled locally using `monaco-editor
 
 Tests cover selection, ordering, independent drafts, resets, empty states, language mapping, rendered explorer paths, clipboard success/failure, and stale feedback. Run `node --experimental-strip-types --test desktop/tests/editor.test.ts` for this suite. Tests inject clipboard functions and require no analysis server or external network. An isolated Edge check also exercised fixture analysis -> generation -> real Monaco editing, file/screen switching, copy, and reset at 1280, 720, and 390 pixels without horizontal overflow or external page requests. Under the strict CSP, the existing Zod eval-availability probe logs a blocked eval attempt and falls back successfully; script restrictions were not relaxed.
 
-Current limits: editing lasts only for the current application session, with no filesystem, backend persistence, project history, or export. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
+Current limits: editor drafts last only for the current application session, with no filesystem persistence or export; only the originally generated artifact is saved to the backend, never edits. Past generations are restored from the Project Vault. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
 
 ## Live Preview
 
@@ -262,9 +287,61 @@ The code workspace renders the current `GeneratedProject` beside Monaco in an is
 - **Controls:** Desktop (1440 x 900), Tablet (768 x 1024), and Mobile (390 x 844) presets; Fit, 50%, 75%, and 100% zoom (aspect ratio preserved); manual Refresh/Retry that compiles immediately and cancels stale renders. These controls are presentation-only and never recompile. They are session-only and not persisted. Generated interfaces use fixed-width absolute layouts, so presets scale the same interface rather than producing a different responsive layout.
 - **Security:** the iframe uses `sandbox="allow-scripts"` (no `allow-same-origin`, popups, top navigation, or forms) and a CSP of `default-src 'none'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'` with only inline script/style allowed. Compilation happens outside the frame; the host never evaluates generated code. The preview stage follows the app theme, while the generated interface keeps its own independent colors.
 - **Tests:** `desktop/tests/preview*.test.ts` cover the state machine, compiler/runtime, resolver, fit/zoom, sync, controls, and an end-to-end acceptance flow (`preview-acceptance.test.ts`). They need no backend or network.
+
+## Authentication
+
+The desktop reaches the workspace only with an authenticated session; the login screen is the entry point otherwise. `desktop/src/features/auth/` follows the same pattern as the other features:
+
+- `authModel.ts`: React-independent state machine with `RESTORING`, `UNAUTHENTICATED`, `AUTHENTICATING`, `AUTHENTICATED`, `AWAITING_EMAIL_CONFIRMATION`, and `ERROR`. Stale async results are discarded. Snapshots hold a frozen user (`id`, `email`, `emailVerified`) and a safe error code, never a password or token.
+- `authProvider.ts`: provider port (`restoreSession`, `signIn`, `signUp`, `signOut`, `getAccessToken`). `createUnconfiguredAuthProvider` is used when Supabase configuration is absent; it never fakes a session.
+- `supabaseAuthProvider.ts` and `supabaseClient.ts`: Supabase email/password adapter built from the public `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (legacy `VITE_SUPABASE_ANON_KEY` is also read). No service-role key exists in the desktop.
+- `tauriStrongholdStorage.ts` and `authStorage.ts`: session persistence in a Stronghold vault inside Tauri, with an in-memory fallback elsewhere. Legacy WebView `localStorage` entries are cleaned.
+- `authProbe.ts`: after authentication the app calls `GET /api/v1/auth/me` once; a 401 expires the session, while backend downtime or 5xx responses do not.
+
+The access token is read on demand through `authModel.getAccessToken` and is never stored in models, React state, or logs. Projects and generation models receive an `onUnauthorized` callback instead of importing the auth feature; a `UNAUTHORIZED` result there calls `expireSession`. Signing out, expiry, or a different user resets projects, the generation session, editor, preview, and toasts, and the application shell is unmounted rather than hidden.
+
+When the Supabase project requires email confirmation, an account that has not confirmed its address cannot sign in and the login screen shows the `EMAIL_NOT_CONFIRMED` message. A failed sign-in keeps its own error code (invalid credentials, unconfirmed email, rate limit, network); only an authenticated session that the backend rejects with 401 is reported as an expired session.
+
+The login screen (`features/login/Login.tsx`) offers sign-in and registration tabs with password confirmation, an email-confirmation state, accessible password visibility, and Spanish/English copy. Email and password fields are validated with shared Zod rules (8 to 128 character passwords) and never logged.
+
+## Projects and persistence
+
+A **Project** groups the generations of one user. Persistence is optional per run: a result is saved only when a Project was selected when analysis started.
+
+Backend (`server/src/projects/`, all routes behind `SupabaseAuthGuard`, prefix `/api/v1`):
+
+| Route | Purpose |
+| --- | --- |
+| `POST /projects`, `GET /projects` | Create / list the caller's projects |
+| `GET /projects/:projectId`, `PATCH /projects/:projectId`, `DELETE /projects/:projectId` | Detail with generation summaries / rename (same name validation as create; bumps `updatedAt`; response has no counts) / delete (cascades to generations, 204; 404 when missing or another user's) |
+| `POST /projects/:projectId/generations`, `GET /projects/:projectId/generations` | Save / list generations |
+| `GET /projects/:projectId/generations/:generationId`, `DELETE ...` | Full artifact / delete |
+
+Bodies are validated with the shared contracts (`CreateProjectInputSchema`, `UpdateProjectInputSchema`, `CreateGenerationInputSchema`). Request bodies never include a user id: the owner comes from the verified JWT subject. Another user's project is reported as not found. Generations are immutable.
+
+Data model (`server/prisma/schema.prisma`, one migration): `projects` (`id`, `user_id`, `name` up to 100 characters, timestamps) and `generations` (`project_id` with cascade delete, optional `source_image_path` / `source_image_name` / `source_image_mime_type`, `ui_schema` and `generated_project` as JSONB, `generation_target`, `fidelity_mode`). The migration defines no row-level security policies; ownership is enforced in `ProjectsService`.
+
+Authentication on the server: `JoseSupabaseJwtVerifier` verifies the bearer token against the Supabase project's remote JWKS, with issuer `<SUPABASE_URL>/auth/v1` and audience `authenticated`. Tokens and verification details are never logged or returned.
+
+Desktop (`desktop/src/features/projects/` and `generation/`):
+
+- `projectsClient.ts`: typed HTTP client that validates responses with the shared contracts and maps failures to safe codes (`UNAUTHORIZED`, `NOT_FOUND`, `VALIDATION_FAILED`, `NETWORK_ERROR`, `SERVER_ERROR`, `UNKNOWN`).
+- `projectsModel.ts`: project list, selection, create/rename/delete, with epochs that discard stale responses.
+- `generationSessionModel.ts`: single owner of the current result. The target project is captured at analysis start (`targetProjectId`); the result is shown immediately and then saved in the background. Retrying reuses the stored artifact and project, and never analyzes or generates again. Save status is `IDLE`, `PROJECT_REQUIRED`, `NOT_PERSISTABLE`, `SAVING`, `SAVED`, `SAVE_FAILED`, or `DETACHED` (its project was deleted; local only). Opening a stored generation restores its code into the editor and preview without analysis or generation. An analysis result is persisted at most once per session: restoring keeps the last generated result and its save outcome, so generating that same result again returns to it (same stored artifact, generation id and status, including a pending or failed save) instead of saving a duplicate. `sourceImagePath` is always sent as `null`; screenshot storage is deferred.
+- `ProjectVault.tsx`, `NewProjectDialog.tsx`, `ProjectChip.tsx` with `vaultActions.ts`, `vaultSelectors.ts`, `vaultKeyboard.ts`, and `projectTargetActions.ts`: searchable vault, create/rename/delete flows, opening a project or its latest generation, and the project chip used in the Capture Console. Navigation lives in the shell (`projects`, `capture`, `editor`, `settings`).
+- `generationHistoryModel.ts`, `GenerationHistoryTray.tsx`, `discardGuard.ts`, `DiscardDialog.tsx`: per-project history of the current result in the Code view and the single app-level confirmation before unsaved edits are replaced.
+- `projectManageActions.ts`, `ProjectManageDialogs.tsx`: rename and delete from each Vault card (sibling buttons of the open button, never nested), confirmed in one app-level dialog host. Both are pessimistic: nothing changes until the server confirms, and a failure keeps the dialog open with the error and Retry. Rename uses the create validation and moves the project to the top of Recent (the server bumps `updatedAt`); the new name shows in the Vault, the project chip, the Library and the Code view. Delete names the project and how many generations go with it (cascade), focuses Cancel and cannot be undone; a 404 counts as already deleted. If the open result belonged to the deleted project, its code and edits stay as a local-only result (`DETACHED`) with no history; late save or restore answers for that project are ignored. A 404 on rename removes the project with a notice. 401 expires the session once; 5xx and network errors never do.
+- `libraryModel.ts`, `LibraryDialog.tsx`, `libraryActions.ts`: the Library dialog opened from the rail or the Code view project name; it lazily loads each project's generations with its own model and opens them through the same discard guard and restore flow. A failed refresh keeps the cached list and says so.
+
+Known limitation: there are no idempotency keys, so retrying a save after a response was lost post-commit can store a duplicate generation.
+
+## Floating feedback toasts
+
+`desktop/src/features/feedback/` renders save, restore, and vault outcomes as floating capsules in a fixed viewport outside the document flow. `toastModel.ts` is a React-independent queue (at most three visible, persistent toasts are never evicted for transient ones, timers come from an injected scheduler). `generationToasts.ts` binds generation session state to the queue, so domain models never import toast code. Messages are i18n keys, so a language switch applies to toasts already on screen.
+
 ## UI foundation, preferences, and login shell
 
-The application starts with the Vision2Code login shell. This is a presentation-only screen: sign-in and account creation are explicitly unavailable. Email/password fields are uncontrolled, never sent to an API, never logged, and never copied to application state or storage. Password visibility is accessible and reversible. The clearly labeled local demo entry opens Capture Console without implying authentication. Returning to the login screen preserves the existing demo workspace; entering the demo removes the login form and its field values.
+The login screen is described in [Authentication](#authentication). Email and password fields are never copied to application state or storage beyond the controlled form values needed to submit them. Password visibility is accessible and reversible.
 
 `desktop/src/features/preferences/` owns the UI foundation:
 
@@ -283,7 +360,7 @@ Monaco follows the app theme immediately using its light/vs-dark themes without 
 
 Automated preferences tests cover defaults, switching, persistence, corrupt/unavailable storage, complete bilingual keys, retained messages, login rendering, password visibility, accessible controls, and unchanged editor drafts. Existing screenshot, analysis, generation, and editor suites remain in place. A local Edge smoke check with intercepted analysis tested Login, actual password toggling, both themes/languages, persisted reload preferences, capture -> generation -> Monaco, copying, resets, and file/screen switches. No real analysis/OpenAI calls or external application requests were made.
 
-No authentication, fake user, token, cloud session, database, OAuth, history, or export is implemented. Session editing is still lost on application reload. Packaged WebView verification remains manual.
+Not implemented: OAuth providers, password reset, screenshot storage, export, HTML/CSS generation, and the library. Editor drafts are lost on application reload; only generated artifacts are saved. Packaged WebView verification remains manual.
 
 ## Manual verification
 

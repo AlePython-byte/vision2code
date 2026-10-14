@@ -76,6 +76,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
   const require = createRequire(import.meta.url);
   runInNewContext(code, { exports, require: (name: string) => {
     if (name in overrides) return overrides[name];
+    if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
     if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
     if (name.endsWith("/preferences") || name === "./preferences") return { preferences };
     if (name.endsWith("/previewModel") || name === "./previewModel") return { createPreviewModel: () => ({ setProject: () => {}, render: () => Promise.resolve(), subscribe: () => () => {}, getSnapshot: () => ({ status: "EMPTY" }) }) };
@@ -232,7 +233,7 @@ test("application shell provides Settings navigation and removes redundant shell
   assert.equal(nodes.find(n => n.props?.className === "shell-preferences"), undefined);
 
   // Find settings navigation item
-  const settingsNavItem = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Configuración"));
+  const settingsNavItem = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Ajustes"));
   assert.ok(settingsNavItem);
   assert.equal(settingsNavItem.props["aria-current"], undefined);
 
@@ -245,7 +246,7 @@ test("application shell provides Settings navigation and removes redundant shell
   const updatedSkipLink = nodes.find(n => n.props?.className === "skip-link");
   assert.equal(updatedSkipLink.props.href, "#settings-workspace");
 
-  const activeSettingsNav = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Configuración"));
+  const activeSettingsNav = nodes.find(n => n.props?.className === "navigation-item" && n.props?.children?.some?.((c: any) => c?.props?.children === "Ajustes"));
   assert.equal(activeSettingsNav.props["aria-current"], "page");
 
   // Settings screen is rendered in the tree via renderToStaticMarkup

@@ -1,11 +1,16 @@
-export interface GeneratedFile {
-  path: string;
-  content: string;
-  language: "typescript";
-}
+/**
+ * Canonical contract source: @vision2code/contracts.
+ * Re-exported here for desktop feature consumers without duplicate interfaces.
+ */
+export type {
+  GeneratedFile,
+  GeneratedProject,
+  GeneratedFileLanguage,
+} from "@vision2code/contracts";
 
-export interface GeneratedProject {
-  target: "react-tailwind";
-  generatorVersion: "1";
-  files: GeneratedFile[];
-}
+export {
+  GeneratedFileSchema,
+  GeneratedProjectSchema,
+  GeneratedFileLanguageSchema,
+  GENERATED_FILE_LANGUAGES,
+} from "@vision2code/contracts";

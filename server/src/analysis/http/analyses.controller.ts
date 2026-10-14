@@ -1,14 +1,18 @@
-import { Body, Controller, HttpCode, Inject, Post, Req, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, HttpCode, Inject, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import type { Response } from "express";
 import { AnalysisResponseSchema } from "@vision2code/contracts";
 import type { AnalysisResponse } from "@vision2code/contracts";
+import { SupabaseAuthGuard } from "../../auth/supabase-auth.guard.js";
 import type { RequestContext } from "../../http/request-id.middleware.js";
 import { AnalyzeInterfaceUseCase } from "../analyze-interface.use-case.js";
 import { ANALYSIS_TIMEOUT_MS } from "../analysis.constants.js";
 import { ProviderFailureError } from "../provider-failure.error.js";
 import { AnalysisUploadInterceptor, validateAnalysisUpload } from "./analysis-upload.js";
 
+// Analysis spends provider quota, so it requires a verified Supabase session. Nest runs guards before
+// interceptors, so an unauthenticated request is rejected before the upload is parsed or the AI is called.
 @Controller("analyses")
+@UseGuards(SupabaseAuthGuard)
 export class AnalysesController {
   constructor(@Inject(AnalyzeInterfaceUseCase) private readonly analyzeInterface: AnalyzeInterfaceUseCase) {}
 

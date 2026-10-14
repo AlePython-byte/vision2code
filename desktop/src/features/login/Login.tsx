@@ -104,12 +104,16 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
       if (!isRegisterMode) {
         await authModel.signIn({ email: trimmedEmail, password });
         setPassword("");
-        // Backend auth probe validation: verify NestJS accepts the bearer token
-        void probeBackendAuth(authModel.getAccessToken).then((probe) => {
-          if (probe.isUnauthorized) {
-            void authModel.expireSession("SESSION_EXPIRED");
-          }
-        });
+        // Backend auth probe validation: verify NestJS accepts the bearer token.
+        // signIn never throws (failures live in the model), and without a session the probe reports 401,
+        // which would replace the real error (bad credentials, unconfirmed email...) with SESSION_EXPIRED.
+        if (authModel.getSnapshot().status === "AUTHENTICATED") {
+          void probeBackendAuth(authModel.getAccessToken).then((probe) => {
+            if (probe.isUnauthorized) {
+              void authModel.expireSession("SESSION_EXPIRED");
+            }
+          });
+        }
         onAuthSuccess?.();
       } else {
         await authModel.signUp({ email: trimmedEmail, password });

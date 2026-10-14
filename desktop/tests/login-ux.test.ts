@@ -33,6 +33,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
       if (name in overrides) return overrides[name];
       if (name.endsWith(".css")) return {};
       if (name === "lucide-react") return lucide;
+      if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
       if (name.endsWith("/useLabels") || name === "./useLabels") {
         return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
       }
@@ -683,3 +684,60 @@ test("30. all 8 domain error codes have valid localized representations", () => 
   }
 });
 
+
+function mountLoginForSubmit(model: ReturnType<typeof createAuthModel>, probe: unknown) {
+  // Scripted hook state: mode, email, password, confirmPassword, showPassword, showConfirmPassword, localError, isSubmitting.
+  const values: unknown[] = ["SIGN_IN", "user@example.com", "password123", "", false, false, null, false];
+  let call = 0;
+  const { Login } = loadComponent("login/Login.tsx", {
+    react: {
+      ...React,
+      useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(),
+      useState: (initial: unknown) => [call < values.length ? values[call++] : initial, () => {}],
+    },
+    "../auth/authProbe.ts": { probeBackendAuth: probe },
+  });
+  function flatten(element: any): any[] {
+    if (!element || typeof element !== "object") return [];
+    return [element, ...React.Children.toArray(element.props?.children).flatMap(flatten)];
+  }
+  const form = flatten(Login({ authModel: model })).find((node) => node?.type === "form");
+  assert.ok(form?.props?.onSubmit, "sign-in form must expose onSubmit");
+  return async () => {
+    await form.props.onSubmit({ preventDefault() {} });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  };
+}
+
+test("31. a failed sign-in keeps its specific error and never runs the backend session probe", async () => {
+  for (const code of ["INVALID_CREDENTIALS", "EMAIL_NOT_CONFIRMED", "RATE_LIMITED", "NETWORK_ERROR", "UNKNOWN"] as const) {
+    let probeCalls = 0;
+    // Mirrors the real probe: without an access token it reports 401 so the caller expires the session.
+    const probe = async () => { probeCalls += 1; return { ok: false, status: 401, isUnauthorized: true }; };
+    const provider = createMockProvider({
+      async signIn() { throw new AuthDomainError(code); },
+      async getAccessToken() { return null; },
+    });
+    const model = createAuthModel(provider, { autoRestore: false });
+    await model.restoreSession();
+
+    await mountLoginForSubmit(model, probe)();
+
+    assert.equal(model.getSnapshot().error, code, `${code} must not be replaced by a session-expiry error`);
+    assert.equal(model.getSnapshot().user, null);
+    assert.equal(probeCalls, 0, `${code}: no backend probe without an authenticated session`);
+  }
+});
+
+test("32. a successful sign-in still validates the session against the backend and expires it on 401", async () => {
+  let probeCalls = 0;
+  const probe = async () => { probeCalls += 1; return { ok: false, status: 401, isUnauthorized: true }; };
+  const model = createAuthModel(createMockProvider(), { autoRestore: false });
+  await model.restoreSession();
+
+  await mountLoginForSubmit(model, probe)();
+
+  assert.equal(probeCalls, 1);
+  assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
+  assert.equal(model.getSnapshot().error, "SESSION_EXPIRED");
+});

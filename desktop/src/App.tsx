@@ -1,6 +1,13 @@
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { ApplicationShell } from "./features/workspace/ApplicationShell";
 import { Login } from "./features/login/Login";
+import { ToastViewport } from "./features/feedback/ToastViewport";
+import { DiscardDialog } from "./features/projects/DiscardDialog";
+import { LibraryDialog } from "./features/projects/LibraryDialog";
+import { ProjectManageDialog } from "./features/projects/ProjectManageDialogs";
+import { LibraryNavButton } from "./features/workspace/LibraryNavButton";
+import { CodeContext } from "./features/workspace/CodeContext";
+import { bindWorkspaceToAuth, createWorkspaceServices } from "./features/workspace/workspaceServices";
 import {
   createAuthModel,
   createSupabaseAuthProvider,
@@ -21,6 +28,17 @@ function createDefaultAuthModel(): AuthModel {
 export default function App({ authModel }: { authModel?: AuthModel }) {
   const [model] = useState(() => authModel ?? createDefaultAuthModel());
   const authState = useSyncExternalStore(model.subscribe, model.getSnapshot);
+  // User-scoped projects, generation session, editor and preview; tokens stay inside the auth model.
+  const [services] = useState(() => createWorkspaceServices({
+    getAccessToken: model.getAccessToken,
+    baseUrl: import.meta.env.VITE_API_BASE_URL,
+    onUnauthorized: () => {
+      if (model.getSnapshot().status === "AUTHENTICATED") void model.expireSession("SESSION_EXPIRED");
+    },
+  }));
+
+  // Load projects on sign-in; clear every user-scoped state on sign-out or expiration.
+  useEffect(() => bindWorkspaceToAuth(model, services), [model, services]);
 
   // Validate session against backend when authenticated. If 401, expire the session.
   useEffect(() => {
@@ -54,16 +72,32 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
       {!showApplication && (
         <Login authModel={model} />
       )}
-      <div hidden={!showApplication}>
+      {/* Unmounted (not hidden) when signed out, so capture state never reaches the next user. */}
+      {showApplication && (
         <ApplicationShell
+          key={authState.user?.id}
           user={authState.user}
+          services={services}
+          codeContext={<CodeContext editor={services.editorModel} session={services.generationSession}
+            projects={services.projectsModel} history={services.history} discardGuard={services.discardGuard}
+            onOpenLibrary={(projectId, trigger) => services.library.openDialog(projectId, trigger)} />}
+          libraryNav={<LibraryNavButton library={services.library} />}
+          libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
+            session={services.generationSession} openCode={openCode}
+            hasLocalEdits={() => services.editorModel.getSnapshot().drafts.size > 0}
+            confirmDiscard={(trigger) => services.discardGuard.request(trigger)} />}
           onLogin={() => {
             if (authState.status === "AUTHENTICATED") {
               void model.signOut();
             }
           }}
         />
-      </div>
+      )}
+      {/* Single floating feedback layer; cleared with the rest of the user state on sign-out. */}
+      <DiscardDialog guard={services.discardGuard} />
+      {/* Single host for the Vault's rename/delete confirmations; reset() also closes it on sign-out. */}
+      {showApplication && <ProjectManageDialog manager={services.projectManager} />}
+      <ToastViewport model={services.toasts} />
     </>
   );
 }

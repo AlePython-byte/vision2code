@@ -20,7 +20,8 @@ export function configureApplication(app: NestExpressApplication): void {
   app.enableCors({
     origin: ["http://localhost:1420", "http://127.0.0.1:1420", "tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"],
     credentials: false,
-    methods: ["GET", "POST"],
+    // PATCH and DELETE are used by project rename/delete; they are not CORS-safelisted, so they need preflight approval.
+    methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "X-Request-Id", "Authorization"],
     exposedHeaders: ["X-Request-Id"],
   });

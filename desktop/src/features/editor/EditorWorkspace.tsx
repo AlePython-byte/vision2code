@@ -13,7 +13,7 @@ class EditorBoundary extends Component<{ children: ReactNode }, { failed: boolea
   }
 }
 
-export function EditorWorkspace({ model, preview }: { model: EditorModel; preview?: ReactNode }) {
+export function EditorWorkspace({ model, preview, aside }: { model: EditorModel; preview?: ReactNode; aside?: ReactNode }) {
   const { t, message } = useLabels();
   const state = useSyncExternalStore(model.subscribe, model.getSnapshot, model.getSnapshot);
   const file = activeFile(state);
@@ -44,7 +44,10 @@ export function EditorWorkspace({ model, preview }: { model: EditorModel; previe
     <header className="workspace-heading">
       <div><p className="eyebrow">{t("editorEyebrow")}</p><h1>{t("editorTitle")}</h1>
         <p className="workspace-intro">{t("editorIntro")}</p></div>
-      {state.project && <span className="workspace-badge">{t("projectMetadata", { count: state.files.length, version: state.project.generatorVersion })}</span>}
+      {(aside || state.project) && <div className="workspace-aside">
+        {aside}
+        {state.project && <span className="workspace-badge">{t("projectMetadata", { count: state.files.length, version: state.project.generatorVersion })}</span>}
+      </div>}
     </header>
     {preview ? <div className="editor-split">{preview}{grid}</div> : grid}
   </>;

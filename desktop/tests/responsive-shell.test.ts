@@ -21,6 +21,7 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     require: (name: string) => {
       if (name in overrides) return overrides[name];
       if (name === "lucide-react") return lucide;
+      if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
       if (name.endsWith("/useLabels") || name === "./useLabels") return { useLabels: () => ({ t: i18n.t.bind(i18n) }) };
       if (name.endsWith("/previewModel") || name === "./previewModel") {
         return {
@@ -72,6 +73,51 @@ test("shell navigation contains semantic landmarks, brand mark, and accessible d
   assert.match(html, /aria-label="Ver pantalla de acceso"/);
   // Active state for initial capture view
   assert.match(html, /aria-current="page"/);
+});
+
+test("authenticated services land in the Project Vault and mark Projects current", () => {
+  const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
+    "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
+    "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
+    "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
+    "../editor/editorModel": { createEditorModel: () => ({}) },
+  });
+  const services = { editorModel: {}, previewModel: {}, projectsModel: {}, generationSession: {}, toasts: {} };
+  const html = renderToStaticMarkup(React.createElement(ApplicationShell, { onLogin() {}, services }));
+  assert.match(html, /id="project-vault"/);
+  assert.match(html, /href="#project-vault"/);
+  assert.match(html, /aria-current="page"[^>]*aria-label="Proyectos"/);
+  assert.match(html, /<div hidden=""><div id="workspace"/);
+});
+
+test("rail email exposes its full value and compact navigation hides it without a layout-shifting active border", () => {
+  const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
+    "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
+    "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
+    "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
+    "../editor/editorModel": { createEditorModel: () => ({}) },
+  });
+  const email = "long.designer@example.com";
+  const html = renderToStaticMarkup(React.createElement(ApplicationShell, {
+    onLogin() {}, user: { id: "u-rail", email, emailVerified: true },
+  }));
+  const emailElement = html.match(/<span class="navigation-note-email"([^>]*)>/)?.[1];
+  assert.ok(emailElement, "The address has its own styled element");
+  assert.match(emailElement, /title="long\.designer@example\.com"/);
+  assert.doesNotMatch(emailElement, /style=|max-width/);
+  assert.match(html, /class="navigation-note-email"[^>]*>long\.designer@example\.com<\/span>/);
+
+  const themeCss = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
+  const foundationCss = readFileSync(new URL("../src/styles/foundation.css", import.meta.url), "utf8");
+  const compactStart = themeCss.indexOf("@media (max-width: 760px) and (min-width: 561px)");
+  const compactRules = themeCss.slice(compactStart, themeCss.indexOf("@media (max-width: 560px)", compactStart));
+  assert.match(compactRules, /\.navigation-note-email\s*\{\s*display:\s*none;/);
+  assert.match(themeCss, /\.navigation-note-email\s*\{[^}]*-webkit-line-clamp:\s*3;[^}]*overflow-wrap:\s*anywhere;/);
+  for (const css of [themeCss, foundationCss]) {
+    for (const rule of css.matchAll(/\.navigation-item\[aria-current\][^{]*\{([^}]*)\}/g)) {
+      assert.doesNotMatch(rule[1] ?? "", /border-left(?:-width|-color)?\s*:/);
+    }
+  }
 });
 
 test("workflow strip maintains semantic ordered list and 5 stage steps", () => {

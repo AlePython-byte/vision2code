@@ -2,6 +2,7 @@ import "reflect-metadata";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { after, before, beforeEach, describe, it } from "node:test";
+import { generateKeyPair, SignJWT } from "jose";
 import { Test } from "@nestjs/testing";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { AnalysisResponseSchema, ApiErrorResponseSchema } from "@vision2code/contracts";
@@ -11,9 +12,12 @@ import { AI_PROVIDER, MAX_ANALYSIS_IMAGE_BYTES } from "../src/analysis/analysis.
 import type { AnalysisImageInput } from "../src/analysis/analysis-image-input.js";
 import type { AIProvider } from "../src/ai/ai-provider.js";
 import { ProviderFailureError } from "../src/analysis/provider-failure.error.js";
+import { SUPABASE_JWT_VERIFIER } from "../src/auth/supabase-auth.guard.js";
+import { JoseSupabaseJwtVerifier } from "../src/auth/supabase-jwt-verifier.js";
 
 const fixture: unknown = JSON.parse(readFileSync(new URL("../../../packages/contracts/tests/fixtures/simple-interface.json", import.meta.url), "utf8"));
 const png = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+const issuer = "https://example-project.supabase.co/auth/v1";
 
 describe("analysis HTTP boundary without live AI", () => {
   let app: NestExpressApplication;
@@ -21,12 +25,24 @@ describe("analysis HTTP boundary without live AI", () => {
   let calls = 0;
   let received: AnalysisImageInput | undefined;
   let analyze: AIProvider["analyze"];
+  let token: string;
+  let foreignToken: string;
+  let expiredToken: string;
 
   before(async () => {
+    const keys = await generateKeyPair("RS256");
+    const foreign = await generateKeyPair("RS256");
+    const sign = (key: Parameters<SignJWT["sign"]>[0], expiresAt: string | number = "2h") => new SignJWT({ email: "user@example.com", role: "authenticated" })
+      .setProtectedHeader({ alg: "RS256", kid: "analysis-key" }).setIssuer(issuer).setAudience("authenticated")
+      .setSubject("33333333-3333-4333-8333-333333333333").setIssuedAt().setExpirationTime(expiresAt).sign(key);
+    token = await sign(keys.privateKey);
+    foreignToken = await sign(foreign.privateKey);
+    expiredToken = await sign(keys.privateKey, Math.floor(Date.now() / 1000) - 60);
+    const verifier = new JoseSupabaseJwtVerifier({ expectedIssuer: issuer, expectedAudience: "authenticated", keySetOverride: async () => keys.publicKey });
     const module = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(AI_PROVIDER)
       .useValue({ analyze(input: AnalysisImageInput, signal?: AbortSignal) {
         calls += 1; received = input; return analyze(input, signal);
-      } }).compile();
+      } }).overrideProvider(SUPABASE_JWT_VERIFIER).useValue(verifier).compile();
     app = module.createNestApplication<NestExpressApplication>();
     app.useLogger(false);
     configureApplication(app);
@@ -42,8 +58,10 @@ describe("analysis HTTP boundary without live AI", () => {
     body.set("viewportWidth", "640"); body.set("viewportHeight", "480");
     return body;
   }
-  function post(body: FormData) {
-    return fetch(url, { method: "POST", body, headers: { "X-Request-Id": "analysis-test" }, signal: AbortSignal.timeout(10000) });
+  function post(body: FormData, authorization: string | null = `Bearer ${token}`) {
+    const headers: Record<string, string> = { "X-Request-Id": "analysis-test" };
+    if (authorization !== null) headers.Authorization = authorization;
+    return fetch(url, { method: "POST", body, headers, signal: AbortSignal.timeout(10000) });
   }
   async function expectError(body: FormData, status: number, code: string, providerCalls = 0) {
     const response = await post(body);
@@ -57,6 +75,47 @@ describe("analysis HTTP boundary without live AI", () => {
     return result;
   }
 
+  async function expectUnauthorized(authorization: string | null, body = form()) {
+    const response = await post(body, authorization);
+    assert.equal(response.status, 401);
+    const result = ApiErrorResponseSchema.parse(await response.json());
+    assert.equal(result.error.code, "UNAUTHORIZED");
+    assert.equal(result.error.requestId, "analysis-test");
+    assert.equal(calls, 0, "the AI provider is never invoked without a verified session");
+    assert.equal(received, undefined);
+  }
+  it("rejects a request without a token before invoking the provider", async () => {
+    await expectUnauthorized(null);
+  });
+  it("rejects malformed, foreign-signed and expired tokens before invoking the provider", async () => {
+    for (const authorization of ["Bearer", "Bearer ", "Basic dXNlcjpwYXNz", token, "Bearer not-a-jwt",
+      `Bearer ${foreignToken}`, `Bearer ${expiredToken}`]) {
+      await expectUnauthorized(authorization);
+    }
+  });
+  it("authenticates before parsing the upload: invalid bodies without a token are still 401", async () => {
+    const oversized = new Uint8Array(MAX_ANALYSIS_IMAGE_BYTES + 1); oversized.set(png);
+    for (const body of [form(oversized), form(png, "image/gif"), (() => { const missing = form(); missing.delete("image"); return missing; })()]) {
+      await expectUnauthorized(null, body);
+    }
+  });
+  it("a verified token reaches the analysis service", async () => {
+    const response = await post(form());
+    assert.equal(response.status, 200);
+    assert.equal(calls, 1);
+    await response.arrayBuffer();
+  });
+  it("allows the Authorization header in the analysis preflight from every desktop origin", async () => {
+    for (const origin of ["http://localhost:1420", "http://127.0.0.1:1420", "tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"]) {
+      const response = await fetch(url, { method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST",
+        "Access-Control-Request-Headers": "authorization,content-type,x-request-id" } });
+      assert.equal(response.status, 204);
+      assert.equal(response.headers.get("access-control-allow-origin"), origin);
+      const allowed = (response.headers.get("access-control-allow-headers") ?? "").toLowerCase().split(",").map((value) => value.trim());
+      assert.ok(allowed.includes("authorization"), `Authorization must be allowed from ${origin}`);
+      assert.equal(calls, 0);
+    }
+  });
   it("returns the shared response and forwards only image bytes and dimensions", async () => {
     const response = await post(form());
     assert.equal(response.status, 200);
@@ -103,7 +162,7 @@ describe("analysis HTTP boundary without live AI", () => {
     for (const body of [stack, duplicate, extra]) await expectError(body, 400, "INVALID_REQUEST");
   });
   it("rejects JSON and user-supplied image URLs", async () => {
-    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ image: "https://example.com/image.png", viewportWidth: 640, viewportHeight: 480 }) });
     assert.equal(response.status, 400);
     assert.equal(ApiErrorResponseSchema.parse(await response.json()).error.code, "INVALID_REQUEST");
@@ -141,7 +200,7 @@ describe("analysis HTTP boundary without live AI", () => {
       });
     };
     const controller = new AbortController();
-    const request = fetch(url, { method: "POST", body: form(), signal: controller.signal });
+    const request = fetch(url, { method: "POST", body: form(), headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
     const rejected = assert.rejects(request, { name: "AbortError" });
     const timeout = AbortSignal.timeout(5000);
     const expired = new Promise<never>((_resolve, reject) => timeout.addEventListener("abort", () => reject(new Error("Cancellation test timed out."))));
