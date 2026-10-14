@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { AnalysisResponseSchema, GenerationDetailSchema } from "@vision2code/contracts";
-import type { CreateGenerationInput, GenerationDetail, ProjectSummary, UISchema } from "@vision2code/contracts";
+import type { CreateGenerationInput, GenerationDetail, GenerationSummary, ProjectSummary, UISchema } from "@vision2code/contracts";
 import type { ProjectsClient } from "../src/features/projects/projectsClient.ts";
 import type { Screenshot } from "../src/features/screenshot/loadScreenshot.ts";
 import type { GeneratedProject } from "../src/features/generation/generatedProject.ts";
@@ -19,6 +19,13 @@ export const generationTwo = "223e4567-e89b-42d3-a456-426614174001";
 
 export const summaryA: ProjectSummary = { id: projectA, name: "Alpha", createdAt: "2026-10-01T10:00:00.000Z", updatedAt: "2026-10-01T10:00:00.000Z", generationCount: 0, latestGenerationId: null };
 export const summaryB: ProjectSummary = { id: projectB, name: "Beta", createdAt: "2026-10-02T10:00:00.000Z", updatedAt: "2026-10-02T10:00:00.000Z" };
+
+export function summaryOf(id: string, createdAt: string, projectId = projectA, overrides: Partial<GenerationSummary> = {}): GenerationSummary {
+  return {
+    id, projectId, sourceImagePath: null, sourceImageName: "capture.png", sourceImageMimeType: "image/png",
+    generationTarget: "REACT_TAILWIND", fidelityMode: "BALANCED", createdAt, ...overrides,
+  };
+}
 
 export function screenshot(name = "capture.png", format: Screenshot["format"] = "PNG"): Screenshot {
   const file = new File([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], name, { type: "" });

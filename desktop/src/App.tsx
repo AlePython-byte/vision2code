@@ -2,6 +2,8 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import { ApplicationShell } from "./features/workspace/ApplicationShell";
 import { Login } from "./features/login/Login";
 import { ToastViewport } from "./features/feedback/ToastViewport";
+import { DiscardDialog } from "./features/projects/DiscardDialog";
+import { CodeContext } from "./features/workspace/CodeContext";
 import { bindWorkspaceToAuth, createWorkspaceServices } from "./features/workspace/workspaceServices";
 import {
   createAuthModel,
@@ -73,6 +75,8 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
           key={authState.user?.id}
           user={authState.user}
           services={services}
+          codeContext={<CodeContext editor={services.editorModel} session={services.generationSession}
+            projects={services.projectsModel} history={services.history} discardGuard={services.discardGuard} />}
           onLogin={() => {
             if (authState.status === "AUTHENTICATED") {
               void model.signOut();
@@ -81,6 +85,7 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
         />
       )}
       {/* Single floating feedback layer; cleared with the rest of the user state on sign-out. */}
+      <DiscardDialog guard={services.discardGuard} />
       <ToastViewport model={services.toasts} />
     </>
   );

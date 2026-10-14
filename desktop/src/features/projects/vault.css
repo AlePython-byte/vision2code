@@ -67,4 +67,58 @@
   @media (max-width: 700px) { .vault-toolbar { grid-template-columns: 1fr 1fr; } .vault-search { grid-column: 1 / -1; } .vault-grid { grid-template-columns: 1fr; } }
   @media (max-width: 480px) { .vault-toolbar { grid-template-columns: 1fr; } .vault-search { grid-column: auto; } .vault-heading .primary-action { align-self: stretch; } .vault-results { align-items: start; flex-direction: column; } .vault-error { flex-wrap: wrap; } }
   @media (prefers-reduced-motion: reduce) { .vault-skeletons .vault-thumbnail > span, .vault-skeletons .vault-thumbnail::before { animation: none; } }
+  /* TASK 009E: project identity, result chip and generation history in the Code view header. */
+  .workspace-aside { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+  .code-context { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+  .code-identity { min-width: 0; max-width: 220px; padding: 6px 12px; background: var(--color-tint); border: 1px solid var(--color-line); border-radius: var(--radius-sm); box-shadow: var(--shadow-inset); }
+  .code-identity .eyebrow { margin: 0; font-size: 9px; line-height: 1.4; }
+  .code-identity-name { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: var(--font-display); font-size: 13px; font-weight: 600; }
+  .code-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .result-chip { --chip-tone: var(--color-muted); display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border: 1px solid var(--color-line); border-radius: 999px; background: var(--color-surface); box-shadow: var(--shadow-control); color: var(--color-ink); font: 600 10px var(--font-mono); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+  .result-chip[data-tone="success"] { --chip-tone: var(--color-green); }
+  .result-chip[data-tone="info"] { --chip-tone: var(--color-cyan); }
+  .result-chip[data-tone="progress"] { --chip-tone: var(--color-primary); }
+  .result-chip[data-tone="warning"] { --chip-tone: var(--color-warning); }
+  .result-chip[data-tone="error"] { --chip-tone: var(--color-error); }
+  .result-chip[data-tone="edited"] { --chip-tone: var(--color-accent); }
+  .result-led { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--chip-tone); box-shadow: 0 0 0 1px color-mix(in srgb, var(--chip-tone) 40%, transparent), 0 0 6px color-mix(in srgb, var(--chip-tone) 55%, transparent); }
+  .result-chip[data-tone="progress"] .result-led { animation: vault-pulse 1s ease-in-out infinite alternate; }
+  .history { position: relative; }
+  .history-key { padding: 8px 12px; min-height: 36px; font-size: 12px; }
+  .history-key svg { width: 15px; height: 15px; }
+  .history-tray { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: min(380px, calc(100vw - 32px)); max-height: 60vh; overflow-y: auto; padding: 14px; display: grid; gap: 10px; }
+  .history-tray .eyebrow { margin: 0; }
+  .history-log { position: relative; display: grid; gap: 6px; margin: 0; padding: 0 0 0 18px; list-style: none; }
+  .history-log::before { content: ""; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: var(--color-line); box-shadow: var(--shadow-inset); }
+  .history-entry { position: relative; min-width: 0; }
+  .history-led { position: absolute; left: -18px; top: 15px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-surface); border: 2px solid var(--color-line); box-sizing: border-box; }
+  .history-entry[data-current="true"] .history-led { background: var(--color-primary); border-color: var(--color-primary); box-shadow: 0 0 8px color-mix(in srgb, var(--color-primary) 60%, transparent); }
+  .history-entry > button { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; padding: 9px 11px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-surface); color: var(--color-ink); box-shadow: var(--shadow-control); text-align: left; cursor: pointer; transition: box-shadow var(--motion-fast), background-color var(--motion-fast), transform var(--motion-fast); }
+  .history-entry > button:hover:not(:disabled) { background: var(--color-surface-hover); }
+  .history-entry > button:active:not(:disabled) { box-shadow: var(--shadow-inset); transform: translateY(1px); }
+  .history-entry > button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .history-entry > button:disabled { opacity: .55; cursor: not-allowed; }
+  .history-entry[data-current="true"] > button { background: var(--color-tint); box-shadow: var(--shadow-inset); }
+  .history-entry-main { display: grid; gap: 2px; min-width: 0; flex: 1; }
+  .history-entry-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-family: var(--font-display); font-size: 13px; font-weight: 600; }
+  .history-current-tag { padding: 1px 6px; border: 1px solid var(--color-primary); border-radius: 6px; color: var(--color-accent); font: 600 9px var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  .history-entry time { color: var(--color-muted); font: 11px var(--font-mono); }
+  .history-entry-meta { display: flex; min-width: 0; gap: 4px; color: var(--color-muted); font-size: 11px; }
+  .history-source { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .history-busy { flex: none; color: var(--color-muted); font: 10px var(--font-mono); }
+  .history-note { margin: 0; color: var(--color-muted); font-size: 12px; }
+  .history-error { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .history-error p { margin: 0; color: var(--color-error); font-size: 12px; }
+  .history-bar { display: block; height: 46px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-tint); box-shadow: var(--shadow-inset); animation: vault-pulse 1.6s ease-in-out infinite alternate; }
+  .danger-action { background: var(--color-surface); color: var(--color-error); border-color: var(--color-error); }
+  .danger-action:hover:not(:disabled) { background: var(--color-tint); }
+  @media (max-width: 560px) {
+    .code-identity { max-width: none; flex: 1 1 100%; }
+    .code-context > .history { flex: 1 1 100%; }
+    .history-key { width: 100%; justify-content: center; }
+    .history-tray { left: 0; right: 0; width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .result-chip[data-tone="progress"] .result-led, .history-bar { animation: none; }
+  }
 }

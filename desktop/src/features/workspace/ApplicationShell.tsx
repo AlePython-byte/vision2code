@@ -1,6 +1,6 @@
 import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Workspace } from "./Workspace";
 import { EditorWorkspace } from "../editor/EditorWorkspace";
 import { SettingsScreen } from "../settings/SettingsScreen";
@@ -18,11 +18,14 @@ export function ApplicationShell({
   onLogin,
   user,
   services,
+  codeContext,
 }: {
   onLogin: () => void;
   user?: AuthUser | null;
   /** User-scoped models owned by the app boundary; without them the shell keeps local, unsaved state only. */
   services?: WorkspaceServices | undefined;
+  /** Project identity, status chip and history key for the Code view header (built at the app boundary). */
+  codeContext?: ReactNode;
 }) {
   const { t } = useLabels();
   const [view, setView] = useState<"projects" | "capture" | "editor" | "settings">(services ? "projects" : "capture");
@@ -92,9 +95,11 @@ export function ApplicationShell({
       </nav>
       <div className="shell-content">
         {view === "projects" && services && <ProjectVault projects={services.projectsModel} session={services.generationSession}
-          toasts={services.toasts} onCapture={() => setView("capture")} onEditor={() => setView("editor")} />}
+          toasts={services.toasts} onCapture={() => setView("capture")} onEditor={() => setView("editor")}
+          hasLocalEdits={() => editorModel.getSnapshot().drafts.size > 0}
+          confirmDiscard={(trigger) => services.discardGuard.request(trigger)} />}
         <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>

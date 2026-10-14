@@ -11,7 +11,7 @@ import { projectAccent, projectState, relativeProjectDate, vaultTotals, visibleP
 import { NewProjectDialog } from "./NewProjectDialog";
 import { isVaultSearchShortcut } from "./vaultKeyboard";
 
-export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters }: {
+export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters, hasLocalEdits, confirmDiscard }: {
   projects: ProjectsModel;
   session: GenerationSessionModel;
   toasts: ToastModel;
@@ -19,6 +19,9 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
   onEditor: () => void;
   now?: () => Date;
   initialFilters?: { query?: string; state?: VaultStateFilter; sort?: VaultSort };
+  /** Opening a generation replaces the working copy; unsaved editor drafts must be confirmed first. */
+  hasLocalEdits?: () => boolean;
+  confirmDiscard?: (trigger: HTMLElement | null) => Promise<boolean>;
 }) {
   const { t } = useLabels();
   const language = i18n.language.startsWith("en") ? "en" : "es";
@@ -47,8 +50,10 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
     return () => window.removeEventListener("keydown", shortcutKey);
   }, [dialogOpen]);
 
-  async function open(projectId: string, latest?: string) {
+  async function open(projectId: string, latest?: string, trigger: HTMLElement | null = null) {
     if (opening) return;
+    // Nothing (selection, drafts, session) changes until the user confirms discarding local edits.
+    if (latest && hasLocalEdits?.() && !(confirmDiscard && await confirmDiscard(trigger))) return;
     setOpening(projectId);
     try {
       if (latest) await openVaultLatest(projects, session, toasts, projectId, latest, onEditor);
@@ -141,7 +146,7 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
               <time dateTime={project.updatedAt}>{relativeProjectDate(project.updatedAt, language, now())}</time></div>
             {project.latestGenerationId && <button type="button" className="vault-latest" disabled={opening !== null}
               aria-label={t("vaultOpenLatestProject", { name: project.name })}
-              onClick={() => { void open(project.id, project.latestGenerationId!); }}>
+              onClick={(event) => { void open(project.id, project.latestGenerationId!, event.currentTarget); }}>
               {t("vaultOpenLatest")}<ArrowUpRight aria-hidden="true" />
             </button>}
           </li>;
