@@ -1,5 +1,7 @@
 import { createAnalysisClient, type AnalyzeScreenshot } from "../analysis/analysisClient.ts";
 import type { AuthState } from "../auth/authTypes.ts";
+import { createExportModel, type ExportModel, type NativeExport } from "../export/exportModel.ts";
+import { createTauriExport } from "../export/tauriExport.ts";
 import { createEditorModel, type EditorModel } from "../editor/editorModel.ts";
 import { bindGenerationToasts } from "../feedback/generationToasts.ts";
 import { createToastModel, type ToastModel, type ToastScheduler } from "../feedback/toastModel.ts";
@@ -12,6 +14,8 @@ import { createLibraryModel, type LibraryModel } from "../projects/libraryModel.
 import { createProjectManager, type ProjectManager } from "../projects/projectManageActions.ts";
 import { createProjectsClient } from "../projects/projectsClient.ts";
 import { createProjectsModel, type ProjectsModel } from "../projects/projectsModel.ts";
+import { resolveHistoryProjectId } from "../projects/historySelectors.ts";
+import { projectName } from "../projects/projectTargetActions.ts";
 
 export interface WorkspaceServices {
   readonly editorModel: EditorModel;
@@ -24,6 +28,8 @@ export interface WorkspaceServices {
   readonly library: LibraryModel;
   /** Rename/delete confirmations; a removed project detaches the result and clears history and library caches. */
   readonly projectManager: ProjectManager;
+  /** Exports the editor's working copy through the single native command (no paths from the webview). */
+  readonly exporter: ExportModel;
   /** Confirmation before unsaved editor drafts are replaced by another generation. */
   readonly discardGuard: DiscardGuard;
   /** Floating feedback; generation save/restore outcomes are bound to it here, not in the domain models. */
@@ -45,6 +51,8 @@ export interface WorkspaceServicesOptions {
   readonly transport?: typeof fetch;
   readonly editorModel?: EditorModel;
   readonly previewModel?: PreviewModel;
+  /** Native export bridge; defaults to the Tauri command. Injected by tests. */
+  readonly nativeExport?: NativeExport;
   /** Injected for deterministic tests; defaults to system timers. */
   readonly toastScheduler?: ToastScheduler;
 }
@@ -72,6 +80,15 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
   const discardGuard = createDiscardGuard();
   const toasts = createToastModel(options.toastScheduler);
   const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
+  const exporter = createExportModel({
+    editor: editorModel,
+    projectName: () => {
+      const projects = projectsModel.getSnapshot();
+      return projectName(projects, resolveHistoryProjectId(generationSession.getSnapshot(), projects));
+    },
+    nativeExport: options.nativeExport ?? createTauriExport(),
+    toasts,
+  });
   const projectManager = createProjectManager({
     projects: projectsModel,
     toasts,
@@ -83,10 +100,11 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
     },
   });
   return {
-    editorModel, previewModel, projectsModel, generationSession, history, library, projectManager, discardGuard, toasts, loadProject, analyzeScreenshot,
+    editorModel, previewModel, projectsModel, generationSession, history, library, projectManager, exporter, discardGuard, toasts, loadProject, analyzeScreenshot,
     reset() {
       discardGuard.cancel();
       projectManager.reset();
+      exporter.reset();
       generationSession.reset();
       projectsModel.reset();
       history.reset();

@@ -27,7 +27,7 @@ function ToastCapsule({ toast, model }: { toast: Toast; model: ToastModel }) {
       <span className="toast-lamp" aria-hidden="true"><Lamp className={toast.tone === "progress" ? "toast-spin" : undefined} /></span>
       <div className="toast-body">
         <p className="eyebrow toast-eyebrow">{t(toast.eyebrow)}</p>
-        <p className="toast-message">{t(toast.message)}</p>
+        <p className="toast-message">{toast.messageParams ? t(toast.message, toast.messageParams) : t(toast.message)}</p>
       </div>
       <div className="toast-controls">
         {toast.action && (

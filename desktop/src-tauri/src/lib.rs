@@ -1,6 +1,9 @@
 use std::fs;
 use keyring::Entry;
 use tauri::Manager;
+use tauri_plugin_dialog::DialogExt;
+
+mod export;
 
 const KEYRING_SERVICE: &str = "vision2code";
 const KEYRING_USER: &str = "vault_master_key";
@@ -57,9 +60,35 @@ fn get_vault_path(app: tauri::AppHandle) -> Result<String, String> {
     Ok(vault_path.to_string_lossy().to_string())
 }
 
+/// Exports the editor's working copy. The webview sends only relative paths, text and a suggested
+/// name; the destination is chosen in a native dialog opened here, so no path ever comes from the
+/// webview and it needs no filesystem permission. Files are validated before the dialog opens.
+#[tauri::command]
+async fn export_project(
+    app: tauri::AppHandle,
+    window: tauri::Window,
+    files: Vec<export::ExportFile>,
+    suggested_name: String,
+) -> export::ExportResult {
+    if let Err(code) = export::validate_files(&files) {
+        return export::ExportResult::Failed { code };
+    }
+    let job = tauri::async_runtime::spawn_blocking(move || {
+        // Blocking pickers must not run on the main thread; this is a worker thread.
+        let picked = app.dialog().file().set_parent(&window).blocking_pick_folder();
+        let Some(picked) = picked else { return export::ExportResult::Cancelled };
+        match picked.into_path() {
+            Ok(parent) => export::export_into(&parent, &files, &suggested_name),
+            Err(_) => export::ExportResult::Failed { code: export::ExportErrorCode::DestinationInvalid },
+        }
+    });
+    job.await.unwrap_or(export::ExportResult::Failed { code: export::ExportErrorCode::IoError })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let salt_path = app
                 .path()
@@ -69,7 +98,7 @@ pub fn run() {
             app.handle().plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_vault_key, get_vault_path])
+        .invoke_handler(tauri::generate_handler![get_vault_key, get_vault_path, export_project])
         .run(tauri::generate_context!())
         .expect("error while running Vision2Code");
 }

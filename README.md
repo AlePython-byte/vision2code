@@ -29,10 +29,11 @@ npm run typecheck
 npm test
 npm run build
 npm run check:rust
+npm run test:rust
 npm run desktop:build
 ```
 
-`build` compiles the contracts package, validates the desktop TypeScript configurations, and builds the frontend. The desktop `predev` and `pretypecheck` scripts build contracts automatically, including when invoked by Tauri. `check:rust` checks the native project. `desktop:build` also creates native release bundles and requires the platform packaging prerequisites. Desktop and contract tests use the built-in Node.js test runner and TypeScript stripping; no test framework is installed.
+`build` compiles the contracts package, validates the desktop TypeScript configurations, and builds the frontend. The desktop `predev` and `pretypecheck` scripts build contracts automatically, including when invoked by Tauri. `check:rust` checks the native project and `test:rust` runs its Rust tests (export validation and writes in temporary folders; the pre-existing keyring test touches the OS credential store). `desktop:build` also creates native release bundles and requires the platform packaging prerequisites. Desktop and contract tests use the built-in Node.js test runner and TypeScript stripping; no test framework is installed.
 
 The root `npm test` command runs the complete repository test suite: contracts, desktop, and server. Use `npm run server:test` to run only the backend suite.
 
@@ -277,7 +278,27 @@ Monaco and its Spanish messages/workers are bundled locally using `monaco-editor
 
 Tests cover selection, ordering, independent drafts, resets, empty states, language mapping, rendered explorer paths, clipboard success/failure, and stale feedback. Run `node --experimental-strip-types --test desktop/tests/editor.test.ts` for this suite. Tests inject clipboard functions and require no analysis server or external network. An isolated Edge check also exercised fixture analysis -> generation -> real Monaco editing, file/screen switching, copy, and reset at 1280, 720, and 390 pixels without horizontal overflow or external page requests. Under the strict CSP, the existing Zod eval-availability probe logs a blocked eval attempt and falls back successfully; script restrictions were not relaxed.
 
-Current limits: editor drafts last only for the current application session, with no filesystem persistence or export; only the originally generated artifact is saved to the backend, never edits. Past generations are restored from the Project Vault. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
+**Exportar** (next to **Copiar código**, secondary) writes the current working copy, Monaco edits included, to a new folder; see [Export the working copy](#export-the-working-copy).
+
+Current limits: editor drafts last only for the current application session and are never persisted; only the originally generated artifact is saved to the backend, never edits. Past generations are restored from the Project Vault. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
+
+## Export the working copy
+
+`desktop/src/features/export/` and `desktop/src-tauri/src/export.rs` export what the editor shows (Monaco drafts included), whether the result was saved, unsaved or local only. Exporting never changes the editor, preview or session.
+
+- `exportPlan.ts` (pure): `buildExportPlan(files, projectName)` checks the same rules as Rust for early feedback, and `workingCopyFiles` applies drafts.
+- `exportModel.ts`: one export at a time (`EXPORTING` blocks a double click); success shows a short toast with the folder name, a cancelled dialog shows nothing, failures show a persistent plain-language toast. A sign-out or expiry during an export drops its late toast.
+- `tauriExport.ts`: calls the single `export_project` command with relative paths, text and a suggested name only, and validates the answer. Outside the desktop runtime it reports `UNAVAILABLE`.
+- `ExportButton.tsx`: rendered through the Code view `actions` slot as a plain sibling of Copy code and Reset (no wrapper, no visible helper text in the action row, so the three buttons share height and baseline); its description is the `title` plus an off-screen `aria-describedby` text.
+- `exportScaffold.ts` (pure): `buildScaffold(projectName)` and `buildRunnableExportPlan`, described below.
+
+Native rules: the folder picker opens inside Rust (`tauri-plugin-dialog`, registered without any `dialog:` permission for the webview), so the webview never sends a destination and has no filesystem permission. Rust re-validates every path: ASCII letters, digits, `.`, `_`, `-` and `/` only; no empty, `.` or `..` segments (which also rules out absolute and UNC paths); no reserved Windows names (`CON`, `PRN`, `AUX`, `NUL`, `COM1-9`, `LPT1-9`, with or without extension); no segment ending in a dot or space; case-insensitive duplicates and file/folder clashes rejected; at most 200 files, 1 MB per file, 5 MB in total, 160 characters per path and 64 per segment; UTF-8 text without NUL. The folder name comes from the project name (sanitized, at most 48 characters, never a reserved name, fallback `vision2code-export`). The export always creates a new subfolder inside the chosen folder (`-2`, `-3`… on collision) with `create_dir` and writes files with `create_new`, so nothing is overwritten; on a failure midway it deletes only the files and folders it created. Results are `EXPORTED { folderName, fileCount }`, `CANCELLED` or `FAILED { code }` with codes such as `INVALID_PATH`, `TOO_LARGE`, `PERMISSION_DENIED`, `DESTINATION_INVALID` or `IO_ERROR`; no internal path is returned.
+
+**Runnable scaffold (010B).** The generator emits only `src/App.tsx` and `src/generated/GeneratedInterface.tsx`, so the exporter adds fixed files that make the folder run with `npm install && npm run dev`: `package.json`, `index.html`, `src/main.tsx`, `src/index.css` (`@import "tailwindcss"`), `src/vite-env.d.ts`, `vite.config.ts`, `tsconfig.json`, `README.md` and `.gitignore`. The scaffold belongs to the exporter: the generator, `GeneratedProject` and the contracts are untouched, and the scaffold never appears in the editor or in saved generations. The export plan is the working copy plus the scaffold, checked together by the same validator and limits (`fileCount` includes the scaffold); a scaffold path the project already has is omitted and reported, so generated files always win. Dependencies are pinned to exact versions (no ranges) equal to the ones the desktop installs and builds with: React and React DOM 19.3.0, Vite 8.3.1, `@vitejs/plugin-react` 6.1.1, TypeScript 6.0.3, `@types/react` and `@types/react-dom` 19.3.0, `tailwindcss` and `@tailwindcss/vite` 4.3.3 (`EXPORT_SCAFFOLD_VERSION = "1"`; Node 22.12 or newer). The package `name` is the project name lowercased, accent-free and URL-safe, with a fallback.
+
+Verify the scaffold for real with `npm run verify:export-scaffold` (opt-in, needs the network, about a minute, not part of `npm test`): it generates a project from the fixture UISchema, writes the exact export plan to a temporary folder, runs `npm install` and `npm run build` there, checks that Tailwind emitted the generated utilities, and fails if anything does not work. Pass `-- --keep` to keep the folder and try `npm run dev`. Re-run it whenever the pinned versions or templates change.
+
+Not included yet: ZIP archives and opening the folder in the file manager.
 
 ## Live Preview
 

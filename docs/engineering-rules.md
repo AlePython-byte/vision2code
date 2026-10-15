@@ -25,9 +25,9 @@ npm workspaces; run commands from the repository root.
 | Path | Role |
 | --- | --- |
 | `packages/contracts/` | Zod schemas: UISchema v1, GeneratedProject, Project/Generation, API errors, analysis response. Built to `dist/`; desktop and server consume the build. |
-| `desktop/src/features/` | `analysis`, `api` (base URL resolution), `auth`, `editor`, `feedback` (toasts), `generation`, `login`, `preferences` (i18n), `preview`, `projects`, `screenshot`, `settings`, `workspace` (shell + `workspaceServices.ts` composition root). |
+| `desktop/src/features/` | `analysis`, `api` (base URL resolution), `auth`, `editor`, `export` (working-copy export), `feedback` (toasts), `generation`, `login`, `preferences` (i18n), `preview`, `projects`, `screenshot`, `settings`, `workspace` (shell + `workspaceServices.ts` composition root). |
 | `desktop/src/styles/` | `theme.css` (tokens, fonts, shell) and `foundation.css` (light/dark tokens). |
-| `desktop/src-tauri/` | Native runner: Stronghold plugin and two commands (`get_vault_key`, `get_vault_path`) backed by the OS credential store. |
+| `desktop/src-tauri/` | Native runner: Stronghold plugin, the dialog plugin (used only from Rust) and three commands: `get_vault_key`, `get_vault_path` (OS credential store) and `export_project` (`src/export.rs`). |
 | `server/src/` | NestJS 12 ESM: `analysis`, `auth`, `projects`, `prisma`, `ai` (provider interface), `health`, `http`, `configuration.ts`. |
 | `server/prisma/` | `schema.prisma` and migrations. |
 | `desktop/tests`, `packages/contracts/tests`, `server/tests` | Tests (Node built-in runner; no Jest, Vitest or Playwright suite). |
@@ -43,6 +43,8 @@ Run from the repository root. On Windows PowerShell with restricted scripts use 
 | `npm run typecheck` | Contracts and desktop only; the server is typechecked by `server:build` / `server:test`. |
 | `npm run build` | Contracts, desktop typecheck, then `vite build`. |
 | `npm run check:rust` | `cargo check` for `desktop/src-tauri`. |
+| `npm run verify:export-scaffold` | Opt-in, needs the network: exports a fixture project to a temp folder, runs `npm install` and `npm run build` there, fails on any error. Not part of `npm test`. |
+| `npm run test:rust` | `cargo test` for `desktop/src-tauri` (export validation and filesystem tests in temporary folders; the existing keyring test reads/creates the app's entry in the OS credential store). |
 | `npm run dev` | Browser shell on `http://localhost:1420`. |
 | `npm run desktop:dev` | Tauri dev window. |
 | `npm run server:dev` | Builds and starts the API on `http://localhost:3000` (no watch; restart after edits). |
@@ -73,13 +75,15 @@ No linter and no CI are configured. `npm audit` has known findings (DOMPurify vi
 9. **UI.** All user strings go through `preferences/resources.ts` (ES and EN with the same keys). Fonts: Sora (headings, UI labels), Space Grotesk (body, inputs, values), IBM Plex Mono (technical data, code), bundled via Fontsource; no remote fonts. Reuse theme tokens; support light/dark, reduced motion, keyboard use and visible focus.
 10. **Preview isolation.** Generated code runs only inside the sandboxed iframe (`sandbox="allow-scripts"`, restrictive CSP, no network); the host never evaluates it.
 11. **TypeScript.** `desktop` and `server` use `strict`, `exactOptionalPropertyTypes` (type optional props as `T | undefined`), `noUncheckedIndexedAccess`, `noUnusedLocals` and `noUnusedParameters`. `packages/contracts` currently sets only `strict`. Plain `.ts` modules in `desktop` import siblings with explicit `.ts` extensions; the server uses `.js` specifiers (NodeNext ESM).
+12. **Native boundary.** The webview receives no filesystem path and no `fs:`/`dialog:` permission; `capabilities/default.json` lists only the Stronghold permissions. Every native write goes through one validated command (today `export_project`): the destination is chosen in a native dialog opened in Rust, never sent by the webview; Rust re-validates every relative path (ASCII allowlist, no absolute/UNC/drive/`..`/`.`/reserved Windows names/trailing dot or space, case-insensitive duplicates, count/size/length limits, UTF-8 text) even though TypeScript checks first. **Nothing is ever overwritten:** the export creates a new subfolder (`create_dir`, suffix `-2`, `-3`…) and files with `create_new`; on failure it removes only what it created (never `remove_dir_all`). Results carry stable codes, never internal paths.
+    - **The export scaffold belongs to the exporter, not to the generator.** `desktop/src/features/export/exportScaffold.ts` adds fixed files (`package.json`, `index.html`, Vite/Tailwind/TypeScript config, `src/main.tsx`, `src/index.css`, README) so the folder runs with `npm install && npm run dev`; the generator and `GeneratedProject` stay untouched. Dependency versions are exact (no ranges), equal to what the desktop installs, and change only together with `EXPORT_SCAFFOLD_VERSION`; generated files win over scaffold paths; the scaffold goes through the same validator and limits. Verify real installs and builds with `npm run verify:export-scaffold` (opt-in, networked, never part of `npm test`).
 
 ## 5. Working rules
 
 1. Read the surrounding code first, follow existing patterns, make the smallest change that solves the task. No rewrites or drive-by refactors.
 2. No new dependency without need and justification. Do not upgrade Prisma or Monaco. Never weaken validation, security or tests to get green: no skipped or deleted tests, `@ts-ignore` or lowered thresholds.
 3. A behavior change or bug fix comes with a deterministic test (mock transports, fake schedulers; no real Supabase, OpenAI, Postgres or Tauri). Desktop UI tests load `.tsx` through a `require` shim (`ts.transpileModule`), so covered files use type-only imports for new components, which are injected via props or overrides.
-4. Verify proportionally: typecheck and tests for logic, `build` for UI or config, `check:rust` only when `desktop/src-tauri` changed.
+4. Verify proportionally: typecheck and tests for logic, `build` for UI or config, `check:rust` and `test:rust` when `desktop/src-tauri` changed.
 5. Never claim something works without running it; state what failed, was skipped or is unverified.
 6. Do not touch unrelated or user-modified files. No destructive git or shell commands without explicit approval.
 7. Never commit secrets. Keep `git diff --check` clean.

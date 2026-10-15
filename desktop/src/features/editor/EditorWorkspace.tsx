@@ -13,7 +13,8 @@ class EditorBoundary extends Component<{ children: ReactNode }, { failed: boolea
   }
 }
 
-export function EditorWorkspace({ model, preview, aside }: { model: EditorModel; preview?: ReactNode; aside?: ReactNode }) {
+/** `actions` are extra toolbar actions built at the app boundary (e.g. Export), next to Copy code. */
+export function EditorWorkspace({ model, preview, aside, actions }: { model: EditorModel; preview?: ReactNode; aside?: ReactNode; actions?: ReactNode }) {
   const { t, message } = useLabels();
   const state = useSyncExternalStore(model.subscribe, model.getSnapshot, model.getSnapshot);
   const file = activeFile(state);
@@ -28,6 +29,7 @@ export function EditorWorkspace({ model, preview, aside }: { model: EditorModel;
             <button className="action-button" disabled={!file} onClick={() => {
               void model.copy((content) => navigator.clipboard.writeText(content));
             }}><Copy aria-hidden="true" />{t("copy")}</button>
+            {actions}
             <button className="action-button" disabled={!state.drafts.size} onClick={model.reset}><RotateCcw aria-hidden="true" />{t("reset")}</button>
           </div>
         </header>
