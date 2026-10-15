@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { UINode, UISchema } from "@vision2code/contracts";
-import { generateReactProject } from "../src/features/generation/generateReactProject.ts";
+// These tests pin the v2 profile of the inference, so they run through the frozen v2 generator.
+import { generateReactProjectV2 as generateReactProject } from "../src/features/generation/generateReactProjectV2.ts";
 import { INFERENCE_TOLERANCE_PX, planLayout } from "../src/features/generation/layoutInference.ts";
 
 // ---- Synthetic schema builders ----------------------------------------------------------------

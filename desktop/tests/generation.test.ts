@@ -59,7 +59,7 @@ test("generation is deterministic, pure, LF-only, and emits two typed React sour
   assert.deepEqual(first, generateReactProject(fixture));
   assert.deepEqual(fixture, before);
   assert.equal(first.target, "react-tailwind");
-  assert.equal(first.generatorVersion, "2");
+  assert.equal(first.generatorVersion, "3");
   assert.deepEqual(first.files.map((file) => file.path), ["src/App.tsx", "src/generated/GeneratedInterface.tsx"]);
   for (const file of first.files) {
     assert.equal(file.language, "typescript");

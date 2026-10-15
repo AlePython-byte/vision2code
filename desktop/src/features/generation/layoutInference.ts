@@ -1,19 +1,26 @@
 import type { UINode, UISchema } from "@vision2code/contracts";
 
 /**
- * Layout inference for generator v2: what the UISchema bounds say about spacing and alignment when
- * the declared layout does not already say it. Pure and deterministic (no I/O, clock or randomness).
+ * Layout inference: what the UISchema bounds say about spacing, alignment and structure when the
+ * declared layout does not already say it. Pure and deterministic (no I/O, clock or randomness).
  *
- * The rule is "infer only when unambiguous". A FLEX container is inferred as a whole or not at all:
- * if its children are not a clean single flow (out of order, overlapping, or leaving the container)
+ * The rule is "infer only when unambiguous". A container is inferred as a whole or not at all: if
+ * its children are not a clean single flow (out of order, overlapping, or leaving the container)
  * nothing is inferred for it and the generator keeps the declared layout. Every comparison uses a
  * small tolerance (INFERENCE_TOLERANCE_PX); anything within it is treated as equal.
+ *
+ * Two profiles: "v2" is frozen (generator v2 must keep emitting the same bytes); "v3" adds the
+ * containers v2 leaves flat (NONE and GRID) and lets the bounds override a declared padding they
+ * contradict.
  */
 
 export const INFERENCE_TOLERANCE_PX = 2;
 /** Fraction of the smaller height that row neighbours must share vertically (same as the metrics). */
 const ROW_VERTICAL_OVERLAP = 0.5;
+/** More tracks than this is not "a grid" any more: fall back instead of emitting a huge template. */
+export const MAX_TRACKS = 12;
 
+export type LayoutProfile = "v2" | "v3";
 export type SelfAlignment = "START" | "CENTER" | "END";
 
 export interface Spacing {
@@ -23,7 +30,15 @@ export interface Spacing {
   readonly left: number;
 }
 
-/** How one child sits inside a planned FLEX container. */
+/** A child's position in a track grid: 1-based grid lines, end exclusive (`grid-column: start / end`). */
+export interface GridCell {
+  readonly columnStart: number;
+  readonly columnEnd: number;
+  readonly rowStart: number;
+  readonly rowEnd: number;
+}
+
+/** How one child sits inside a planned container. */
 export interface ChildLayout {
   /**
    * Column children: FILL spans the content box (`w-full`); FIXED keeps its own width.
@@ -35,11 +50,19 @@ export interface ChildLayout {
   /** Residual main-axis spacing (px) between the declared/inferred gap and the measured one. */
   readonly marginTop: number;
   readonly marginLeft: number;
+  /** Set when the container is a track grid: where this child goes. */
+  readonly cell: GridCell | null;
+}
+
+export interface Tracks {
+  /** Track sizes in px (spacer tracks included), from the left of the content box. */
+  readonly columns: readonly number[];
+  readonly rows: readonly number[];
 }
 
 export interface ContainerLayout {
   readonly axis: "ROW" | "COLUMN";
-  /** Replaces the declared padding (only when the declared one was all zero and bounds show more). */
+  /** Replaces the declared padding (when none was declared or the bounds contradict it). */
   readonly padding: Spacing | null;
   /** Gap inferred from regular spacing; only when the schema declares none. */
   readonly gap: number | null;
@@ -50,6 +73,12 @@ export interface ContainerLayout {
    * bounds, so the declared distribution could not reproduce the measured positions.
    */
   readonly justify: "START" | null;
+  /** v3: a NONE container whose children form a clean row or column is rendered as that flex flow. */
+  readonly inferredFlex: "ROW" | "COLUMN" | null;
+  /** v3: explicit grid tracks derived from the children's edges (NONE without a flow, GRID). */
+  readonly tracks: Tracks | null;
+  /** v3 last resort: children are positioned by their bounds inside this container. */
+  readonly positioned: boolean;
 }
 
 export interface InferenceStats {
@@ -69,10 +98,29 @@ export interface InferenceStats {
   readonly fixedWidths: number;
 }
 
+/** What v3 did to containers that v2 leaves as declared. */
+export interface FreeLayoutStats {
+  /** NONE or GRID containers with 2+ children that were examined. */
+  readonly examined: number;
+  /** NONE containers rendered as an inferred flex row or column. */
+  readonly flexInferred: number;
+  /** Containers rendered as an explicit track grid. */
+  readonly trackGrids: number;
+  /** Containers that fell back to positioning by bounds (last resort). */
+  readonly positioned: number;
+  /** Declared FLEX containers whose children do not form a flow, rendered as a track grid instead. */
+  readonly flexOverrides: number;
+  /** Declared paddings replaced because the children sit outside the declared content box. */
+  readonly paddingOverrides: number;
+  /** Declared GRID column counts replaced because the bounds show another structure. */
+  readonly columnOverrides: number;
+}
+
 export interface LayoutPlan {
   container(node: UINode): ContainerLayout | null;
   child(node: UINode): ChildLayout | null;
   readonly stats: InferenceStats;
+  readonly free: FreeLayoutStats;
 }
 
 const near = (a: number, b: number) => Math.abs(a - b) <= INFERENCE_TOLERANCE_PX;
@@ -93,24 +141,27 @@ function isCleanFlow(kids: readonly UINode[], row: boolean): boolean {
   return true;
 }
 
-function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, children: Map<UINode, ChildLayout>, counters: Record<keyof InferenceStats, number>) {
-  const { layout, bounds: box, children: kids } = node;
-  if (layout.mode !== "FLEX" || kids.length === 0) return;
-  counters.flexContainers++;
-  const row = layout.direction === "ROW";
-  if (box.width <= 0 || box.height <= 0) return;
-  // A container that carries its own text is not a pure layout box: the text takes space the bounds
-  // attribute to the container, so spacing measured against its children would count it twice.
-  if (node.text !== null) return;
-  if (!isCleanFlow(kids, row)) return;
+function within(kids: readonly UINode[], box: UINode["bounds"]): boolean {
   const right = box.x + box.width;
   const bottom = box.y + box.height;
-  // A child that leaves the container is a doubt about what the container is: do not infer.
-  for (const kid of kids) {
-    const b = kid.bounds;
-    if (b.x < box.x - INFERENCE_TOLERANCE_PX || b.y < box.y - INFERENCE_TOLERANCE_PX ||
-      b.x + b.width > right + INFERENCE_TOLERANCE_PX || b.y + b.height > bottom + INFERENCE_TOLERANCE_PX) return;
-  }
+  return kids.every(({ bounds: b }) => b.x >= box.x - INFERENCE_TOLERANCE_PX && b.y >= box.y - INFERENCE_TOLERANCE_PX &&
+    b.x + b.width <= right + INFERENCE_TOLERANCE_PX && b.y + b.height <= bottom + INFERENCE_TOLERANCE_PX);
+}
+
+interface Counters {
+  flex: Record<keyof InferenceStats, number>;
+  free: Record<keyof FreeLayoutStats, number>;
+}
+
+/** Plans one FLEX container (declared, or a NONE container inferred as a flex flow under v3). */
+function planFlex(
+  node: UINode, layout: UINode["layout"], inferredFlex: "ROW" | "COLUMN" | null, profile: LayoutProfile,
+  containers: Map<UINode, ContainerLayout>, children: Map<UINode, ChildLayout>, counters: Counters,
+): boolean {
+  const { bounds: box, children: kids } = node;
+  const row = layout.direction === "ROW";
+  const right = box.x + box.width;
+  const bottom = box.y + box.height;
   const first = kids[0]!.bounds;
   const last = kids[kids.length - 1]!.bounds;
   const mainStartOf = (b: UINode["bounds"]) => (row ? b.x : b.y);
@@ -136,12 +187,19 @@ function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, c
     (layout.justify === "SPACE_BETWEEN" && (lead > INFERENCE_TOLERANCE_PX || trail > INFERENCE_TOLERANCE_PX || unevenGaps));
   const justifyStart = layout.justify === "START" || contradicted;
 
-  // Padding: only when none is declared. Main-axis start padding needs justify START (otherwise the
-  // free space is distributed by justify and the first child's offset says nothing about padding).
+  // Padding: when none is declared, or (v3) when the children sit outside the declared content box,
+  // which the declared padding cannot reproduce. Main-axis start padding needs justify START
+  // (otherwise the free space is distributed by justify and the first child's offset says nothing).
   const declared = layout.padding;
+  const declaredZero = declared.top === 0 && declared.right === 0 && declared.bottom === 0 && declared.left === 0;
+  const outsideDeclaredContent = !declaredZero && !within(kids, {
+    x: box.x + declared.left, y: box.y + declared.top,
+    width: box.width - declared.left - declared.right, height: box.height - declared.top - declared.bottom,
+  });
   let padding: Spacing = declared;
   let paddingInferred = false;
-  if (declared.top === 0 && declared.right === 0 && declared.bottom === 0 && declared.left === 0) {
+  let paddingOverridden = false;
+  if (declaredZero || (profile === "v3" && outsideDeclaredContent)) {
     const minOffset = (pick: (b: UINode["bounds"]) => number) => Math.min(...kids.map((kid) => pick(kid.bounds)));
     const measured: Spacing = row
       ? { left: justifyStart ? snap(first.x - box.x) : 0, right: 0,
@@ -151,6 +209,7 @@ function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, c
     if (measured.top > 0 || measured.right > 0 || measured.bottom > 0 || measured.left > 0) {
       padding = measured;
       paddingInferred = true;
+      paddingOverridden = !declaredZero;
     }
   }
   const contentLeft = box.x + padding.left;
@@ -159,22 +218,19 @@ function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, c
   const contentHeight = box.height - padding.top - padding.bottom;
 
   // A row that does not fit one line by its own bounds is not "a single row": leave wrapping alone.
-  const spanned = row ? kids[kids.length - 1]!.bounds.x + kids[kids.length - 1]!.bounds.width - first.x : 0;
+  const spanned = row ? last.x + last.width - first.x : 0;
   const singleLine = row && kids.length >= 2 && spanned <= contentWidth + INFERENCE_TOLERANCE_PX;
 
-  // Gap: only when none is declared and the measured gaps agree with each other.
-  const mainStart = mainStartOf;
-  const mainSize = mainSizeOf;
-  const gaps = measuredGaps;
-  // With a consistent SPACE_BETWEEN the free space is distributed by justify; a `gap` would be a rigid
-  // minimum equal to that free space and would force overflow in a narrower viewport.
+  // Gap: only when none is declared and the measured gaps agree with each other. With a consistent
+  // SPACE_BETWEEN the free space is distributed by justify; a `gap` would be a rigid minimum equal to
+  // that free space and would force overflow in a narrower viewport.
   const spaceIsDistributed = layout.justify === "SPACE_BETWEEN" && !contradicted;
   let inferredGap: number | null = null;
-  if (layout.gap === null && gaps.length > 0 && !spaceIsDistributed) {
-    const low = Math.min(...gaps);
-    const high = Math.max(...gaps);
+  if (layout.gap === null && measuredGaps.length > 0 && !spaceIsDistributed) {
+    const low = Math.min(...measuredGaps);
+    const high = Math.max(...measuredGaps);
     if (high - low <= INFERENCE_TOLERANCE_PX) {
-      const mean = gaps.reduce((sum, value) => sum + value, 0) / gaps.length;
+      const mean = measuredGaps.reduce((sum, value) => sum + value, 0) / measuredGaps.length;
       if (mean > INFERENCE_TOLERANCE_PX) inferredGap = Math.round(mean);
     }
   }
@@ -193,10 +249,10 @@ function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, c
     let marginMain = 0;
     if (justifyStart) {
       const expected = index === 0 ? cursor : cursor + effectiveGap;
-      const residual = mainStart(b) - expected;
+      const residual = mainStartOf(b) - expected;
       if (Math.abs(residual) > INFERENCE_TOLERANCE_PX) marginMain = Math.round(residual);
     }
-    cursor = mainStart(b) + mainSize(b);
+    cursor = mainStartOf(b) + mainSizeOf(b);
 
     let width: ChildLayout["width"] = "FIXED";
     let alignSelf: SelfAlignment | null = null;
@@ -234,38 +290,202 @@ function planContainer(node: UINode, containers: Map<UINode, ContainerLayout>, c
       width, alignSelf,
       marginTop: row ? marginCross : marginMain,
       marginLeft: row ? marginMain : marginCross,
+      cell: null,
     }]);
   });
 
   const justifyOverride = contradicted && layout.justify !== "START";
   containers.set(node, {
     axis: row ? "ROW" : "COLUMN", padding: paddingInferred ? padding : null, gap: inferredGap, singleLine,
-    justify: justifyOverride ? "START" : null,
+    justify: justifyOverride ? "START" : null, inferredFlex, tracks: null, positioned: false,
   });
   for (const [kid, value] of planned) children.set(kid, value);
-  counters.plannedContainers++;
-  if (inferredGap !== null) counters.gaps++;
-  if (paddingInferred) counters.paddings++;
-  if (justifyOverride) counters.justifyOverrides++;
-  counters.margins += marginCount;
-  counters.alignments += alignmentCount;
-  counters.fixedWidths += fixedCount;
+  const flex = counters.flex;
+  flex.plannedContainers!++;
+  if (inferredGap !== null) flex.gaps!++;
+  if (paddingInferred) flex.paddings!++;
+  if (paddingOverridden) counters.free.paddingOverrides!++;
+  if (justifyOverride) flex.justifyOverrides!++;
+  flex.margins! += marginCount;
+  flex.alignments! += alignmentCount;
+  flex.fixedWidths! += fixedCount;
+  return true;
 }
 
-export function planLayout(schema: UISchema): LayoutPlan {
+// ---- Tracks (v3) -----------------------------------------------------------------------------
+
+function clusterEdges(values: readonly number[]): number[] {
+  const sorted = [...values].sort((a, b) => a - b);
+  const edges: number[] = [];
+  let group: number[] = [];
+  const flush = () => { if (group.length > 0) edges.push(Math.round(group.reduce((sum, value) => sum + value, 0) / group.length)); };
+  for (const value of sorted) {
+    if (group.length > 0 && value - group[group.length - 1]! > INFERENCE_TOLERANCE_PX) { flush(); group = []; }
+    group.push(value);
+  }
+  flush();
+  return edges;
+}
+
+const nearestEdge = (edges: readonly number[], value: number) =>
+  edges.reduce((best, edge, index) => (Math.abs(edge - value) < Math.abs(edges[best]! - value) ? index : best), 0);
+
+/**
+ * Explicit grid tracks from the children's edges. Unambiguous only when every child fits the content
+ * box, no two children share a grid cell, no child is degenerate, and there are at most MAX_TRACKS
+ * columns and rows. Spacer tracks keep the empty bands between children, so no `gap` is needed.
+ */
+function inferTracks(node: UINode, padding: Spacing): { tracks: Tracks; cells: Map<UINode, GridCell> } | null {
+  const { bounds: box, children: kids } = node;
+  const left = box.x + padding.left;
+  const right = box.x + box.width - padding.right;
+  const top = box.y + padding.top;
+  for (const { bounds: b } of kids) {
+    if (b.width <= INFERENCE_TOLERANCE_PX || b.height <= INFERENCE_TOLERANCE_PX) return null;
+    if (b.x < left - INFERENCE_TOLERANCE_PX || b.x + b.width > right + INFERENCE_TOLERANCE_PX || b.y < top - INFERENCE_TOLERANCE_PX) return null;
+  }
+  const xEdges = clusterEdges([left, right, ...kids.flatMap(({ bounds: b }) => [b.x, b.x + b.width])]);
+  const yEdges = clusterEdges([top, ...kids.flatMap(({ bounds: b }) => [b.y, b.y + b.height])]);
+  if (xEdges.length - 1 > MAX_TRACKS || yEdges.length - 1 > MAX_TRACKS || xEdges.length < 2 || yEdges.length < 2) return null;
+  const cells = new Map<UINode, GridCell>();
+  for (const kid of kids) {
+    const b = kid.bounds;
+    const columnStart = nearestEdge(xEdges, b.x);
+    const columnEnd = nearestEdge(xEdges, b.x + b.width);
+    const rowStart = nearestEdge(yEdges, b.y);
+    const rowEnd = nearestEdge(yEdges, b.y + b.height);
+    if (columnEnd <= columnStart || rowEnd <= rowStart) return null;
+    cells.set(kid, { columnStart: columnStart + 1, columnEnd: columnEnd + 1, rowStart: rowStart + 1, rowEnd: rowEnd + 1 });
+  }
+  const placed = [...cells.values()];
+  for (let a = 0; a < placed.length; a++) {
+    for (let b = a + 1; b < placed.length; b++) {
+      const p = placed[a]!;
+      const q = placed[b]!;
+      if (p.columnStart < q.columnEnd && q.columnStart < p.columnEnd && p.rowStart < q.rowEnd && q.rowStart < p.rowEnd) return null;
+    }
+  }
+  const sizes = (edges: readonly number[]) => edges.slice(1).map((edge, index) => edge - edges[index]!);
+  return { tracks: { columns: sizes(xEdges), rows: sizes(yEdges) }, cells };
+}
+
+function startClusters(kids: readonly UINode[]): number {
+  return clusterEdges(kids.map(({ bounds }) => bounds.x)).length;
+}
+
+/** v3: NONE and GRID containers with 2+ children. Returns true when the container was planned. */
+function planFree(
+  node: UINode, containers: Map<UINode, ContainerLayout>, children: Map<UINode, ChildLayout>, counters: Counters,
+): void {
+  const { layout, children: kids, bounds: box } = node;
+  if (kids.length < 2 || node.text !== null || box.width <= 0 || box.height <= 0) return;
+  const grid = layout.mode === "GRID";
+  if (!grid && layout.mode !== "NONE") return;
+  counters.free.examined!++;
+  const asContainer = (extra: Partial<ContainerLayout>): ContainerLayout => ({
+    axis: "COLUMN", padding: null, gap: null, singleLine: false, justify: null, inferredFlex: null, tracks: null, positioned: false, ...extra,
+  });
+
+  const cleanColumn = isCleanFlow(kids, false);
+  const cleanRow = isCleanFlow(kids, true);
+  const inside = within(kids, box);
+
+  if (grid) {
+    // A declared grid whose columns match the children, or a single stacked column, is already right.
+    if (layout.columns !== null && startClusters(kids) === layout.columns) return;
+    if (layout.columns === null && cleanColumn && inside) return;
+    const found = inferTracks(node, layout.padding);
+    if (found === null) return;
+    containers.set(node, asContainer({ tracks: found.tracks }));
+    for (const kid of kids) {
+      children.set(kid, { width: "FILL", alignSelf: null, marginTop: 0, marginLeft: 0, cell: found.cells.get(kid)! });
+    }
+    counters.free.trackGrids!++;
+    if (layout.columns !== null) counters.free.columnOverrides!++;
+    return;
+  }
+
+  // NONE: a clean row or column is the same thing as a flex flow.
+  if (inside && (cleanColumn || cleanRow)) {
+    const direction = cleanRow && !cleanColumn ? "ROW" : "COLUMN";
+    const synthetic: UINode["layout"] = { ...layout, mode: "FLEX", direction, justify: "START", align: "START", gap: null };
+    planFlex(node, synthetic, direction, "v3", containers, children, counters);
+    counters.free.flexInferred!++;
+    return;
+  }
+  // Otherwise try explicit tracks, and only then position by bounds.
+  const found = inferTracks(node, layout.padding);
+  if (found !== null) {
+    containers.set(node, asContainer({ tracks: found.tracks }));
+    for (const kid of kids) {
+      children.set(kid, { width: "FILL", alignSelf: null, marginTop: 0, marginLeft: 0, cell: found.cells.get(kid)! });
+    }
+    counters.free.trackGrids!++;
+    return;
+  }
+  containers.set(node, asContainer({ positioned: true }));
+  counters.free.positioned!++;
+}
+
+function planContainer(
+  node: UINode, profile: LayoutProfile,
+  containers: Map<UINode, ContainerLayout>, children: Map<UINode, ChildLayout>, counters: Counters,
+) {
+  const { layout, bounds: box, children: kids } = node;
+  if (kids.length === 0 || box.width <= 0 || box.height <= 0) {
+    if (layout.mode === "FLEX" && kids.length > 0) counters.flex.flexContainers!++;
+    return;
+  }
+  if (layout.mode === "FLEX") {
+    counters.flex.flexContainers!++;
+    // A container that carries its own text is not a pure layout box: the text takes space the bounds
+    // attribute to the container, so spacing measured against its children would count it twice.
+    if (node.text !== null) return;
+    // A child that leaves the container, or children that do not form a flow, are a doubt about what
+    // the container is. v2 stops there; v3 tries explicit tracks, which reproduce a two-band layout
+    // (a column whose last band is a row) exactly, and otherwise keeps the declared layout.
+    if (!isCleanFlow(kids, layout.direction === "ROW") || !within(kids, box)) {
+      if (profile === "v3" && kids.length >= 2) {
+        const found = inferTracks(node, layout.padding);
+        if (found !== null) {
+          containers.set(node, {
+            axis: layout.direction === "ROW" ? "ROW" : "COLUMN", padding: null, gap: null, singleLine: false, justify: null,
+            inferredFlex: null, tracks: found.tracks, positioned: false,
+          });
+          for (const kid of kids) {
+            children.set(kid, { width: "FILL", alignSelf: null, marginTop: 0, marginLeft: 0, cell: found.cells.get(kid)! });
+          }
+          counters.free.examined!++;
+          counters.free.trackGrids!++;
+          counters.free.flexOverrides!++;
+        }
+      }
+      return;
+    }
+    planFlex(node, layout, null, profile, containers, children, counters);
+    return;
+  }
+  if (profile === "v3") planFree(node, containers, children, counters);
+}
+
+export function planLayout(schema: UISchema, profile: LayoutProfile = "v2"): LayoutPlan {
   const containers = new Map<UINode, ContainerLayout>();
   const children = new Map<UINode, ChildLayout>();
-  const counters = { flexContainers: 0, plannedContainers: 0, gaps: 0, paddings: 0, margins: 0, alignments: 0, justifyOverrides: 0, fixedWidths: 0 };
+  const counters: Counters = {
+    flex: { flexContainers: 0, plannedContainers: 0, gaps: 0, paddings: 0, margins: 0, alignments: 0, justifyOverrides: 0, fixedWidths: 0 },
+    free: { examined: 0, flexInferred: 0, trackGrids: 0, positioned: 0, flexOverrides: 0, paddingOverrides: 0, columnOverrides: 0 },
+  };
   // Iterative walk: schema depth is untrusted, so recursion could overflow on a long chain.
   const stack: UINode[] = [schema.root];
   while (stack.length > 0) {
     const node = stack.pop()!;
-    planContainer(node, containers, children, counters);
+    planContainer(node, profile, containers, children, counters);
     for (let index = node.children.length - 1; index >= 0; index--) stack.push(node.children[index]!);
   }
   return {
     container: (node) => containers.get(node) ?? null,
     child: (node) => children.get(node) ?? null,
-    stats: Object.freeze({ ...counters }),
+    stats: Object.freeze({ ...counters.flex }),
+    free: Object.freeze({ ...counters.free }),
   };
 }

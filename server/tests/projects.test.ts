@@ -701,13 +701,13 @@ describe("Projects Domain & Persistence Architecture", () => {
       assert.match(sql, /FOREIGN KEY \("project_id"\) REFERENCES "projects"\("id"\) ON DELETE CASCADE/);
     });
   });
-  // TASK 011B: generator v2 produces generatorVersion "2"; stored "1" generations stay valid.
+  // TASK 011B/011C: generators produce versions "2" and "3"; stored "1" generations stay valid.
   describe("Generator versions", () => {
     it("stores and returns both generator versions unchanged, and rejects unknown ones", async () => {
       const proj = await inMemoryRepo.createProject(userA.id, "Versions");
       const make = (generatorVersion: string) => ({ ...validGeneratedProject, generatorVersion });
       const created: Record<string, string> = {};
-      for (const version of ["1", "2"]) {
+      for (const version of ["1", "2", "3"]) {
         const res = await api(`/api/v1/projects/${proj.id}/generations`, {
           token: tokenUserA, body: { uiSchema: validUiSchema, generatedProject: make(version) },
         });
@@ -715,12 +715,12 @@ describe("Projects Domain & Persistence Architecture", () => {
         assert.equal(res.data.generatedProject.generatorVersion, version);
         created[version] = res.data.id;
       }
-      for (const version of ["1", "2"]) {
+      for (const version of ["1", "2", "3"]) {
         const res = await api(`/api/v1/projects/${proj.id}/generations/${created[version]}`, { token: tokenUserA });
         assert.equal(res.status, 200);
         assert.equal(res.data.generatedProject.generatorVersion, version, "restored exactly as stored");
       }
-      for (const version of ["0", "3"]) {
+      for (const version of ["0", "4"]) {
         const res = await api(`/api/v1/projects/${proj.id}/generations`, {
           token: tokenUserA, body: { uiSchema: validUiSchema, generatedProject: make(version) },
         });

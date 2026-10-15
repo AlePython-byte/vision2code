@@ -16,14 +16,17 @@ export const SINGLE_LINE_MAX_LINES = 1.5;
 
 /**
  * Single-line text: the content has no line break and the box is at most 1.5 line heights tall,
- * where the line height is text.lineHeight (px) or, when absent, 1.2 x the font size.
+ * where the line height is text.lineHeight (px) or, when absent, 1.2 x the font size. With
+ * `paddingAware` the node's own vertical padding is not counted as text height: a 40 px button with
+ * 8 px padding holds one 24 px line. Generator v2 ignored that (default); v3 and the metrics use it.
  */
-export function isSingleLineText(node: UINode): boolean {
+export function isSingleLineText(node: UINode, options: { readonly paddingAware?: boolean } = {}): boolean {
   const text = node.text;
   if (text === null || /[\r\n]/.test(text.content)) return false;
   const fontSize = text.fontSize ?? DEFAULT_FONT_SIZE;
   const lineHeight = text.lineHeight ?? fontSize * DEFAULT_LINE_HEIGHT_FACTOR;
-  return node.bounds.height <= lineHeight * SINGLE_LINE_MAX_LINES;
+  const padding = options.paddingAware ? node.layout.padding.top + node.layout.padding.bottom : 0;
+  return Math.max(0, node.bounds.height - padding) <= lineHeight * SINGLE_LINE_MAX_LINES;
 }
 
 /**

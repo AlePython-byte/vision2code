@@ -103,7 +103,7 @@ export function computeSchemaMetrics(schema: UISchema): SchemaMetrics {
     if (node.type === "IMAGE" || node.type === "ICON") placeholderCount++;
     if (node.text !== null) {
       textNodes++;
-      if (isSingleLineText(node)) {
+      if (isSingleLineText(node, { paddingAware: true })) {
         singleLineTextNodes++;
         if (estimateTextWidth(node) > node.bounds.width) textClampRisk++;
       }

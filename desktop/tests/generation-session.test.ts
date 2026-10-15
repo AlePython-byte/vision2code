@@ -545,8 +545,10 @@ test("generator stays pure: no projects, auth, api or persistence imports", () =
     .matchAll(/^import .* from "([^"]+)";$/gm)].map((match) => match[1]);
   assert.deepEqual(importsOf("generateReactProject.ts"),
     ["@vision2code/contracts", "./emitSource.ts", "./generatedProject.ts", "./layoutInference.ts", "./textLayout.ts"]);
+  assert.deepEqual(importsOf("generateReactProjectV2.ts"),
+    ["@vision2code/contracts", "./emitSource.ts", "./generatedProject.ts", "./layoutInference.ts", "./textLayout.ts"]);
   assert.deepEqual(importsOf("layoutInference.ts"), ["@vision2code/contracts"]);
   assert.deepEqual(importsOf("textLayout.ts"), ["@vision2code/contracts"]);
   assert.deepEqual(importsOf("emitSource.ts"), ["@vision2code/contracts", "./generatedProject.ts"]);
-  assert.deepEqual(importsOf("generateReactProjectV1.ts"), ["@vision2code/contracts", "./emitSource.ts", "./generatedProject.ts"]);
+  assert.deepEqual(importsOf("generatorVersions.ts"), ["@vision2code/contracts", "./generateReactProjectV2.ts", "./generatedProject.ts"]);
 });

@@ -11,7 +11,7 @@ export type PreviewErrorCode = "NO_ENTRY" | "ENGINE_FAILURE";
 /** Immutable, detached copy of the project the preview works on. */
 export interface PreviewProject {
   readonly target: "react-tailwind";
-  readonly generatorVersion: "1" | "2";
+  readonly generatorVersion: "1" | "2" | "3";
   readonly files: readonly Readonly<GeneratedFile>[];
 }
 
