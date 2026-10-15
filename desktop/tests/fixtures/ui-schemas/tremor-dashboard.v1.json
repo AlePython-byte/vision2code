@@ -1,0 +1,1131 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1886,
+    "height": 912
+  },
+  "confidence": 0.94,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "page",
+        "value": "#FAFBFC"
+      },
+      {
+        "name": "surface",
+        "value": "#FFFFFF"
+      },
+      {
+        "name": "ink",
+        "value": "#101828"
+      },
+      {
+        "name": "muted",
+        "value": "#6B7280"
+      },
+      {
+        "name": "border",
+        "value": "#E0E4EB"
+      },
+      {
+        "name": "blue",
+        "value": "#3B82F6"
+      },
+      {
+        "name": "purple",
+        "value": "#8B5CF6"
+      },
+      {
+        "name": "cyan",
+        "value": "#0EA5E9"
+      },
+      {
+        "name": "magenta",
+        "value": "#D946EF"
+      }
+    ],
+    "typography": [
+      {
+        "name": "body",
+        "fontFamily": "sans-serif",
+        "fontSize": 18,
+        "fontWeight": 400,
+        "lineHeight": 26,
+        "letterSpacing": null
+      },
+      {
+        "name": "small",
+        "fontFamily": "sans-serif",
+        "fontSize": 16,
+        "fontWeight": 400,
+        "lineHeight": 24,
+        "letterSpacing": null
+      },
+      {
+        "name": "metric",
+        "fontFamily": "sans-serif",
+        "fontSize": 38,
+        "fontWeight": 600,
+        "lineHeight": 46,
+        "letterSpacing": -1
+      }
+    ],
+    "spacing": [
+      8,
+      16,
+      20,
+      24,
+      30,
+      32
+    ],
+    "radii": [
+      8,
+      10,
+      16
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "Dashboard page",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1886,
+      "height": 912
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "STRETCH",
+      "gap": 0,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": "#FAFBFC",
+      "color": null,
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "announcement",
+        "type": "FRAME",
+        "name": "Announcement strip",
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1886,
+          "height": 59
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 181,
+            "bottom": 0,
+            "left": 181
+          }
+        },
+        "style": {
+          "background": "#050505",
+          "color": "#FFFFFF",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "vercel",
+            "type": "IMAGE",
+            "name": "Vercel brand",
+            "bounds": {
+              "x": 181,
+              "y": 19,
+              "width": 104,
+              "height": 21
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White triangular Vercel logo and wordmark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "announcement-link",
+            "type": "TEXT",
+            "name": "Announcement text",
+            "bounds": {
+              "x": 1228,
+              "y": 18,
+              "width": 477,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Tremor is joining Vercel. Read more about our journey ↗",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 600,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "navigation",
+        "type": "FRAME",
+        "name": "Main navigation",
+        "bounds": {
+          "x": 0,
+          "y": 59,
+          "width": 1886,
+          "height": 81
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 20,
+            "right": 181,
+            "bottom": 16,
+            "left": 181
+          }
+        },
+        "style": {
+          "background": "#FFFFFF",
+          "color": "#101828",
+          "border": {
+            "width": 1,
+            "color": "#E0E4EB"
+          },
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "brand",
+            "type": "TEXT",
+            "name": "Tremor Blocks brand",
+            "bounds": {
+              "x": 181,
+              "y": 87,
+              "width": 155,
+              "height": 27
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#101828",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "tremor blocks",
+              "fontFamily": null,
+              "fontSize": 23,
+              "fontWeight": 600,
+              "lineHeight": 28,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "product-selector",
+            "type": "BUTTON",
+            "name": "Product selector",
+            "bounds": {
+              "x": 357,
+              "y": 79,
+              "width": 119,
+              "height": 45
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 10,
+                "right": 16,
+                "bottom": 10,
+                "left": 16
+              }
+            },
+            "style": {
+              "background": "#F3F4F6",
+              "color": "#101828",
+              "border": null,
+              "radius": 8,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Tremor ⌃⌄",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 400,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "nav-links",
+            "type": "TEXT",
+            "name": "Navigation links",
+            "bounds": {
+              "x": 1316,
+              "y": 88,
+              "width": 330,
+              "height": 26
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#101828",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Blocks     Templates     Getting Started",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 500,
+              "lineHeight": 26,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "github",
+            "type": "ICON",
+            "name": "GitHub icon",
+            "bounds": {
+              "x": 1676,
+              "y": 87,
+              "width": 25,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#101828",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Dark GitHub silhouette.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "dashboard",
+        "type": "FRAME",
+        "name": "Dashboard grid",
+        "bounds": {
+          "x": 150,
+          "y": 162,
+          "width": 1582,
+          "height": 750
+        },
+        "layout": {
+          "mode": "GRID",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": 44,
+          "columns": 3,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "sidebar",
+            "type": "FRAME",
+            "name": "Shop metrics column",
+            "bounds": {
+              "x": 150,
+              "y": 162,
+              "width": 363,
+              "height": 750
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 43,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "shop-status",
+                "type": "FRAME",
+                "name": "Shop operational status",
+                "bounds": {
+                  "x": 150,
+                  "y": 162,
+                  "width": 363,
+                  "height": 237
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": 24,
+                  "columns": null,
+                  "padding": {
+                    "top": 31,
+                    "right": 30,
+                    "bottom": 30,
+                    "left": 30
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#101828",
+                  "border": {
+                    "width": 1,
+                    "color": "#E0E4EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 18,
+                    "blur": 30,
+                    "spread": -12,
+                    "color": "#10182826"
+                  },
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "shop-title",
+                    "type": "TEXT",
+                    "name": "Status and shop name",
+                    "bounds": {
+                      "x": 200,
+                      "y": 194,
+                      "width": 283,
+                      "height": 59
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#101828",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "✓ Operational\nEmma's Online-Shop",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 32,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "uptime",
+                    "type": "IMAGE",
+                    "name": "Thirty-day uptime",
+                    "bounds": {
+                      "x": 181,
+                      "y": 278,
+                      "width": 301,
+                      "height": 88
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": {
+                      "description": "Narrow blue and pale gray uptime bars, labeled '30 days ago' at left and 'Today' at right.",
+                      "fit": "CONTAIN"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "changes",
+                "type": "FRAME",
+                "name": "Percentage changes",
+                "bounds": {
+                  "x": 150,
+                  "y": 442,
+                  "width": 363,
+                  "height": 137
+                },
+                "layout": {
+                  "mode": "GRID",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": 16,
+                  "columns": 2,
+                  "padding": {
+                    "top": 18,
+                    "right": 56,
+                    "bottom": 18,
+                    "left": 56
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#3B82F6",
+                  "border": {
+                    "width": 1,
+                    "color": "#E0E4EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 18,
+                    "blur": 30,
+                    "spread": -12,
+                    "color": "#10182826"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "9.3% ↑     3.3% ↗\n1.9% ↘     0.6% ↓",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 600,
+                  "lineHeight": 58,
+                  "letterSpacing": null,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "payments",
+                "type": "FRAME",
+                "name": "Online payments chart",
+                "bounds": {
+                  "x": 150,
+                  "y": 625,
+                  "width": 363,
+                  "height": 287
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": 20,
+                  "columns": null,
+                  "padding": {
+                    "top": 30,
+                    "right": 30,
+                    "bottom": 0,
+                    "left": 30
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#101828",
+                  "border": {
+                    "width": 1,
+                    "color": "#E0E4EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 18,
+                    "blur": 30,
+                    "spread": -12,
+                    "color": "#10182826"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Online payments\n\nEurope       North America",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": [
+                  {
+                    "id": "payments-bars",
+                    "type": "IMAGE",
+                    "name": "Regional payments bars",
+                    "bounds": {
+                      "x": 181,
+                      "y": 737,
+                      "width": 301,
+                      "height": 175
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": {
+                      "description": "Partially visible stacked blue bars with purple and magenta caps and horizontal grid lines. Europe tab has a blue underline.",
+                      "fit": "NONE"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "portfolio",
+            "type": "FRAME",
+            "name": "Portfolio value card",
+            "bounds": {
+              "x": 556,
+              "y": 162,
+              "width": 769,
+              "height": 527
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 32,
+              "columns": null,
+              "padding": {
+                "top": 30,
+                "right": 31,
+                "bottom": 30,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#101828",
+              "border": {
+                "width": 1,
+                "color": "#E0E4EB"
+              },
+              "radius": 10,
+              "shadow": {
+                "x": 0,
+                "y": 18,
+                "blur": 30,
+                "spread": -12,
+                "color": "#10182826"
+              },
+              "opacity": 1
+            },
+            "text": {
+              "content": "Portfolio Value\n$328,505.10",
+              "fontFamily": "sans-serif",
+              "fontSize": null,
+              "fontWeight": null,
+              "lineHeight": null,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": [
+              {
+                "id": "portfolio-chart",
+                "type": "IMAGE",
+                "name": "Portfolio daily bar chart",
+                "bounds": {
+                  "x": 587,
+                  "y": 303,
+                  "width": 707,
+                  "height": 350
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": {
+                  "description": "Blue daily bars over horizontal gray grid lines, generally rising toward the right. Axis labels: Aug 25, Aug 29, Sep 02, Sep 06, Sep 10, Sep 14, Sep 18, Sep 22, Sep 26.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              },
+              {
+                "id": "chart-tooltip",
+                "type": "TEXT",
+                "name": "Visible chart tooltip",
+                "bounds": {
+                  "x": 635,
+                  "y": 298,
+                  "width": 318,
+                  "height": 93
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 10,
+                    "right": 20,
+                    "bottom": 10,
+                    "left": 20
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#344054",
+                  "border": {
+                    "width": 1,
+                    "color": "#E0E4EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 3,
+                    "blur": 5,
+                    "spread": 0,
+                    "color": "#00000026"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Aug 25\n● ETF Shares Vital       $6.198,2",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 400,
+                  "lineHeight": 46,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "expenses",
+            "type": "FRAME",
+            "name": "Expenses breakdown card",
+            "bounds": {
+              "x": 1368,
+              "y": 162,
+              "width": 364,
+              "height": 527
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 20,
+              "columns": null,
+              "padding": {
+                "top": 51,
+                "right": 31,
+                "bottom": 30,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#101828",
+              "border": {
+                "width": 1,
+                "color": "#E0E4EB"
+              },
+              "radius": 10,
+              "shadow": {
+                "x": 0,
+                "y": 18,
+                "blur": 30,
+                "spread": -12,
+                "color": "#10182826"
+              },
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "expense-donut",
+                "type": "IMAGE",
+                "name": "Expense total donut",
+                "bounds": {
+                  "x": 1450,
+                  "y": 213,
+                  "width": 200,
+                  "height": 200
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": {
+                  "description": "Donut chart with dominant blue segment and smaller purple, cyan, and magenta segments; center reads '$25.280'.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              },
+              {
+                "id": "expense-list",
+                "type": "TEXT",
+                "name": "Expense categories and amounts",
+                "bounds": {
+                  "x": 1399,
+                  "y": 433,
+                  "width": 302,
+                  "height": 198
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#6B7280",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Expenses                         Amount\nTravel                             $15.730\nIT & equipment                 $4.420\nTraining & developm...      $3.920\nOffice supplies                  $1.210",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 400,
+                  "lineHeight": 46,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "holdings",
+            "type": "FRAME",
+            "name": "Portfolio holdings table",
+            "bounds": {
+              "x": 556,
+              "y": 732,
+              "width": 1176,
+              "height": 180
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 30,
+                "right": 31,
+                "bottom": 0,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#101828",
+              "border": {
+                "width": 1,
+                "color": "#E0E4EB"
+              },
+              "radius": 10,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Name                         Value             Invested          Cashflow               Gain          Realized        Dividends\nETF Shares Vital       $17,349.30       $19,698.65       $20,033.74       +$15,012.39       +$177.4       +$490.97",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 400,
+              "lineHeight": 66,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Font families and exact color values are estimated from the screenshot.",
+    "The payments chart and holdings table extend below the screenshot; only fully readable table content is transcribed.",
+    "Grouped text approximates mixed typography and tabular alignment; the portfolio total is visibly larger than its label."
+  ]
+}
