@@ -314,6 +314,21 @@ mod tests {
         }
     }
 
+    /// Paths of the exporter's runnable-project scaffold (desktop `exportScaffold.ts`); a TypeScript
+    /// test checks this list covers every scaffold path, so the two cannot drift apart.
+    #[test]
+    fn accepts_scaffold_paths() {
+        let scaffold = ["package.json", "index.html", "src/main.tsx", "src/index.css", "src/vite-env.d.ts",
+            "vite.config.ts", "tsconfig.json", "README.md", ".gitignore"];
+        for path in scaffold {
+            assert_eq!(validate_path(path), Ok(()), "{path}");
+        }
+        let mut files = vec![file("src/App.tsx", "app"), file("src/generated/GeneratedInterface.tsx", "ui")];
+        files.extend(scaffold.iter().map(|path| file(path, "{}
+")));
+        assert_eq!(validate_files(&files), Ok(()), "generated files plus scaffold stay inside every limit");
+    }
+
     #[test]
     fn rejects_empty_absolute_unc_and_dot_segments() {
         for path in ["", "/etc/passwd", "//server/share/a.ts", "src//a.ts", "src/", "./a.ts", "src/./a.ts",

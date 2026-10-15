@@ -1,8 +1,9 @@
 import type { ToastModel } from "../feedback/toastModel.ts";
-import { buildExportPlan, workingCopyFiles, type ExportErrorCode, type ExportFileInput } from "./exportPlan.ts";
+import { workingCopyFiles, type ExportErrorCode, type ExportFileInput } from "./exportPlan.ts";
+import { buildRunnableExportPlan } from "./exportScaffold.ts";
 
 export const EXPORT_TOAST_KEY = "code-export";
-export const EXPORT_SUCCESS_TOAST_MS = 4000;
+export const EXPORT_SUCCESS_TOAST_MS = 6000;
 
 export type NativeExportResult =
   | { readonly status: "EXPORTED"; readonly folderName: string; readonly fileCount: number }
@@ -81,7 +82,8 @@ export function createExportModel(deps: ExportDependencies) {
 
   function exportWorkingCopy(): Promise<ExportOutcome> {
     if (inFlight) return inFlight;
-    const plan = buildExportPlan(workingCopyFiles(deps.editor.getSnapshot()), deps.projectName());
+    // Working copy (drafts included) plus the exporter-owned scaffold; one validation for both.
+    const plan = buildRunnableExportPlan(workingCopyFiles(deps.editor.getSnapshot()), deps.projectName());
     if (!plan.ok) {
       const failed: NativeExportResult = { status: "FAILED", code: plan.code };
       report(failed);

@@ -282,12 +282,36 @@ test("Export button (ES/EN): secondary action, disabled without a result with an
   for (const [language, labels] of [["es", es], ["en", en]] as const) {
     const enabled = html("export/ExportButton.tsx", "ExportButton", language, buttonProps(true));
     assert.ok(enabled.includes(`class="action-button" title="${labels.exportHint}"`), language);
-    assert.ok(enabled.includes(labels.export) && enabled.includes(labels.exportHintShort));
+    assert.ok(enabled.includes(labels.export));
     assert.doesNotMatch(enabled, /primary-action/, "one accent per view: Export is secondary");
     const disabled = html("export/ExportButton.tsx", "ExportButton", language, buttonProps(false));
     assert.match(disabled, /<button type="button" class="action-button" disabled=""/);
     assert.ok(disabled.includes(`title="${labels.exportNoResult}"`));
   }
+});
+
+test("alignment: the button has no wrapper and the helper text lives outside the action row's button", () => {
+  for (const [language, labels] of [["es", es], ["en", en]] as const) {
+    const out = html("export/ExportButton.tsx", "ExportButton", language, buttonProps(true));
+    // Direct sibling of Copy code / Reset: the markup starts with the button itself, no container.
+    assert.ok(out.startsWith('<button type="button" class="action-button"'), language);
+    const button = out.slice(0, out.indexOf("</button>") + "</button>".length);
+    const inner = button.replace(/^<button[^>]*>/, "").replace(/<svg[\s\S]*?<\/svg>/, "").replace(/<\/button>$/, "");
+    assert.equal(inner, labels.export, "only the label lives inside the button");
+    assert.ok(!inner.includes(labels.exportHint) && !/<small|<span/.test(inner), "no helper text inside the button");
+    // The text is only a title plus an off-screen description referenced by aria-describedby.
+    assert.match(button, /aria-describedby="export-hint"/);
+    assert.ok(out.includes(`<span id="export-hint" class="export-hint-description">${labels.exportHint}</span>`));
+    assert.doesNotMatch(out, /export-control|<small/);
+  }
+  const source = read("../src/features/export/ExportButton.tsx");
+  assert.doesNotMatch(source, /export-control|<small/, "no visible hint container in the component");
+  const css = read("../src/features/editor/editor.css");
+  assert.doesNotMatch(css, /\.export-control|\.export-hint\s*\{/, "no stacked-control or visible-hint styles remain");
+  assert.match(css, /\.export-hint-description \{ position: absolute;[^}]*clip-path: inset\(50%\)/, "the description is off-screen");
+  // All three actions are plain .action-button children of the same flex row.
+  const editor = read("../src/features/editor/EditorWorkspace.tsx");
+  assert.match(editor, /<div className="code-actions">[\s\S]*?\{t\("copy"\)\}<\/button>\s*\{actions\}\s*<button className="action-button"[^>]*onClick=\{model\.reset\}/);
 });
 
 test("Export button: aria-busy, disabled and a busy label while exporting; a click starts one export", async () => {
