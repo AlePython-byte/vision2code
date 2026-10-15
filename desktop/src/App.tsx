@@ -1,4 +1,4 @@
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { lazy, Suspense, useState, useEffect, useSyncExternalStore } from "react";
 import { ApplicationShell } from "./features/workspace/ApplicationShell";
 import { Login } from "./features/login/Login";
 import { ToastViewport } from "./features/feedback/ToastViewport";
@@ -19,6 +19,10 @@ import {
 } from "./features/auth/index";
 import "./features/preferences/i18n";
 import "./styles/theme.css";
+
+// Development-only schema inspector. The dynamic import sits behind the compile-time DEV constant, so
+// production builds drop the component, its metrics and its styles (verified with a marker check).
+const SchemaInspector = import.meta.env.DEV ? lazy(() => import("./features/fidelity/SchemaInspector")) : null;
 
 function createDefaultAuthModel(): AuthModel {
   return createAuthModel(
@@ -82,7 +86,10 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
           codeContext={<CodeContext editor={services.editorModel} session={services.generationSession}
             projects={services.projectsModel} history={services.history} discardGuard={services.discardGuard}
             onOpenLibrary={(projectId, trigger) => services.library.openDialog(projectId, trigger)} />}
-          codeActions={<ExportButton exporter={services.exporter} editor={services.editorModel} />}
+          codeActions={<>
+            <ExportButton exporter={services.exporter} editor={services.editorModel} />
+            {SchemaInspector && <Suspense fallback={null}><SchemaInspector session={services.generationSession} /></Suspense>}
+          </>}
           libraryNav={<LibraryNavButton library={services.library} />}
           libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
             session={services.generationSession} openCode={openCode}

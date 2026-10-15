@@ -339,7 +339,7 @@ test("the button sits next to Copy code through a slot; the shell keeps shim-fri
   const shell = read("../src/features/workspace/ApplicationShell.tsx");
   assert.match(shell, /actions=\{codeActions\}/);
   assert.doesNotMatch(shell, /import .*(ExportButton|features\/export|\.\.\/export)/);
-  assert.match(read("../src/App.tsx"), /codeActions=\{<ExportButton exporter=\{services\.exporter\} editor=\{services\.editorModel\} \/>\}/);
+  assert.match(read("../src/App.tsx"), /codeActions=\{<>\s*<ExportButton exporter=\{services\.exporter\} editor=\{services\.editorModel\} \/>/);
 });
 
 test("the toast viewport interpolates the folder name", () => {

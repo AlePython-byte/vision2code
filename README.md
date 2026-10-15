@@ -282,6 +282,16 @@ Tests cover selection, ordering, independent drafts, resets, empty states, langu
 
 Current limits: editor drafts last only for the current application session and are never persisted; only the originally generated artifact is saved to the backend, never edits. Past generations are restored from the Project Vault. Monaco adds a substantial lazy-loaded bundle and language-worker assets. The workspace follows the existing visual direction; no Figma file was supplied for exact comparison. Packaged WebView/native clipboard verification remains a manual check.
 
+## Schema inspector and fidelity metrics (development only)
+
+To learn *why* a result comes out flat, the real UISchema of every result can be inspected, measured and saved. This is a development tool: production builds do not contain it.
+
+- `desktop/src/features/fidelity/schemaMetrics.ts` (pure): `computeSchemaMetrics(uiSchema)` returns node count and depth (the root is depth 1), nodes by type, containers by layout mode and direction, `containersWithoutLayout` (2+ children and layout `NONE`), `rowCandidates`, `textNodes` / `singleLineTextNodes` / `textClampRisk`, `placeholderCount` (IMAGE + ICON), confidence, warning count and compact JSON size in UTF-8 bytes. A **row candidate** is a container with 2+ children that is not declared FLEX/ROW and whose children, sorted by `bounds.x`, never overlap horizontally by more than 1 px and each neighbour pair shares at least 50% of the smaller height vertically. **Text clamp risk** counts single-line text (no line break, box at most 1.5 line heights tall) whose estimated width, characters x fontSize x 0.55, is greater than its `bounds.width`: these are the nodes the generator may wrap at its `max-width`. Both estimates come from the model's bounds, not from real rendering.
+- `SchemaInspector.tsx`: a **Schema** button next to Copy code / Export, visible only when `import.meta.env.DEV` is true. It opens a dialog (focus, trap, Esc) with the metrics table, the warnings, a collapsible read-only JSON and **Copy JSON** / **Copy metrics**. It only reads the current result, which includes restored generations; it makes no request and changes neither session, editor nor preview. Text is English and lives outside `resources.ts`.
+- **Not in production:** `App.tsx` loads it with `import.meta.env.DEV ? lazy(() => import(...)) : null`, so the build drops the component, its metrics and its CSS. After `npm run build`, `npm run check:dist-dev-only` fails if any inspector marker appears in `desktop/dist`.
+- **Fixtures:** save a schema with **Copy JSON** into `desktop/tests/fixtures/ui-schemas/<name>.json` (see the README there; never commit schemas from private screenshots). `desktop/tests/fidelity-fixtures.test.ts` discovers each file, validates it with the shared Zod schema, runs the generator and the metrics, and checks the output is non-empty and stable; with no fixtures it passes.
+- **Report:** `npm run report:fidelity` prints one metrics row per fixture, to compare before and after a prompt or generator change.
+
 ## Export the working copy
 
 `desktop/src/features/export/` and `desktop/src-tauri/src/export.rs` export what the editor shows (Monaco drafts included), whether the result was saved, unsaved or local only. Exporting never changes the editor, preview or session.
