@@ -154,7 +154,7 @@ test("the inspector is only reachable through a dynamic import behind the DEV co
 test("inspector and metrics import no AI, generator, auth, toast or persistence code", () => {
   const allowed: Record<string, readonly string[]> = {
     "SchemaInspector.tsx": ["react", "lucide-react", "@vision2code/contracts", "../generation/generationSessionModel", "../projects/vaultKeyboard", "./schemaMetrics", "./schemaInspector.css"],
-    "schemaMetrics.ts": ["@vision2code/contracts"],
+    "schemaMetrics.ts": ["@vision2code/contracts", "../generation/textLayout.ts"],
   };
   for (const [name, expected] of Object.entries(allowed)) {
     const imports = [...source(name).matchAll(/^import (?:type )?(?:.* from )?"([^"]+)";$/gm)].map((match) => match[1]!);

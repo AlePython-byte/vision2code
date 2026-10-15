@@ -1,0 +1,81 @@
+export default function GeneratedInterface() {
+  return (
+    <div data-node-id={"root"} className={"box-border min-w-0 relative w-full [max-width:1891px] [min-height:905px] flex flex-row flex-nowrap justify-start items-stretch [gap:0px] [padding:0px_0px_0px_6px] [background-color:#000000] [color:#FFFFFF] [opacity:1]"}>
+      <div data-node-id={"sidebar"} className={"box-border min-w-0 relative [flex:0_1_224px] [min-height:905px] flex flex-col justify-start items-start [gap:24px] [padding:29px_25px_0px_24px] [background-color:#1E1F26] [opacity:1]"}>
+        <div role="img" aria-label={"White CodePen wordmark with outlined cube symbol."} data-node-id={"brand"} className={"box-border min-w-0 relative w-full [max-width:180px] [min-height:33px] [max-height:33px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <button type="button" data-node-id={"editor"} className={"box-border min-w-0 relative w-full [max-width:175px] [min-height:55px] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:8px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:700] [line-height:26px] [text-align:center]"}>
+          {"Try The Editor"}
+        </button>
+        <div data-node-id={"editor-caption"} className={"box-border min-w-0 relative [width:149px] [max-width:100%] [min-height:15px] self-center [margin-top:-14px] [padding:0px_0px_0px_0px] [color:#B0B3C0] [opacity:1] whitespace-pre [font-size:12px] [font-weight:700] [line-height:15px] [text-align:start] [font-family:monospace]"}>
+          {"CODE, DEPLOY \u0026 SHARE"}
+        </div>
+        <div data-node-id={"navigation"} className={"box-border min-w-0 relative w-full [max-width:175px] [min-height:243px] [margin-top:21px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre-wrap break-words [font-size:21px] [font-weight:700] [text-align:start]"}>
+          {"Search Pens\nChallenges\nSpark\n\nPricing\nCodePen PRO"}
+        </div>
+        <div data-node-id={"advertisement"} className={"box-border min-w-0 relative w-full [max-width:174px] [min-height:255px] [margin-top:171px] flex flex-col justify-start items-start [gap:12px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <div role="img" aria-label={"Black advertisement reading design.dev and The Newsletter For Creators in white."} data-node-id={"ad-image"} className={"box-border min-w-0 relative [width:162px] [max-width:100%] [min-height:125px] [max-height:125px] overflow-hidden [padding:0px_0px_0px_0px] [background-color:#000000] [opacity:1]"}>
+            <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+          </div>
+          <div data-node-id={"ad-copy"} className={"box-border min-w-0 relative w-full [max-width:174px] [min-height:111px] [margin-top:3px] [padding:0px_0px_0px_0px] [color:#9398AA] [opacity:1] whitespace-pre-wrap break-words [font-size:15px] [font-weight:400] [line-height:23px] [text-align:start]"}>
+            {"Get the Drop. Weekly front-end tools, tips, and resources. Plus a free icon pack to get you started.\n(ads via Carbon)"}
+          </div>
+        </div>
+      </div>
+      <div data-node-id={"content"} className={"box-border min-w-0 relative [flex:0_1_1661px] [min-height:905px] flex flex-col justify-start items-stretch [gap:0px] [padding:0px_0px_0px_0px] [background-color:#000000] [opacity:1]"}>
+        <div data-node-id={"header"} className={"box-border min-w-0 relative w-full [max-width:1661px] [min-height:90px] flex flex-row flex-nowrap justify-between items-center [padding:16px_14px_19px_19px] [background-color:#000000] [opacity:1]"}>
+          <div data-node-id={"search"} className={"box-border min-w-0 relative [flex:0_1_375px] [min-height:55px] [padding:0px_16px_0px_49px] [background-color:#252830] [color:#9398AA] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:700] [line-height:26px] [text-align:start]"}>
+            <input type="text" readOnly aria-label={"Campo de texto"} value={"Search CodePen..."} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+          </div>
+          <button type="button" data-node-id={"signup"} className={"box-border min-w-0 relative [flex:0_1_108px] [min-height:55px] [padding:0px_0px_0px_0px] [background-color:#3FCC70] [color:#000000] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:center]"}>
+            {"Sign Up"}
+          </button>
+        </div>
+        <div data-node-id={"login-section"} className={"box-border min-w-0 relative w-full [max-width:1661px] [min-height:709px] [padding:108px_353px_28px_358px] [background-color:#191A22] [color:#FFFFFF] [opacity:1]"}>
+          <div data-node-id={"title"} className={"box-border min-w-0 relative w-full [max-width:240px] [min-height:96px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:80px] [font-weight:700] [line-height:96px] [text-align:start]"}>
+            {"Log In"}
+          </div>
+          <div data-node-id={"social"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:173px] flex flex-col justify-start items-stretch [gap:13px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <button type="button" data-node-id={"google"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:53px] [padding:0px_20px_0px_78px] [background-color:#444857] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start]"}>
+              {"Log In with Google"}
+            </button>
+            <button type="button" data-node-id={"github"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:53px] [padding:0px_20px_0px_78px] [background-color:#444857] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start]"}>
+              {"Log In with GitHub"}
+            </button>
+            <div data-node-id={"social-help"} className={"box-border min-w-0 relative [width:235px] [max-width:100%] [min-height:26px] [margin-top:15px] [margin-left:11px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start]"}>
+              {"▸ How social log in works"}
+            </div>
+          </div>
+          <div data-node-id={"separator"} className={"box-border min-w-0 relative w-full [max-width:50px] [min-height:378px] [padding:0px_0px_0px_0px] [color:#A3A6B5] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:center]"}>
+            <hr className="m-0 w-full border-0 border-t border-current" />
+            {"OR"}
+          </div>
+          <div data-node-id={"credentials"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:347px] flex flex-col justify-start items-stretch [gap:24px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <div data-node-id={"username"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:92px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start]"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={"Username or Email"} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <div data-node-id={"password"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:91px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start]"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={"Password"} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <button type="button" data-node-id={"submit"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:56px] [padding:0px_0px_0px_0px] [background-color:#3FCC70] [color:#000000] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:26px] [text-align:center]"}>
+              {"Log In"}
+            </button>
+            <div data-node-id={"forgot"} className={"box-border min-w-0 relative [width:149px] [max-width:100%] [min-height:26px] self-center [margin-top:8px] [padding:0px_0px_0px_0px] [color:#56D4FF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:26px] [text-align:center]"}>
+              {"Forgot Password?"}
+            </div>
+          </div>
+          <div data-node-id={"account-prompt"} className={"box-border min-w-0 relative w-full [max-width:254px] [min-height:26px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:26px] [text-align:center]"}>
+            {"Need an account? Sign up now!"}
+          </div>
+        </div>
+        <div data-node-id={"footer"} className={"box-border min-w-0 relative w-full [max-width:578px] [min-height:55px] [padding:0px_0px_0px_0px] [color:#A3A6B5] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:38px] [text-align:start]"}>
+          {"CodePen   About  Changelog  Pricing  Blog  Docs  Support  Advertise\nFor   Teams  Privacy  Embeds  Asset Hosting"}
+        </div>
+        <div role="img" aria-label={"White CodePen wordmark with outlined cube symbol."} data-node-id={"footer-logo"} className={"box-border min-w-0 relative w-full [max-width:180px] [min-height:33px] [max-height:33px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}

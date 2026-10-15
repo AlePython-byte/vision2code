@@ -9,7 +9,7 @@
     "colors": [
       {
         "name": "page",
-        "value": "#080909"
+        "value": "#08090A"
       },
       {
         "name": "panel",
@@ -17,37 +17,33 @@
       },
       {
         "name": "raised",
-        "value": "#242526"
+        "value": "#232425"
       },
       {
-        "name": "border",
-        "value": "#343536"
-      },
-      {
-        "name": "primary",
+        "name": "primaryText",
         "value": "#F5F6F7"
       },
       {
-        "name": "secondary",
-        "value": "#9B9FA7"
+        "name": "secondaryText",
+        "value": "#8A8F98"
       },
       {
-        "name": "muted",
-        "value": "#717680"
+        "name": "appText",
+        "value": "#B9BEC6"
       },
       {
-        "name": "accent-yellow",
-        "value": "#F3D300"
+        "name": "border",
+        "value": "#333536"
       },
       {
-        "name": "accent-purple",
-        "value": "#7778DB"
+        "name": "yellow",
+        "value": "#F2D600"
       }
     ],
     "typography": [
       {
         "name": "hero",
-        "fontFamily": null,
+        "fontFamily": "sans-serif",
         "fontSize": 80,
         "fontWeight": 600,
         "lineHeight": 80,
@@ -55,7 +51,7 @@
       },
       {
         "name": "body",
-        "fontFamily": null,
+        "fontFamily": "sans-serif",
         "fontSize": 20,
         "fontWeight": 400,
         "lineHeight": 28,
@@ -63,35 +59,19 @@
       },
       {
         "name": "navigation",
-        "fontFamily": null,
+        "fontFamily": "sans-serif",
         "fontSize": 17,
         "fontWeight": 400,
         "lineHeight": 24,
-        "letterSpacing": 0
+        "letterSpacing": null
       },
       {
-        "name": "application-title",
-        "fontFamily": null,
-        "fontSize": 25,
-        "fontWeight": 600,
-        "lineHeight": 32,
-        "letterSpacing": -0.5
-      },
-      {
-        "name": "application-body",
-        "fontFamily": null,
-        "fontSize": 17,
+        "name": "appBody",
+        "fontFamily": "sans-serif",
+        "fontSize": 16,
         "fontWeight": 400,
-        "lineHeight": 26,
-        "letterSpacing": 0
-      },
-      {
-        "name": "application-small",
-        "fontFamily": null,
-        "fontSize": 15,
-        "fontWeight": 400,
-        "lineHeight": 24,
-        "letterSpacing": 0
+        "lineHeight": 25,
+        "letterSpacing": null
       }
     ],
     "spacing": [
@@ -100,21 +80,20 @@
       16,
       24,
       32,
-      40,
-      56,
-      80
+      48,
+      90
     ],
     "radii": [
-      10,
+      8,
       12,
       16,
       24
     ]
   },
   "root": {
-    "id": "root",
+    "id": "page",
     "type": "FRAME",
-    "name": "Landing page",
+    "name": "Dark landing page",
     "bounds": {
       "x": 0,
       "y": 0,
@@ -125,23 +104,20 @@
       "mode": "FLEX",
       "direction": "COLUMN",
       "justify": "START",
-      "align": "STRETCH",
+      "align": "CENTER",
       "gap": 0,
       "columns": null,
       "padding": {
         "top": 0,
-        "right": 0,
+        "right": 125,
         "bottom": 0,
-        "left": 0
+        "left": 125
       }
     },
     "style": {
-      "background": "#080909",
+      "background": "#08090A",
       "color": null,
-      "border": {
-        "width": 1,
-        "color": "#343536"
-      },
+      "border": null,
       "radius": 12,
       "shadow": null,
       "opacity": 1
@@ -155,9 +131,9 @@
         "name": "Site header",
         "bounds": {
           "x": 6,
-          "y": 1,
+          "y": 0,
           "width": 1889,
-          "height": 89
+          "height": 90
         },
         "layout": {
           "mode": "FLEX",
@@ -168,15 +144,18 @@
           "columns": null,
           "padding": {
             "top": 24,
-            "right": 144,
-            "bottom": 25,
-            "left": 141
+            "right": 145,
+            "bottom": 24,
+            "left": 142
           }
         },
         "style": {
-          "background": "#080909",
+          "background": null,
           "color": null,
-          "border": null,
+          "border": {
+            "width": 1,
+            "color": "#1C1D1F"
+          },
           "radius": null,
           "shadow": null,
           "opacity": 1
@@ -189,16 +168,16 @@
             "type": "IMAGE",
             "name": "Linear brand",
             "bounds": {
-              "x": 147,
+              "x": 148,
               "y": 30,
-              "width": 112,
+              "width": 110,
               "height": 28
             },
             "layout": {
               "mode": "NONE",
               "direction": "NONE",
               "justify": "START",
-              "align": "START",
+              "align": "CENTER",
               "gap": null,
               "columns": null,
               "padding": {
@@ -218,7 +197,7 @@
             },
             "text": null,
             "image": {
-              "description": "White striped circular mark followed by the Linear wordmark.",
+              "description": "White striped circular Linear symbol and Linear wordmark.",
               "fit": "CONTAIN"
             },
             "children": []
@@ -237,7 +216,7 @@
               "mode": "NONE",
               "direction": "NONE",
               "justify": "START",
-              "align": "START",
+              "align": "CENTER",
               "gap": null,
               "columns": null,
               "padding": {
@@ -249,19 +228,19 @@
             },
             "style": {
               "background": null,
-              "color": "#8C9099",
+              "color": "#8A8F98",
               "border": null,
               "radius": null,
               "shadow": null,
               "opacity": 1
             },
             "text": {
-              "content": "Product    Resources    Customers    Pricing    Now    Contact    │    Log in",
-              "fontFamily": null,
+              "content": "Product     Resources     Customers     Pricing     Now     Contact     |     Log in",
+              "fontFamily": "sans-serif",
               "fontSize": 17,
               "fontWeight": 400,
               "lineHeight": 24,
-              "letterSpacing": 0,
+              "letterSpacing": null,
               "textAlign": "START"
             },
             "image": null,
@@ -292,8 +271,8 @@
               }
             },
             "style": {
-              "background": "#E6E6E7",
-              "color": "#111213",
+              "background": "#E6E6E6",
+              "color": "#08090A",
               "border": null,
               "radius": 24,
               "shadow": null,
@@ -301,11 +280,11 @@
             },
             "text": {
               "content": "Sign up",
-              "fontFamily": null,
+              "fontFamily": "sans-serif",
               "fontSize": 17,
               "fontWeight": 500,
               "lineHeight": 24,
-              "letterSpacing": 0,
+              "letterSpacing": null,
               "textAlign": "CENTER"
             },
             "image": null,
@@ -316,19 +295,19 @@
       {
         "id": "hero",
         "type": "FRAME",
-        "name": "Introductory section",
+        "name": "Product introduction",
         "bounds": {
-          "x": 147,
-          "y": 89,
-          "width": 1604,
-          "height": 230
+          "x": 148,
+          "y": 90,
+          "width": 1603,
+          "height": 229
         },
         "layout": {
           "mode": "FLEX",
           "direction": "COLUMN",
           "justify": "START",
           "align": "STRETCH",
-          "gap": 40,
+          "gap": 42,
           "columns": null,
           "padding": {
             "top": 0,
@@ -353,9 +332,9 @@
             "type": "TEXT",
             "name": "Main headline",
             "bounds": {
-              "x": 147,
-              "y": 89,
-              "width": 1080,
+              "x": 148,
+              "y": 90,
+              "width": 1040,
               "height": 160
             },
             "layout": {
@@ -382,7 +361,7 @@
             },
             "text": {
               "content": "The product development\nsystem for teams and agents",
-              "fontFamily": null,
+              "fontFamily": "sans-serif",
               "fontSize": 80,
               "fontWeight": 600,
               "lineHeight": 80,
@@ -393,13 +372,13 @@
             "children": []
           },
           {
-            "id": "subtitle",
+            "id": "description",
             "type": "TEXT",
-            "name": "Supporting statement",
+            "name": "Product description",
             "bounds": {
               "x": 149,
               "y": 291,
-              "width": 735,
+              "width": 850,
               "height": 28
             },
             "layout": {
@@ -418,7 +397,7 @@
             },
             "style": {
               "background": null,
-              "color": "#8C9099",
+              "color": "#8A8F98",
               "border": null,
               "radius": null,
               "shadow": null,
@@ -426,7 +405,7 @@
             },
             "text": {
               "content": "Purpose-built for planning and building products. Designed for the AI era.",
-              "fontFamily": null,
+              "fontFamily": "sans-serif",
               "fontSize": 20,
               "fontWeight": 400,
               "lineHeight": 28,
@@ -437,13 +416,13 @@
             "children": []
           },
           {
-            "id": "announcement",
+            "id": "loops",
             "type": "BUTTON",
             "name": "Loops announcement",
             "bounds": {
               "x": 1619,
               "y": 291,
-              "width": 132,
+              "width": 131,
               "height": 28
             },
             "layout": {
@@ -462,19 +441,19 @@
             },
             "style": {
               "background": null,
-              "color": "#B5BAC4",
+              "color": "#A4AAB3",
               "border": null,
               "radius": null,
               "shadow": null,
               "opacity": 1
             },
             "text": {
-              "content": "New   Loops →",
-              "fontFamily": null,
+              "content": "New  Loops →",
+              "fontFamily": "sans-serif",
               "fontSize": 20,
               "fontWeight": 400,
               "lineHeight": 28,
-              "letterSpacing": 0,
+              "letterSpacing": null,
               "textAlign": "START"
             },
             "image": null,
@@ -483,9 +462,9 @@
         ]
       },
       {
-        "id": "product-preview",
+        "id": "preview",
         "type": "FRAME",
-        "name": "Product interface preview",
+        "name": "Application preview",
         "bounds": {
           "x": 125,
           "y": 408,
@@ -503,15 +482,15 @@
             "top": 10,
             "right": 10,
             "bottom": 0,
-            "left": 0
+            "left": 10
           }
         },
         "style": {
           "background": "#131415",
-          "color": null,
+          "color": "#B9BEC6",
           "border": {
             "width": 1,
-            "color": "#343536"
+            "color": "#333536"
           },
           "radius": 16,
           "shadow": null,
@@ -525,10 +504,10 @@
             "type": "FRAME",
             "name": "Workspace sidebar",
             "bounds": {
-              "x": 126,
-              "y": 419,
-              "width": 299,
-              "height": 498
+              "x": 135,
+              "y": 418,
+              "width": 290,
+              "height": 499
             },
             "layout": {
               "mode": "FLEX",
@@ -538,15 +517,15 @@
               "gap": 24,
               "columns": null,
               "padding": {
-                "top": 12,
+                "top": 18,
                 "right": 20,
                 "bottom": 0,
-                "left": 26
+                "left": 17
               }
             },
             "style": {
               "background": null,
-              "color": "#B5BAC4",
+              "color": null,
               "border": null,
               "radius": null,
               "shadow": null,
@@ -556,14 +535,14 @@
             "image": null,
             "children": [
               {
-                "id": "workspace-control",
+                "id": "workspace",
                 "type": "BUTTON",
                 "name": "Workspace selector",
                 "bounds": {
-                  "x": 152,
-                  "y": 429,
-                  "width": 253,
-                  "height": 35
+                  "x": 153,
+                  "y": 432,
+                  "width": 252,
+                  "height": 33
                 },
                 "layout": {
                   "mode": "NONE",
@@ -588,18 +567,15 @@
                   "opacity": 1
                 },
                 "text": {
-                  "content": "Linear  ⌄",
-                  "fontFamily": null,
+                  "content": "Linear",
+                  "fontFamily": "sans-serif",
                   "fontSize": 18,
                   "fontWeight": 600,
-                  "lineHeight": 28,
-                  "letterSpacing": 0,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
-                "image": {
-                  "description": "Striped brand icon, workspace dropdown, search and compose icons.",
-                  "fit": "CONTAIN"
-                },
+                "image": null,
                 "children": []
               },
               {
@@ -609,8 +585,8 @@
                 "bounds": {
                   "x": 152,
                   "y": 488,
-                  "width": 235,
-                  "height": 346
+                  "width": 253,
+                  "height": 344
                 },
                 "layout": {
                   "mode": "NONE",
@@ -628,7 +604,7 @@
                 },
                 "style": {
                   "background": null,
-                  "color": "#B5BAC4",
+                  "color": "#B9BEC6",
                   "border": null,
                   "radius": null,
                   "shadow": null,
@@ -636,11 +612,11 @@
                 },
                 "text": {
                   "content": "Pulse\nInbox\nMy issues\nReviews\n\nWorkspace ⌄\nInitiatives\nProjects\nMore\n\nFavorites ⌄",
-                  "fontFamily": null,
-                  "fontSize": 17,
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
                   "fontWeight": 500,
-                  "lineHeight": 32,
-                  "letterSpacing": 0,
+                  "lineHeight": 33,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
@@ -664,15 +640,15 @@
                   "gap": 10,
                   "columns": null,
                   "padding": {
-                    "top": 4,
+                    "top": 5,
                     "right": 8,
-                    "bottom": 4,
+                    "bottom": 5,
                     "left": 35
                   }
                 },
                 "style": {
-                  "background": "#1E1F20",
-                  "color": "#B5BAC4",
+                  "background": "#202122",
+                  "color": "#B9BEC6",
                   "border": null,
                   "radius": 10,
                   "shadow": null,
@@ -680,11 +656,11 @@
                 },
                 "text": {
                   "content": "Faster app launch",
-                  "fontFamily": null,
-                  "fontSize": 17,
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
                   "fontWeight": 600,
-                  "lineHeight": 26,
-                  "letterSpacing": 0,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
@@ -693,12 +669,12 @@
               {
                 "id": "agent-tasks",
                 "type": "BUTTON",
-                "name": "Agent tasks navigation",
+                "name": "Agent tasks",
                 "bounds": {
-                  "x": 152,
-                  "y": 882,
+                  "x": 153,
+                  "y": 883,
                   "width": 160,
-                  "height": 27
+                  "height": 25
                 },
                 "layout": {
                   "mode": "NONE",
@@ -711,12 +687,12 @@
                     "top": 0,
                     "right": 0,
                     "bottom": 0,
-                    "left": 28
+                    "left": 27
                   }
                 },
                 "style": {
                   "background": null,
-                  "color": "#B5BAC4",
+                  "color": "#B9BEC6",
                   "border": null,
                   "radius": null,
                   "shadow": null,
@@ -724,11 +700,11 @@
                 },
                 "text": {
                   "content": "Agent tasks",
-                  "fontFamily": null,
-                  "fontSize": 17,
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
                   "fontWeight": 600,
-                  "lineHeight": 26,
-                  "letterSpacing": 0,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
@@ -737,9 +713,9 @@
             ]
           },
           {
-            "id": "issue-pane",
+            "id": "issue-panel",
             "type": "FRAME",
-            "name": "Issue detail pane",
+            "name": "Issue detail",
             "bounds": {
               "x": 425,
               "y": 418,
@@ -755,17 +731,17 @@
               "columns": null,
               "padding": {
                 "top": 0,
-                "right": 0,
+                "right": 16,
                 "bottom": 0,
-                "left": 0
+                "left": 28
               }
             },
             "style": {
-              "background": "#171819",
+              "background": "#18191A",
               "color": null,
               "border": {
                 "width": 1,
-                "color": "#343536"
+                "color": "#333536"
               },
               "radius": 10,
               "shadow": null,
@@ -779,16 +755,16 @@
                 "type": "TEXT",
                 "name": "Issue toolbar",
                 "bounds": {
-                  "x": 452,
-                  "y": 432,
-                  "width": 1285,
-                  "height": 29
+                  "x": 453,
+                  "y": 434,
+                  "width": 1280,
+                  "height": 26
                 },
                 "layout": {
                   "mode": "NONE",
                   "direction": "NONE",
-                  "justify": "START",
-                  "align": "START",
+                  "justify": "SPACE_BETWEEN",
+                  "align": "CENTER",
                   "gap": null,
                   "columns": null,
                   "padding": {
@@ -800,33 +776,33 @@
                 },
                 "style": {
                   "background": null,
-                  "color": "#CCD4E1",
+                  "color": "#CFD5DF",
                   "border": null,
                   "radius": null,
                   "shadow": null,
                   "opacity": 1
                 },
                 "text": {
-                  "content": "DRV-8852  Faster app launch   ★   ···                                              1 / 84    ↑    ↓",
-                  "fontFamily": null,
+                  "content": "DRV-8852  Faster app launch   ★   ···                                                        1 / 84   ↑   ↓",
+                  "fontFamily": "sans-serif",
                   "fontSize": 15,
                   "fontWeight": 500,
                   "lineHeight": 26,
-                  "letterSpacing": 0,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
                 "children": []
               },
               {
-                "id": "issue-description",
+                "id": "issue-content",
                 "type": "TEXT",
-                "name": "Issue title and description",
+                "name": "Issue description and activity",
                 "bounds": {
-                  "x": 515,
-                  "y": 552,
-                  "width": 672,
-                  "height": 94
+                  "x": 516,
+                  "y": 554,
+                  "width": 696,
+                  "height": 354
                 },
                 "layout": {
                   "mode": "NONE",
@@ -844,63 +820,19 @@
                 },
                 "style": {
                   "background": null,
-                  "color": "#C5D2E5",
+                  "color": "#BBC8DB",
                   "border": null,
                   "radius": null,
                   "shadow": null,
                   "opacity": 1
                 },
                 "text": {
-                  "content": "Faster app launch\nRender UI before vehicle_state sync when minimum required state is present,\ninstead of blocking on full refresh during iOS startup.",
-                  "fontFamily": null,
-                  "fontSize": 18,
+                  "content": "Faster app launch\n\nRender UI before vehicle_state sync when minimum required state is present,\ninstead of blocking on full refresh during iOS startup.\n\nActivity\n\nLinear created the issue via Slack on behalf of Karri · 2min ago\nTriage Intelligence added the labels Performance and iOS · 2min ago\n\nkarri · 4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared...",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 17,
                   "fontWeight": 400,
-                  "lineHeight": 32,
-                  "letterSpacing": 0,
-                  "textAlign": "START"
-                },
-                "image": null,
-                "children": []
-              },
-              {
-                "id": "activity",
-                "type": "TEXT",
-                "name": "Issue activity and comment",
-                "bounds": {
-                  "x": 515,
-                  "y": 682,
-                  "width": 719,
-                  "height": 235
-                },
-                "layout": {
-                  "mode": "NONE",
-                  "direction": "NONE",
-                  "justify": "START",
-                  "align": "START",
-                  "gap": null,
-                  "columns": null,
-                  "padding": {
-                    "top": 0,
-                    "right": 0,
-                    "bottom": 0,
-                    "left": 0
-                  }
-                },
-                "style": {
-                  "background": null,
-                  "color": "#9AAEC8",
-                  "border": null,
-                  "radius": null,
-                  "shadow": null,
-                  "opacity": 1
-                },
-                "text": {
-                  "content": "Activity\n\nLinear created the issue via Slack on behalf of Karri · 2min ago\nTriage Intelligence added the labels Performance and iOS · 2min ago\n\nkarri · 4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared...",
-                  "fontFamily": null,
-                  "fontSize": 16,
-                  "fontWeight": 400,
-                  "lineHeight": 32,
-                  "letterSpacing": 0,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
@@ -912,9 +844,9 @@
                 "name": "Review status",
                 "bounds": {
                   "x": 1402,
-                  "y": 543,
-                  "width": 135,
-                  "height": 62
+                  "y": 545,
+                  "width": 104,
+                  "height": 60
                 },
                 "layout": {
                   "mode": "NONE",
@@ -932,7 +864,7 @@
                 },
                 "style": {
                   "background": null,
-                  "color": "#A5ABB5",
+                  "color": "#A7ADB7",
                   "border": null,
                   "radius": null,
                   "shadow": null,
@@ -940,11 +872,11 @@
                 },
                 "text": {
                   "content": "Reviews\nRevert",
-                  "fontFamily": null,
+                  "fontFamily": "sans-serif",
                   "fontSize": 15,
                   "fontWeight": 400,
-                  "lineHeight": 36,
-                  "letterSpacing": 0,
+                  "lineHeight": 35,
+                  "letterSpacing": null,
                   "textAlign": "START"
                 },
                 "image": null,
@@ -953,7 +885,7 @@
               {
                 "id": "agent-panel",
                 "type": "FRAME",
-                "name": "Agent conversation overlay",
+                "name": "Agent conversation",
                 "bounds": {
                   "x": 1249,
                   "y": 632,
@@ -965,21 +897,21 @@
                   "direction": "COLUMN",
                   "justify": "START",
                   "align": "STRETCH",
-                  "gap": 24,
+                  "gap": 20,
                   "columns": null,
                   "padding": {
-                    "top": 17,
-                    "right": 14,
+                    "top": 20,
+                    "right": 13,
                     "bottom": 0,
                     "left": 25
                   }
                 },
                 "style": {
                   "background": "#1B1C1D",
-                  "color": "#B5BAC4",
+                  "color": "#B9BEC6",
                   "border": {
                     "width": 1,
-                    "color": "#3B3C3D"
+                    "color": "#3B3D3F"
                   },
                   "radius": 16,
                   "shadow": null,
@@ -989,20 +921,20 @@
                 "image": null,
                 "children": [
                   {
-                    "id": "agent-header",
+                    "id": "agent-heading",
                     "type": "TEXT",
-                    "name": "Agent header and window controls",
+                    "name": "Agent header",
                     "bounds": {
                       "x": 1275,
-                      "y": 649,
+                      "y": 652,
                       "width": 455,
-                      "height": 27
+                      "height": 25
                     },
                     "layout": {
                       "mode": "NONE",
                       "direction": "NONE",
                       "justify": "START",
-                      "align": "START",
+                      "align": "CENTER",
                       "gap": null,
                       "columns": null,
                       "padding": {
@@ -1014,19 +946,19 @@
                     },
                     "style": {
                       "background": null,
-                      "color": "#D6DCE5",
+                      "color": "#DBDFE5",
                       "border": null,
                       "radius": null,
                       "shadow": null,
                       "opacity": 1
                     },
                     "text": {
-                      "content": "Linear  Opus 5                                      −   ⤢   ×",
-                      "fontFamily": null,
+                      "content": "Linear  Opus 5",
+                      "fontFamily": "sans-serif",
                       "fontSize": 16,
                       "fontWeight": 500,
-                      "lineHeight": 26,
-                      "letterSpacing": 0,
+                      "lineHeight": 25,
+                      "letterSpacing": null,
                       "textAlign": "START"
                     },
                     "image": null,
@@ -1035,12 +967,12 @@
                   {
                     "id": "agent-prompt",
                     "type": "TEXT",
-                    "name": "User request",
+                    "name": "Agent request",
                     "bounds": {
                       "x": 1307,
                       "y": 710,
                       "width": 428,
-                      "height": 76
+                      "height": 75
                     },
                     "layout": {
                       "mode": "NONE",
@@ -1057,11 +989,11 @@
                       }
                     },
                     "style": {
-                      "background": "#272829",
-                      "color": "#F0F1F2",
+                      "background": "#262728",
+                      "color": "#E9EAEC",
                       "border": {
                         "width": 1,
-                        "color": "#303132"
+                        "color": "#141516"
                       },
                       "radius": 12,
                       "shadow": null,
@@ -1069,25 +1001,25 @@
                     },
                     "text": {
                       "content": "Fix the dimmed ride rows that never reset and open\na PR",
-                      "fontFamily": null,
-                      "fontSize": 17,
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
                       "fontWeight": 600,
                       "lineHeight": 25,
-                      "letterSpacing": -0.3,
+                      "letterSpacing": null,
                       "textAlign": "START"
                     },
                     "image": null,
                     "children": []
                   },
                   {
-                    "id": "agent-response",
+                    "id": "agent-progress",
                     "type": "TEXT",
-                    "name": "Agent context and progress",
+                    "name": "Agent work summary",
                     "bounds": {
                       "x": 1274,
-                      "y": 792,
+                      "y": 793,
                       "width": 460,
-                      "height": 125
+                      "height": 124
                     },
                     "layout": {
                       "mode": "NONE",
@@ -1105,19 +1037,19 @@
                     },
                     "style": {
                       "background": null,
-                      "color": "#B5BAC4",
+                      "color": "#B9BEC6",
                       "border": null,
                       "radius": null,
                       "shadow": null,
                       "opacity": 1
                     },
                     "text": {
-                      "content": "DRV-364  added to context\n\nWorked for 10 sec  ▸\nPushed and opened a draft PR. Removed dimmedIds —\nisItemDimmed now checks waitingStatusById directly.",
-                      "fontFamily": null,
+                      "content": "DRV-364 added to context\n\nWorked for 10 sec ▸\nPushed and opened a draft PR. Removed dimmedIds —\nisItemDimmed now checks waitingStatusById directly.",
+                      "fontFamily": "sans-serif",
                       "fontSize": 16,
                       "fontWeight": 400,
-                      "lineHeight": 24,
-                      "letterSpacing": 0,
+                      "lineHeight": 25,
+                      "letterSpacing": null,
                       "textAlign": "START"
                     },
                     "image": null,
@@ -1132,9 +1064,9 @@
     ]
   },
   "warnings": [
-    "Font families are not identifiable with certainty; typography and colors are visually estimated.",
-    "The product preview and agent conversation are cropped at the bottom of the screenshot.",
-    "Grouped text nodes approximate mixed typography and spacing; issue titles, section headings, and inline code use differing visual treatments.",
-    "Minor toolbar icons and sidebar icons are omitted."
+    "Font families and exact color values are estimated from the screenshot.",
+    "The application preview and agent conversation are cropped at the bottom.",
+    "Grouped application text uses approximate typography; headings and metadata have varying sizes and weights in the screenshot.",
+    "Minor toolbar icons are omitted, and navigation spacing is approximate."
   ]
 }

@@ -4,7 +4,7 @@
     "width": 1891,
     "height": 905
   },
-  "confidence": 0.95,
+  "confidence": 0.94,
   "designTokens": {
     "colors": [
       {
@@ -32,10 +32,6 @@
         "value": "#D5D7DE"
       },
       {
-        "name": "primary",
-        "value": "#3FCC70"
-      },
-      {
         "name": "white",
         "value": "#FFFFFF"
       },
@@ -45,7 +41,11 @@
       },
       {
         "name": "link",
-        "value": "#56D4FF"
+        "value": "#56D6FF"
+      },
+      {
+        "name": "green",
+        "value": "#42CC70"
       }
     ],
     "typography": [
@@ -58,10 +58,10 @@
         "letterSpacing": null
       },
       {
-        "name": "title",
+        "name": "heading",
         "fontFamily": "Lato, sans-serif",
         "fontSize": 80,
-        "fontWeight": 700,
+        "fontWeight": 900,
         "lineHeight": 96,
         "letterSpacing": null
       },
@@ -79,19 +79,19 @@
       16,
       24,
       30,
-      48,
-      62
+      60
     ],
     "radii": [
-      4,
-      6,
-      12
+      3,
+      5,
+      8,
+      14
     ]
   },
   "root": {
     "id": "root",
     "type": "FRAME",
-    "name": "Login page",
+    "name": "Page",
     "bounds": {
       "x": 0,
       "y": 0,
@@ -109,7 +109,7 @@
         "top": 0,
         "right": 0,
         "bottom": 0,
-        "left": 0
+        "left": 6
       }
     },
     "style": {
@@ -126,7 +126,7 @@
       {
         "id": "sidebar",
         "type": "FRAME",
-        "name": "Left sidebar",
+        "name": "Sidebar",
         "bounds": {
           "x": 6,
           "y": 0,
@@ -163,9 +163,9 @@
             "type": "IMAGE",
             "name": "CodePen logo",
             "bounds": {
-              "x": 29,
+              "x": 30,
               "y": 29,
-              "width": 180,
+              "width": 178,
               "height": 33
             },
             "layout": {
@@ -192,7 +192,7 @@
             },
             "text": null,
             "image": {
-              "description": "White CodePen wordmark with outlined cube symbol.",
+              "description": "White CodePen wordmark with geometric cube symbol.",
               "fit": "CONTAIN"
             },
             "children": []
@@ -200,56 +200,12 @@
           {
             "id": "editor",
             "type": "BUTTON",
-            "name": "Editor action",
+            "name": "Editor promotion",
             "bounds": {
               "x": 30,
               "y": 87,
               "width": 175,
-              "height": 55
-            },
-            "layout": {
-              "mode": "NONE",
-              "direction": "NONE",
-              "justify": "CENTER",
-              "align": "CENTER",
-              "gap": null,
-              "columns": null,
-              "padding": {
-                "top": 0,
-                "right": 0,
-                "bottom": 0,
-                "left": 0
-              }
-            },
-            "style": {
-              "background": "#444857",
-              "color": "#FFFFFF",
-              "border": null,
-              "radius": 8,
-              "shadow": null,
-              "opacity": 1
-            },
-            "text": {
-              "content": "Try The Editor",
-              "fontFamily": "Lato, sans-serif",
-              "fontSize": 20,
-              "fontWeight": 700,
-              "lineHeight": 26,
-              "letterSpacing": null,
-              "textAlign": "CENTER"
-            },
-            "image": null,
-            "children": []
-          },
-          {
-            "id": "editor-caption",
-            "type": "TEXT",
-            "name": "Editor caption",
-            "bounds": {
-              "x": 44,
-              "y": 152,
-              "width": 149,
-              "height": 15
+              "height": 78
             },
             "layout": {
               "mode": "NONE",
@@ -267,20 +223,20 @@
             },
             "style": {
               "background": null,
-              "color": "#B0B3C0",
+              "color": "#FFFFFF",
               "border": null,
-              "radius": null,
+              "radius": 8,
               "shadow": null,
               "opacity": 1
             },
             "text": {
-              "content": "CODE, DEPLOY & SHARE",
-              "fontFamily": "monospace",
-              "fontSize": 12,
+              "content": "Try The Editor\nCODE, DEPLOY & SHARE",
+              "fontFamily": "Lato, sans-serif",
+              "fontSize": null,
               "fontWeight": 700,
-              "lineHeight": 15,
+              "lineHeight": null,
               "letterSpacing": null,
-              "textAlign": "START"
+              "textAlign": "CENTER"
             },
             "image": null,
             "children": []
@@ -291,9 +247,9 @@
             "name": "Sidebar navigation",
             "bounds": {
               "x": 30,
-              "y": 212,
-              "width": 175,
-              "height": 243
+              "y": 213,
+              "width": 174,
+              "height": 244
             },
             "layout": {
               "mode": "NONE",
@@ -322,7 +278,7 @@
               "fontFamily": "Lato, sans-serif",
               "fontSize": 21,
               "fontWeight": 700,
-              "lineHeight": null,
+              "lineHeight": 50,
               "letterSpacing": null,
               "textAlign": "START"
             },
@@ -331,20 +287,20 @@
           },
           {
             "id": "advertisement",
-            "type": "FRAME",
+            "type": "IMAGE",
             "name": "Newsletter advertisement",
             "bounds": {
               "x": 30,
               "y": 650,
               "width": 174,
-              "height": 255
+              "height": 249
             },
             "layout": {
-              "mode": "FLEX",
-              "direction": "COLUMN",
+              "mode": "NONE",
+              "direction": "NONE",
               "justify": "START",
               "align": "START",
-              "gap": 12,
+              "gap": null,
               "columns": null,
               "padding": {
                 "top": 0,
@@ -355,99 +311,26 @@
             },
             "style": {
               "background": null,
-              "color": null,
+              "color": "#9398AA",
               "border": null,
               "radius": null,
               "shadow": null,
               "opacity": 1
             },
-            "text": null,
-            "image": null,
-            "children": [
-              {
-                "id": "ad-image",
-                "type": "IMAGE",
-                "name": "Newsletter graphic",
-                "bounds": {
-                  "x": 31,
-                  "y": 650,
-                  "width": 162,
-                  "height": 125
-                },
-                "layout": {
-                  "mode": "NONE",
-                  "direction": "NONE",
-                  "justify": "START",
-                  "align": "START",
-                  "gap": null,
-                  "columns": null,
-                  "padding": {
-                    "top": 0,
-                    "right": 0,
-                    "bottom": 0,
-                    "left": 0
-                  }
-                },
-                "style": {
-                  "background": "#000000",
-                  "color": null,
-                  "border": null,
-                  "radius": null,
-                  "shadow": null,
-                  "opacity": 1
-                },
-                "text": null,
-                "image": {
-                  "description": "Black advertisement reading design.dev and The Newsletter For Creators in white.",
-                  "fit": "CONTAIN"
-                },
-                "children": []
-              },
-              {
-                "id": "ad-copy",
-                "type": "TEXT",
-                "name": "Advertisement copy",
-                "bounds": {
-                  "x": 30,
-                  "y": 790,
-                  "width": 174,
-                  "height": 111
-                },
-                "layout": {
-                  "mode": "NONE",
-                  "direction": "NONE",
-                  "justify": "START",
-                  "align": "START",
-                  "gap": null,
-                  "columns": null,
-                  "padding": {
-                    "top": 0,
-                    "right": 0,
-                    "bottom": 0,
-                    "left": 0
-                  }
-                },
-                "style": {
-                  "background": null,
-                  "color": "#9398AA",
-                  "border": null,
-                  "radius": null,
-                  "shadow": null,
-                  "opacity": 1
-                },
-                "text": {
-                  "content": "Get the Drop. Weekly front-end tools, tips, and resources. Plus a free icon pack to get you started.\n(ads via Carbon)",
-                  "fontFamily": "Lato, sans-serif",
-                  "fontSize": 15,
-                  "fontWeight": 400,
-                  "lineHeight": 23,
-                  "letterSpacing": null,
-                  "textAlign": "START"
-                },
-                "image": null,
-                "children": []
-              }
-            ]
+            "text": {
+              "content": "design.dev\nThe Newsletter\nFor Creators\nGet the Drop. Weekly\nfront-end tools, tips, and\nresources. Plus a free icon\npack to get you started.\n(ads via Carbon)",
+              "fontFamily": "Lato, sans-serif",
+              "fontSize": 15,
+              "fontWeight": 400,
+              "lineHeight": 23,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": {
+              "description": "Black newsletter promotional graphic with white design.dev logo and headline above muted description.",
+              "fit": "CONTAIN"
+            },
+            "children": []
           }
         ]
       },
@@ -524,7 +407,7 @@
               {
                 "id": "search",
                 "type": "INPUT",
-                "name": "Search field",
+                "name": "Search",
                 "bounds": {
                   "x": 249,
                   "y": 16,
@@ -535,12 +418,12 @@
                   "mode": "NONE",
                   "direction": "NONE",
                   "justify": "START",
-                  "align": "CENTER",
+                  "align": "START",
                   "gap": null,
                   "columns": null,
                   "padding": {
                     "top": 0,
-                    "right": 16,
+                    "right": 0,
                     "bottom": 0,
                     "left": 49
                   }
@@ -549,7 +432,7 @@
                   "background": "#252830",
                   "color": "#9398AA",
                   "border": null,
-                  "radius": 6,
+                  "radius": 8,
                   "shadow": null,
                   "opacity": 1
                 },
@@ -590,10 +473,10 @@
                   }
                 },
                 "style": {
-                  "background": "#3FCC70",
+                  "background": "#42CC70",
                   "color": "#000000",
                   "border": null,
-                  "radius": 6,
+                  "radius": 5,
                   "shadow": null,
                   "opacity": 1
                 },
@@ -612,9 +495,9 @@
             ]
           },
           {
-            "id": "login-section",
+            "id": "login-area",
             "type": "FRAME",
-            "name": "Login section",
+            "name": "Login area",
             "bounds": {
               "x": 230,
               "y": 90,
@@ -629,9 +512,9 @@
               "gap": null,
               "columns": null,
               "padding": {
-                "top": 108,
+                "top": 110,
                 "right": 353,
-                "bottom": 28,
+                "bottom": 30,
                 "left": 358
               }
             },
@@ -645,18 +528,18 @@
             },
             "text": null,
             "image": {
-              "description": "Very dark repeating geometric cube pattern behind the login area.",
+              "description": "Very dark repeating geometric cube pattern.",
               "fit": "COVER"
             },
             "children": [
               {
-                "id": "title",
+                "id": "heading",
                 "type": "TEXT",
                 "name": "Login heading",
                 "bounds": {
                   "x": 588,
-                  "y": 198,
-                  "width": 240,
+                  "y": 200,
+                  "width": 300,
                   "height": 96
                 },
                 "layout": {
@@ -685,7 +568,7 @@
                   "content": "Log In",
                   "fontFamily": "Lato, sans-serif",
                   "fontSize": 80,
-                  "fontWeight": 700,
+                  "fontWeight": 900,
                   "lineHeight": 96,
                   "letterSpacing": null,
                   "textAlign": "START"
@@ -696,12 +579,12 @@
               {
                 "id": "social",
                 "type": "FRAME",
-                "name": "Social login options",
+                "name": "Social login",
                 "bounds": {
                   "x": 588,
                   "y": 318,
                   "width": 393,
-                  "height": 173
+                  "height": 172
                 },
                 "layout": {
                   "mode": "FLEX",
@@ -747,7 +630,7 @@
                       "columns": null,
                       "padding": {
                         "top": 0,
-                        "right": 20,
+                        "right": 0,
                         "bottom": 0,
                         "left": 78
                       }
@@ -756,7 +639,7 @@
                       "background": "#444857",
                       "color": "#FFFFFF",
                       "border": null,
-                      "radius": 4,
+                      "radius": 5,
                       "shadow": null,
                       "opacity": 1
                     },
@@ -770,7 +653,7 @@
                       "textAlign": "START"
                     },
                     "image": {
-                      "description": "Multicolored Google G icon at the left of the label.",
+                      "description": "Multicolor Google G icon at left.",
                       "fit": "CONTAIN"
                     },
                     "children": []
@@ -794,7 +677,7 @@
                       "columns": null,
                       "padding": {
                         "top": 0,
-                        "right": 20,
+                        "right": 0,
                         "bottom": 0,
                         "left": 78
                       }
@@ -803,7 +686,7 @@
                       "background": "#444857",
                       "color": "#FFFFFF",
                       "border": null,
-                      "radius": 4,
+                      "radius": 5,
                       "shadow": null,
                       "opacity": 1
                     },
@@ -817,7 +700,7 @@
                       "textAlign": "START"
                     },
                     "image": {
-                      "description": "White GitHub mark at the left of the label.",
+                      "description": "White GitHub icon at left.",
                       "fit": "CONTAIN"
                     },
                     "children": []
@@ -829,7 +712,7 @@
                     "bounds": {
                       "x": 599,
                       "y": 465,
-                      "width": 235,
+                      "width": 260,
                       "height": 26
                     },
                     "layout": {
@@ -871,7 +754,7 @@
               {
                 "id": "separator",
                 "type": "DIVIDER",
-                "name": "Login methods separator",
+                "name": "Login method separator",
                 "bounds": {
                   "x": 1018,
                   "y": 318,
@@ -894,7 +777,7 @@
                 },
                 "style": {
                   "background": null,
-                  "color": "#A3A6B5",
+                  "color": "#9398AA",
                   "border": null,
                   "radius": null,
                   "shadow": null,
@@ -909,21 +792,18 @@
                   "letterSpacing": null,
                   "textAlign": "CENTER"
                 },
-                "image": {
-                  "description": "Thin vertical gray rule with an outlined rounded OR label centered on it.",
-                  "fit": "NONE"
-                },
+                "image": null,
                 "children": []
               },
               {
                 "id": "credentials",
                 "type": "FRAME",
-                "name": "Credential login form",
+                "name": "Credential form",
                 "bounds": {
                   "x": 1106,
-                  "y": 318,
+                  "y": 320,
                   "width": 432,
-                  "height": 347
+                  "height": 348
                 },
                 "layout": {
                   "mode": "FLEX",
@@ -956,9 +836,9 @@
                     "name": "Username or email field",
                     "bounds": {
                       "x": 1106,
-                      "y": 318,
+                      "y": 320,
                       "width": 432,
-                      "height": 92
+                      "height": 90
                     },
                     "layout": {
                       "mode": "NONE",
@@ -978,7 +858,7 @@
                       "background": null,
                       "color": "#FFFFFF",
                       "border": null,
-                      "radius": 4,
+                      "radius": 3,
                       "shadow": null,
                       "opacity": 1
                     },
@@ -992,7 +872,7 @@
                       "textAlign": "START"
                     },
                     "image": {
-                      "description": "Label above an empty light gray input rectangle measuring 432 by 60 pixels.",
+                      "description": "Label above an empty light gray input rectangle, 60 pixels high.",
                       "fit": "NONE"
                     },
                     "children": []
@@ -1003,9 +883,9 @@
                     "name": "Password field",
                     "bounds": {
                       "x": 1106,
-                      "y": 435,
+                      "y": 437,
                       "width": 432,
-                      "height": 91
+                      "height": 89
                     },
                     "layout": {
                       "mode": "NONE",
@@ -1025,7 +905,7 @@
                       "background": null,
                       "color": "#FFFFFF",
                       "border": null,
-                      "radius": 4,
+                      "radius": 3,
                       "shadow": null,
                       "opacity": 1
                     },
@@ -1039,7 +919,7 @@
                       "textAlign": "START"
                     },
                     "image": {
-                      "description": "Label above an empty light gray input rectangle measuring 432 by 60 pixels.",
+                      "description": "Label above an empty light gray input rectangle, 60 pixels high.",
                       "fit": "NONE"
                     },
                     "children": []
@@ -1069,10 +949,10 @@
                       }
                     },
                     "style": {
-                      "background": "#3FCC70",
+                      "background": "#42CC70",
                       "color": "#000000",
                       "border": null,
-                      "radius": 4,
+                      "radius": 5,
                       "shadow": null,
                       "opacity": 1
                     },
@@ -1091,18 +971,18 @@
                   {
                     "id": "forgot",
                     "type": "TEXT",
-                    "name": "Password recovery link",
+                    "name": "Password recovery",
                     "bounds": {
-                      "x": 1248,
-                      "y": 639,
-                      "width": 149,
+                      "x": 1249,
+                      "y": 640,
+                      "width": 147,
                       "height": 26
                     },
                     "layout": {
                       "mode": "NONE",
                       "direction": "NONE",
-                      "justify": "CENTER",
-                      "align": "CENTER",
+                      "justify": "START",
+                      "align": "START",
                       "gap": null,
                       "columns": null,
                       "padding": {
@@ -1114,7 +994,7 @@
                     },
                     "style": {
                       "background": null,
-                      "color": "#56D4FF",
+                      "color": "#56D6FF",
                       "border": null,
                       "radius": null,
                       "shadow": null,
@@ -1137,18 +1017,18 @@
               {
                 "id": "account-prompt",
                 "type": "TEXT",
-                "name": "Account signup prompt",
+                "name": "Account creation prompt",
                 "bounds": {
-                  "x": 936,
+                  "x": 937,
                   "y": 748,
-                  "width": 254,
+                  "width": 252,
                   "height": 26
                 },
                 "layout": {
                   "mode": "NONE",
                   "direction": "NONE",
-                  "justify": "CENTER",
-                  "align": "CENTER",
+                  "justify": "START",
+                  "align": "START",
                   "gap": null,
                   "columns": null,
                   "padding": {
@@ -1183,12 +1063,12 @@
           {
             "id": "footer",
             "type": "TEXT",
-            "name": "Footer navigation",
+            "name": "Footer links",
             "bounds": {
               "x": 350,
-              "y": 850,
-              "width": 578,
-              "height": 55
+              "y": 851,
+              "width": 1427,
+              "height": 54
             },
             "layout": {
               "mode": "NONE",
@@ -1205,8 +1085,8 @@
               }
             },
             "style": {
-              "background": null,
-              "color": "#A3A6B5",
+              "background": "#000000",
+              "color": "#9398AA",
               "border": null,
               "radius": null,
               "shadow": null,
@@ -1221,45 +1101,9 @@
               "letterSpacing": null,
               "textAlign": "START"
             },
-            "image": null,
-            "children": []
-          },
-          {
-            "id": "footer-logo",
-            "type": "IMAGE",
-            "name": "Footer CodePen logo",
-            "bounds": {
-              "x": 1596,
-              "y": 870,
-              "width": 180,
-              "height": 33
-            },
-            "layout": {
-              "mode": "NONE",
-              "direction": "NONE",
-              "justify": "START",
-              "align": "START",
-              "gap": null,
-              "columns": null,
-              "padding": {
-                "top": 0,
-                "right": 0,
-                "bottom": 0,
-                "left": 0
-              }
-            },
-            "style": {
-              "background": null,
-              "color": null,
-              "border": null,
-              "radius": null,
-              "shadow": null,
-              "opacity": 1
-            },
-            "text": null,
             "image": {
-              "description": "White CodePen wordmark with outlined cube symbol.",
-              "fit": "CONTAIN"
+              "description": "White CodePen wordmark at the far right of the footer.",
+              "fit": "NONE"
             },
             "children": []
           }
@@ -1268,9 +1112,8 @@
     ]
   },
   "warnings": [
-    "Font family and exact font metrics are visually estimated.",
-    "The footer's second navigation line is clipped by the screenshot bottom.",
-    "The editor button has a multicolored border that is not represented by the single-color border schema.",
-    "Grouped text includes mixed color styling: PRO is a yellow badge, and Sign up now! is cyan."
+    "Font family and measurements are visually estimated.",
+    "Footer content is clipped by the bottom screenshot edge.",
+    "Grouped controls retain labels and input surface descriptions; mixed-color text and the editor button's multicolor border are simplified."
   ]
 }
