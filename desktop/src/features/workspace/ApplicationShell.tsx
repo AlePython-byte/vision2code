@@ -19,6 +19,7 @@ export function ApplicationShell({
   user,
   services,
   codeContext,
+  codeActions,
   libraryNav,
   libraryDialog,
 }: {
@@ -28,6 +29,8 @@ export function ApplicationShell({
   services?: WorkspaceServices | undefined;
   /** Project identity, status chip and history key for the Code view header (built at the app boundary). */
   codeContext?: ReactNode;
+  /** Extra Code view toolbar actions (Export), built at the app boundary. */
+  codeActions?: ReactNode;
   /** Enabled "Library" rail entry (opens the library dialog); disabled placeholder when omitted. */
   libraryNav?: ReactNode;
   /** Renders the library dialog host; receives the shell navigation it needs after picking a generation. */
@@ -109,7 +112,7 @@ export function ApplicationShell({
             else services.projectManager.requestDelete(projectId, trigger);
           }} />}
         <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
-        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
+        {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} actions={codeActions} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>

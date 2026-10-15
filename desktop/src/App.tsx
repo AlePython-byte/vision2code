@@ -5,6 +5,7 @@ import { ToastViewport } from "./features/feedback/ToastViewport";
 import { DiscardDialog } from "./features/projects/DiscardDialog";
 import { LibraryDialog } from "./features/projects/LibraryDialog";
 import { ProjectManageDialog } from "./features/projects/ProjectManageDialogs";
+import { ExportButton } from "./features/export/ExportButton";
 import { LibraryNavButton } from "./features/workspace/LibraryNavButton";
 import { CodeContext } from "./features/workspace/CodeContext";
 import { bindWorkspaceToAuth, createWorkspaceServices } from "./features/workspace/workspaceServices";
@@ -81,6 +82,7 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
           codeContext={<CodeContext editor={services.editorModel} session={services.generationSession}
             projects={services.projectsModel} history={services.history} discardGuard={services.discardGuard}
             onOpenLibrary={(projectId, trigger) => services.library.openDialog(projectId, trigger)} />}
+          codeActions={<ExportButton exporter={services.exporter} editor={services.editorModel} />}
           libraryNav={<LibraryNavButton library={services.library} />}
           libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
             session={services.generationSession} openCode={openCode}

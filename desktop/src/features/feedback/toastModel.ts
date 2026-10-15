@@ -12,6 +12,8 @@ export interface ToastInput {
   readonly tone: ToastTone;
   /** i18n keys; the viewport localizes them so a language switch applies to visible toasts. */
   readonly message: string;
+  /** Interpolation values for the message key (plain data such as a folder name, never markup). */
+  readonly messageParams?: Readonly<Record<string, string | number>>;
   readonly eyebrow: string;
   readonly persistent: boolean;
   /** Required for non-persistent toasts; ignored for persistent ones. */

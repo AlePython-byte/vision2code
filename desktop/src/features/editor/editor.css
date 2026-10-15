@@ -10,6 +10,10 @@
   .file-explorer button span:last-child { min-width: 0; }
   .code-panel { padding: 18px; overflow: hidden; }
   .code-toolbar, .code-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  /* TASK 010A: Export sits next to Copy code as a secondary action, with a discreet hint below. */
+  .export-control { display: inline-grid; justify-items: start; gap: 2px; }
+  .export-hint { max-width: 220px; color: var(--color-muted); font: 10px/1.3 var(--font-mono); }
+  .export-control .action-button[aria-busy="true"] { cursor: progress; }
   .code-toolbar { justify-content: space-between; }
   .code-toolbar > div { min-width: 0; }
   .active-file-path { font: 12px var(--font-mono); overflow-wrap: anywhere; margin-top: 6px; }
