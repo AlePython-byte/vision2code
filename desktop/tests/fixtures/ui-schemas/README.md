@@ -65,10 +65,10 @@ worst case of a mode is bounded by its output ceiling. A full protocol of 27 ana
 - `desktop/tests/fidelity-fixtures.test.ts` discovers every `*.json` here, validates it with the
   shared Zod schema, runs the generator and the metrics, and checks the output is non-empty and
   stable. With no fixtures it passes.
-- The generator golden tests (`desktop/tests/golden/`) pin the emitted code per fixture: v3 for every
-  fixture, and the frozen v2 only for the baseline fixtures (never for `.p11.` ones). **A missing golden
+- The generator golden tests (`desktop/tests/golden/`) pin the emitted code per fixture: the current v4
+  and the frozen v3, both for every fixture. **A missing golden
   file fails the test; nothing is created silently.** After adding a fixture or reviewing an intended
   change, create or refresh the files deliberately and commit them with the fixture:
-  `UPDATE_GOLDEN=1 node --experimental-strip-types --test desktop/tests/generator-v3.test.ts desktop/tests/generator-v2.test.ts`.
+  `UPDATE_GOLDEN=1 node --experimental-strip-types --test desktop/tests/generator-v4.test.ts desktop/tests/generator-v3.test.ts`.
 - `npm run report:fidelity` prints the metrics per fixture, per generator version and per mode.
 - `npm run measure:layout` renders every fixture in a browser and compares it with its bounds.

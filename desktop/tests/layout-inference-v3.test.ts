@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { UINode, UISchema } from "@vision2code/contracts";
-import { generateReactProject } from "../src/features/generation/generateReactProject.ts";
-import { generateReactProjectV2 } from "../src/features/generation/generateReactProjectV2.ts";
+// The v3 profile through the frozen v3 generator; v4 shares all of it (generator-v4.test.ts covers what v4 adds).
+import { generateReactProjectV3 as generateReactProject } from "../src/features/generation/generateReactProjectV3.ts";
 import { MAX_TRACKS, planLayout } from "../src/features/generation/layoutInference.ts";
 import { isSingleLineText } from "../src/features/generation/textLayout.ts";
 
@@ -70,12 +70,6 @@ test("NONE with a clean column or row is rendered as that flex flow", () => {
   assert.ok(rowClasses.includes("flex-row") && rowClasses.includes("flex-nowrap"));
   assert.ok(classesOf(row, "c0").includes("[flex:0_1_200px]"), "row children keep their width");
   assert.ok(!classesOf(row, "c0").includes("w-full"));
-});
-
-test("v2 keeps NONE exactly as before; the v3 profile is the only one that infers it", () => {
-  const column = container([[0, 0, 1000, 100], [0, 120, 1000, 100]]);
-  assert.equal(planLayout(schema(column), "v2").container(column), null);
-  assert.deepEqual(generateReactProjectV2(schema(column)).files[1]!.content.includes("flex-col"), false);
 });
 
 // ---- NONE: explicit tracks --------------------------------------------------------------------
@@ -204,7 +198,6 @@ test("a GRID frame that only holds text is not a grid", () => {
   const root = node("root", { mode: "FLEX", direction: "COLUMN", width: 360, height: 400, children: [trends] });
   const v3 = classesOf(root, "trends");
   assert.ok(!v3.includes("grid") && !v3.some((token) => token.startsWith("[grid-template") || token.startsWith("[gap:")), v3.join(" "));
-  assert.ok(classesOf(root, "trends", generateReactProjectV2).includes("grid"), "v2 keeps its behavior");
 });
 
 // ---- Declared FLEX that is not a flow ---------------------------------------------------------
@@ -226,19 +219,16 @@ test("a declared FLEX column whose last band is a row is rendered on tracks; ove
     node("a", { x: 0, y: 0, width: 600, height: 300 }), node("b", { x: 100, y: 100, width: 600, height: 300 }),
   ] });
   assert.equal(plan(overlapping).container(overlapping), null);
-  assert.equal(planLayout(schema(twoBands), "v2").container(twoBands), null, "v2 never does this");
 });
 
 // ---- Padding and text -------------------------------------------------------------------------
 
-test("a declared padding the children sit outside of is replaced (v3 only)", () => {
+test("a declared padding the children sit outside of is replaced", () => {
   const root = node("page", { mode: "FLEX", direction: "COLUMN", align: "CENTER", width: 1000, height: 400, padding: [0, 125, 0, 125],
     children: boxes([[6, 0, 988, 80], [150, 100, 700, 80]]) });
   const v3 = plan(root).container(root);
   assert.deepEqual(v3?.padding, { top: 0, right: 6, bottom: 0, left: 6 });
   assert.equal(plan(root).free.paddingOverrides, 1);
-  assert.equal(planLayout(schema(root), "v2").container(root)?.padding ?? null, null, "v2 keeps the declared padding");
-  assert.equal(planLayout(schema(root), "v2").free.paddingOverrides, 0);
   const inside = node("page", { mode: "FLEX", direction: "COLUMN", width: 1000, height: 400, padding: [0, 20, 0, 20], children: boxes([[20, 0, 960, 80]]) });
   assert.equal(plan(inside).container(inside)?.padding ?? null, null);
   assert.equal(plan(inside).free.paddingOverrides, 0);
@@ -250,7 +240,6 @@ test("single-line text excludes the node's own vertical padding", () => {
   assert.equal(isSingleLineText(button, { paddingAware: true }), true, "40 - 16 = 24 px: one line");
   const root = node("root", { mode: "FLEX", direction: "ROW", width: 400, height: 100, children: [button] });
   assert.ok(classesOf(root, "signup").includes("whitespace-pre"));
-  assert.ok(classesOf(root, "signup", generateReactProjectV2).includes("whitespace-pre-wrap"));
   const tall = node("tall", { type: "TEXT", width: 91, height: 80, text: { content: "Sign up", fontSize: 17, lineHeight: 24 } });
   assert.equal(isSingleLineText(tall, { paddingAware: true }), false);
 });

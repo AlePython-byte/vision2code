@@ -3,7 +3,7 @@ export default function GeneratedInterface() {
     <div data-node-id={"root"} className={"box-border min-w-0 relative w-full [max-width:1886px] [min-height:912px] flex flex-col justify-start items-stretch [gap:0px] [padding:0px_0px_0px_0px] [background-color:#FAFBFC] [opacity:1]"}>
       <div data-node-id={"announcement"} className={"box-border min-w-0 relative w-full [max-width:1886px] [min-height:59px] flex flex-row flex-nowrap justify-between items-center [padding:0px_181px_0px_181px] [background-color:#050505] [color:#FFFFFF] [opacity:1]"}>
         <div role="img" aria-label={"White triangle and Vercel wordmark."} data-node-id={"vercel"} className={"box-border min-w-0 relative [flex:0_1_104px] [min-height:21px] [max-height:21px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
-          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+          <span aria-hidden="true" className="pointer-events-none absolute [inset:0] border border-dashed border-current" />
         </div>
         <div data-node-id={"announcement-text"} className={"box-border min-w-0 relative [flex:0_1_475px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:18px] [font-weight:600] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
           {"Tremor is joining Vercel. Read more about our journey ↗"}
@@ -13,18 +13,18 @@ export default function GeneratedInterface() {
         <div data-node-id={"brand"} className={"box-border min-w-0 relative [flex:0_1_155px] [min-height:27px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:24px] [font-weight:600] [line-height:28px] [text-align:start]"}>
           {"tremor blocks"}
         </div>
-        <button type="button" data-node-id={"product-selector"} className={"box-border min-w-0 relative [flex:0_1_119px] [min-height:45px] [margin-left:21px] [padding:10px_16px_10px_16px] [background-color:#F3F4F6] [color:#111827] [border-radius:8px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+        <button type="button" data-node-id={"product-selector"} className={"box-border min-w-0 relative [flex:0_1_119px] [min-height:45px] [margin-left:21px] [padding:10px_16px_10px_16px] [background-color:#F3F4F6] [color:#111827] [border-radius:8px] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
           {"Tremor"}
         </button>
         <div data-node-id={"nav-links"} className={"box-border min-w-0 relative [flex:0_1_329px] [min-height:25px] [margin-left:840px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
           {"Blocks     Templates     Getting Started"}
         </div>
         <div role="img" aria-label={"Dark GitHub mark."} data-node-id={"github"} className={"box-border min-w-0 relative [flex:0_1_25px] [min-height:25px] [max-height:25px] overflow-hidden [margin-left:31px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1]"}>
-          <span className="block border border-dashed border-current p-2 text-xs">{"Icono sin recurso"}</span>
+          <span aria-hidden="true" className="pointer-events-none absolute [inset:0] border border-dashed border-current" />
         </div>
       </div>
-      <div data-node-id={"dashboard"} className={"box-border min-w-0 relative [width:1593px] [max-width:100%] [min-height:756px] [margin-top:16px] [margin-left:144px] grid [grid-template-columns:repeat(4,minmax(0,1fr))] justify-start items-start [gap:32px] [padding:0px_0px_0px_0px] [opacity:1]"}>
-        <div data-node-id={"left-stack"} className={"box-border min-w-0 relative w-full [max-width:362px] [min-height:750px] flex flex-col justify-start items-stretch [gap:43px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+      <div data-node-id={"dashboard"} className={"box-border min-w-0 relative [width:1593px] [max-width:100%] [min-height:756px] [margin-top:16px] [margin-left:144px] grid [grid-template-columns:minmax(0,6fr)_minmax(0,362fr)_minmax(0,44fr)_minmax(0,769fr)_minmax(0,43fr)_minmax(0,364fr)_minmax(0,5fr)] [grid-template-rows:minmax(6px,auto)_minmax(527px,auto)_minmax(43px,auto)_minmax(180px,auto)] [padding:0px_0px_0px_0px] [opacity:1]"}>
+        <div data-node-id={"left-stack"} className={"box-border min-w-0 relative w-full [max-width:362px] [grid-column:2/3] [grid-row:2/5] [min-height:750px] flex flex-col justify-start items-stretch [gap:43px] [padding:0px_0px_0px_0px] [opacity:1]"}>
           <div data-node-id={"shop-status"} className={"box-border min-w-0 relative w-full [max-width:362px] [min-height:237px] flex flex-col justify-start items-stretch [gap:24px] [padding:31px_30px_30px_30px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1]"}>
             <div data-node-id={"shop-heading"} className={"box-border min-w-0 relative [width:282px] [max-width:100%] [min-height:59px] self-end [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:32px] [text-align:start] [font-family:sans-serif]"}>
               {"Operational\nEmma's Online-Shop"}
@@ -33,7 +33,7 @@ export default function GeneratedInterface() {
               <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
             </div>
           </div>
-          <div data-node-id={"trends"} className={"box-border min-w-0 relative w-full [max-width:362px] [min-height:137px] grid [grid-template-columns:repeat(2,minmax(0,1fr))] justify-center items-center [gap:16px] [padding:18px_56px_19px_56px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:58px] [text-align:center] [font-family:sans-serif]"}>
+          <div data-node-id={"trends"} className={"box-border min-w-0 relative w-full [max-width:362px] [min-height:137px] [padding:18px_56px_19px_56px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:58px] [text-align:center] [font-family:sans-serif]"}>
             {"9.3% ↑     3.3% ↗\n1.9% ↘     0.6% ↓"}
           </div>
           <div data-node-id={"payments"} className={"box-border min-w-0 relative w-full [max-width:362px] [min-height:287px] [margin-top:3px] flex flex-col justify-start items-stretch [gap:16px] [padding:30px_30px_0px_30px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:26px] [text-align:start] [font-family:sans-serif]"}>
@@ -46,13 +46,13 @@ export default function GeneratedInterface() {
             </div>
           </div>
         </div>
-        <div data-node-id={"portfolio"} className={"box-border min-w-0 relative w-full [max-width:769px] [min-height:527px] flex flex-col justify-start items-stretch [gap:30px] [padding:30px_31px_30px_31px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1] whitespace-pre-wrap break-words [text-align:start] [font-family:sans-serif]"}>
+        <div data-node-id={"portfolio"} className={"box-border min-w-0 relative w-full [max-width:769px] [grid-column:4/5] [grid-row:2/3] [min-height:527px] flex flex-col justify-start items-stretch [gap:30px] [padding:30px_31px_30px_31px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1] whitespace-pre-wrap break-words [text-align:start] [font-family:sans-serif]"}>
           {"Portfolio Value\n$328,505.10"}
           <div role="img" aria-label={"Blue daily bars over horizontal gray grid lines. Axis labels: Aug 25, Aug 29, Sep 02, Sep 06, Sep 10, Sep 14, Sep 18, Sep 22, Sep 26. Floating white tooltip reads Aug 25 and ETF Shares Vital $6.198,2."} data-node-id={"portfolio-chart"} className={"box-border min-w-0 relative w-full [max-width:707px] [min-height:357px] [max-height:357px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
             <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
           </div>
         </div>
-        <div data-node-id={"expenses"} className={"box-border min-w-0 relative w-full [max-width:364px] [min-height:527px] flex flex-col justify-start items-stretch [gap:18px] [padding:51px_31px_54px_31px] [background-color:#FFFFFF] [color:#6B7280] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1]"}>
+        <div data-node-id={"expenses"} className={"box-border min-w-0 relative w-full [max-width:364px] [grid-column:6/7] [grid-row:2/3] [min-height:527px] flex flex-col justify-start items-stretch [gap:18px] [padding:51px_31px_54px_31px] [background-color:#FFFFFF] [color:#6B7280] [border:1px_solid_#E1E5EB] [border-radius:10px] [box-shadow:0px_16px_28px_-10px_#11182726] [opacity:1]"}>
           <div role="img" aria-label={"Donut chart with dominant blue segment and smaller purple, cyan, and magenta segments. Center value $25.280."} data-node-id={"expense-donut"} className={"box-border min-w-0 relative [width:200px] [max-width:100%] [min-height:200px] [max-height:200px] overflow-hidden self-center [padding:0px_0px_0px_0px] [opacity:1]"}>
             <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
           </div>
@@ -60,7 +60,7 @@ export default function GeneratedInterface() {
             {"Expenses                         Amount\nTravel                              $15.730\nIT \u0026 equipment                  $4.420\nTraining \u0026 developm...       $3.920\nOffice supplies                   $1.210"}
           </div>
         </div>
-        <div data-node-id={"holdings-table"} className={"box-border min-w-0 relative w-full [max-width:1176px] [min-height:180px] [padding:40px_31px_0px_31px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:66px] [text-align:start] [font-family:sans-serif]"}>
+        <div data-node-id={"holdings-table"} className={"box-border min-w-0 relative w-full [max-width:1176px] [grid-column:4/7] [grid-row:4/5] [min-height:180px] [padding:40px_31px_0px_31px] [background-color:#FFFFFF] [color:#111827] [border:1px_solid_#E1E5EB] [border-radius:10px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:66px] [text-align:start] [font-family:sans-serif]"}>
           {"Name                         Value             Invested             Cashflow             Gain          Realized          Dividends\nETF Shares Vital       $17,349.30        $19,698.65         $20,033.74        +$15,012.39       +$177.4          +$490.97"}
         </div>
       </div>

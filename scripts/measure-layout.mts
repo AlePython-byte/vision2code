@@ -56,7 +56,7 @@ const fixtures = fixtureNames.map((file) => ({
 }));
 const generators: { version: string; generate: (schema: UISchema) => GeneratedProject }[] = [
   ...GENERATOR_VERSIONS.map(({ version, generate }) => ({ version: `v${version}`, generate })),
-  { version: "v3", generate: generateReactProject },
+  { version: "v4", generate: generateReactProject },
 ];
 
 // ---- Temporary project that reuses the repository's node_modules ------------------------------

@@ -1,22 +1,42 @@
 import type { UINode, UISchema } from "@vision2code/contracts";
 import { emitProject, number, percentage, pixels } from "./emitSource.ts";
+import { fontFamilyList, fontFamilyValue } from "./fontFamily.ts";
 import type { GeneratedProject } from "./generatedProject.ts";
 import { planLayout, type LayoutPlan } from "./layoutInference.ts";
 import { isSingleLineText } from "./textLayout.ts";
 
 /**
- * Generator v3 ("generatorVersion": "3"): pure and deterministic, no I/O, clock or randomness.
- * Compared with v2 (generateReactProjectV2.ts, frozen) it also handles the containers v2 left flat:
- *  - a NONE container whose children form a clean row or column is rendered as that flex flow;
- *  - a NONE or GRID container whose children form a grid by their edges gets explicit tracks and
- *    each child is placed in its cells (a declared column count the bounds contradict is replaced);
- *  - a NONE container that is neither positions its children by bounds, as a last resort;
- *  - a declared padding the children sit outside of is replaced by the measured one;
- *  - text that is one line once the node's own padding is excluded never wraps, and a GRID frame
- *    that only holds text is rendered as plain text instead of a one-item grid.
+ * Generator v4 ("generatorVersion": "4"): pure and deterministic, no I/O, clock or randomness.
+ * It keeps everything v3 does (generateReactProjectV3.ts, frozen): NONE containers rendered as the
+ * flex flow or the explicit grid tracks their children form, positioning by bounds as a last resort,
+ * measured padding when the declared one is contradicted, and single-line text that never wraps.
+ * Compared with v3 it changes:
+ *  - font-family: the declared list is kept (each name sanitized, see fontFamily.ts) and always ends
+ *    in a generic family, so a font that is not installed falls back to a similar one instead of the
+ *    browser's default serif. v3 emitted one quoted name without a generic, and nothing at all for a
+ *    list such as "Lato, sans-serif";
+ *  - a declared GRID whose column count matches the children is kept only when CSS auto-placement
+ *    really reproduces it; a child spanning two rows or columns gets explicit tracks instead;
+ *  - an IMAGE/ICON placeholder shows its "sin recurso" label only when the box can hold it
+ *    (PLACEHOLDER_LABEL_MIN_WIDTH x PLACEHOLDER_LABEL_MIN_HEIGHT); smaller ones keep a dashed
+ *    outline, and the description stays in aria-label.
  * Inference is conservative ("in doubt, do not infer"); see layoutInference.ts.
  * Every schema string is still serialized as data, never as TSX syntax (emitSource.ts).
  */
+
+/**
+ * The label is `text-xs` (12 px font, 16 px line) inside `p-2` and a 1 px border: one line of
+ * "Imagen sin recurso" is about 18 x 12 x 0.55 + 18 = 137 px wide and 34 px tall. Below this size it
+ * wraps or is clipped into a dashed scribble. On the 12 fixtures it hides the logos (about 180 x 33),
+ * buttons-sized images (about 110 x 28) and icons (18-25 px) and keeps it on charts and cards.
+ */
+export const PLACEHOLDER_LABEL_MIN_WIDTH = 140;
+export const PLACEHOLDER_LABEL_MIN_HEIGHT = 40;
+
+export function showsPlaceholderLabel(node: UINode): boolean {
+  return node.bounds.width >= PLACEHOLDER_LABEL_MIN_WIDTH && node.bounds.height >= PLACEHOLDER_LABEL_MIN_HEIGHT;
+}
+
 function classes(node: UINode, parent: UINode | null, plan: LayoutPlan): string {
   const result = ["box-border", "min-w-0"];
   const property = (name: string, value: string) => result.push("[" + name + ":" + value + "]");
@@ -54,8 +74,8 @@ function classes(node: UINode, parent: UINode | null, plan: LayoutPlan): string 
       property("aspect-ratio", number(bounds.width) + "/" + number(bounds.height));
     } else {
       property("min-height", pixels(bounds.height));
-      // A placeholder keeps its dashed label but may not grow past its bounds: a 25 px icon would
-      // otherwise render 66 px tall and push everything after it.
+      // A placeholder may not grow past its bounds: a 25 px icon would otherwise render 66 px tall
+      // and push everything after it.
       if ((node.type === "IMAGE" || node.type === "ICON") && bounds.height > 0) {
         property("max-height", pixels(bounds.height));
         result.push("overflow-hidden");
@@ -116,17 +136,14 @@ function classes(node: UINode, parent: UINode | null, plan: LayoutPlan): string 
     if (text.lineHeight !== null) property("line-height", pixels(text.lineHeight));
     if (text.letterSpacing !== null) property("letter-spacing", pixels(text.letterSpacing));
     property("text-align", text.textAlign.toLowerCase());
-    // Unsupported family syntax falls back locally; it can never inject CSS or URLs.
-    if (text.fontFamily !== null && /^[a-zA-Z][a-zA-Z0-9 -]*$/.test(text.fontFamily)) {
-      const family = text.fontFamily;
-      property("font-family", ["serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui"].includes(family)
-        ? family : "'" + family.replace(/ /g, "_") + "'");
-    }
+    // Sanitized names plus a generic fallback; nothing usable means the inherited font.
+    const families = fontFamilyList(text.fontFamily);
+    if (families !== null) property("font-family", fontFamilyValue(families));
   }
   return result.join(" ");
 }
 
 export function generateReactProject(schema: UISchema): GeneratedProject {
-  const plan = planLayout(schema, "v3");
-  return emitProject(schema, "3", (node, parent) => classes(node, parent, plan));
+  const plan = planLayout(schema, "v4");
+  return emitProject(schema, "4", (node, parent) => classes(node, parent, plan), { placeholderLabel: showsPlaceholderLabel });
 }
