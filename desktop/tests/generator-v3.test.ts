@@ -29,13 +29,15 @@ test("golden: generator v3 output is byte-for-byte what was reviewed, for every 
   for (const name of names) {
     const actual = interfaceOf(generateReactProject(load(new URL(name, fixturesUrl))));
     const golden = new URL(`${short(name)}.v3.GeneratedInterface.tsx.txt`, goldenUrl);
-    if (process.env.UPDATE_GOLDEN === "1" || !existsSync(golden)) writeFileSync(golden, actual);
+    if (process.env.UPDATE_GOLDEN === "1") writeFileSync(golden, actual);
+    assert.ok(existsSync(golden), `${name}: missing golden file; review the output, then create it with UPDATE_GOLDEN=1`);
     assert.equal(actual, readFileSync(golden, "utf8"), `${name} changed: review the diff, then run with UPDATE_GOLDEN=1`);
   }
 });
 
 test("every golden file belongs to a fixture and a generator version", () => {
-  const expected = names.flatMap((name) => ["v2", "v3"].map((version) => `${short(name)}.${version}.GeneratedInterface.tsx.txt`)).sort();
+  // v3 is pinned for every fixture; v2 only as the "before" of the baseline fixtures (never for per-mode `.p11.` ones).
+  const expected = names.flatMap((name) => (name.includes(".p11.") ? ["v3"] : ["v2", "v3"]).map((version) => `${short(name)}.${version}.GeneratedInterface.tsx.txt`)).sort();
   assert.deepEqual(readdirSync(goldenUrl).filter((name) => name.endsWith(".txt")).sort(), expected);
 });
 
