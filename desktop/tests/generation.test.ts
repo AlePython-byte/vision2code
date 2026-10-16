@@ -59,7 +59,7 @@ test("generation is deterministic, pure, LF-only, and emits two typed React sour
   assert.deepEqual(first, generateReactProject(fixture));
   assert.deepEqual(fixture, before);
   assert.equal(first.target, "react-tailwind");
-  assert.equal(first.generatorVersion, "3");
+  assert.equal(first.generatorVersion, "4");
   assert.deepEqual(first.files.map((file) => file.path), ["src/App.tsx", "src/generated/GeneratedInterface.tsx"]);
   for (const file of first.files) {
     assert.equal(file.language, "typescript");
@@ -181,7 +181,7 @@ test("styles and typography produce accepted Tailwind utilities without inline s
   const values = classNames(source);
   const expected = ["[background-color:#EDF1F6]", "[color:#123]", "[border:1px_solid_#FFFFFF88]",
     "[border-radius:28px]", "[box-shadow:-2px_3px_4px_-1px_#0008]", "[opacity:0.5]",
-    "[font-family:'IBM_Plex_Sans']", "[font-size:18px]", "[font-weight:600]", "[line-height:24px]", "[letter-spacing:-0.5px]", "[text-align:center]"];
+    "[font-family:'IBM_Plex_Sans',sans-serif]", "[font-size:18px]", "[font-weight:600]", "[line-height:24px]", "[letter-spacing:-0.5px]", "[text-align:center]"];
   const theme = readFileSync(new URL("../../node_modules/tailwindcss/theme.css", import.meta.url), "utf8");
   for (const value of expected) {
     assert.ok(values.includes(value), value);

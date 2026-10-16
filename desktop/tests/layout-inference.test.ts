@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { UINode, UISchema } from "@vision2code/contracts";
-// These tests pin the v2 profile of the inference, so they run through the frozen v2 generator.
-import { generateReactProjectV2 as generateReactProject } from "../src/features/generation/generateReactProjectV2.ts";
+// Flex inference (gap, padding, margins, alignment, justify) through the current generator and profile.
+import { generateReactProject } from "../src/features/generation/generateReactProject.ts";
 import { INFERENCE_TOLERANCE_PX, planLayout } from "../src/features/generation/layoutInference.ts";
 
 // ---- Synthetic schema builders ----------------------------------------------------------------
@@ -54,7 +54,7 @@ function row(boxes: [number, number, number, number][], options: NodeOptions = {
     children: boxes.map(([x, y, width, height], index) => node(`r${index}`, { x, y, width, height })) });
 }
 
-const plan = (root: UINode) => planLayout(schema(root));
+const plan = (root: UINode) => planLayout(schema(root), "v4");
 const kid = (root: UINode, index: number) => plan(root).child(root.children[index]!);
 const classesOf = (root: UINode, id: string) => {
   const source = generateReactProject(schema(root)).files[1]!.content;
@@ -224,14 +224,13 @@ test("justify: contradicted SPACE_BETWEEN reproduces the measured gaps through m
 
 // ---- Doubt: nothing inferred -----------------------------------------------------------------
 
-test("doubt: overlapping, out-of-order, escaping or text-carrying containers are left as declared", () => {
+test("doubt: overlapping, escaping or text-carrying containers are left as declared", () => {
   const overlapping = column([[0, 0, 400, 100], [0, 50, 400, 100]]);
-  const outOfOrder = column([[0, 200, 400, 50], [0, 0, 400, 50]]);
   const escaping = column([[0, 0, 400, 50], [0, 100, 500, 50]]);
   const withText = column([[16, 112, 368, 50]]);
   withText.text = { content: "Title\nSubtitle", fontSize: 16, fontWeight: null, lineHeight: null, letterSpacing: null, fontFamily: null, textAlign: "START" };
   const empty = column([[16, 12, 368, 50]], { width: 0 });
-  for (const [name, container] of Object.entries({ overlapping, outOfOrder, escaping, withText, empty })) {
+  for (const [name, container] of Object.entries({ overlapping, escaping, withText, empty })) {
     const result = plan(container);
     assert.equal(result.container(container), null, name);
     assert.equal(result.child(container.children[0]!), null, name);
@@ -240,10 +239,14 @@ test("doubt: overlapping, out-of-order, escaping or text-carrying containers are
     assert.ok(!classes.some((token) => token.startsWith("[margin-") || token.startsWith("self-")), name);
   }
   assert.ok(classesOf(withText, "c0").includes("w-full"));
+  // Out of order is not a flow, but every child has its own cell: since v3 it is placed on tracks.
+  const outOfOrder = column([[0, 200, 400, 50], [0, 0, 400, 50]]);
+  assert.deepEqual(plan(outOfOrder).container(outOfOrder)?.tracks, { columns: [400], rows: [50, 150, 50] });
+  assert.equal(plan(outOfOrder).child(outOfOrder.children[0]!)?.cell?.rowStart, 3, "the first child goes where its bounds are");
 });
 
-test("doubt: NONE, GRID and ABSOLUTE containers are never planned", () => {
-  for (const mode of ["NONE", "GRID", "ABSOLUTE"] as const) {
+test("doubt: ABSOLUTE containers are never planned (NONE and GRID: layout-inference-v3.test.ts)", () => {
+  for (const mode of ["ABSOLUTE"] as const) {
     const container = column([[16, 12, 100, 50], [16, 80, 100, 50]], { mode });
     assert.equal(plan(container).container(container), null, mode);
     assert.equal(plan(container).stats.plannedContainers, 0, mode);
@@ -277,7 +280,7 @@ test("text: a single line never wraps and keeps its spaces; multi-line text keep
   assert.ok(generateReactProject(schema(root)).files[1]!.content.includes('"Blocks     Templates"'), "spaces are data, untouched");
 });
 
-test("placeholders keep their label and cannot push the layout past their bounds", () => {
+test("placeholders cannot push the layout past their bounds; only a box that can hold it shows the label", () => {
   const icon = node("icon", { type: "ICON", width: 25, height: 25 });
   const image = node("image", { type: "IMAGE", width: 300, height: 120 });
   const root = node("root", { mode: "FLEX", direction: "COLUMN", width: 400, height: 400, children: [icon, image] });
@@ -287,7 +290,7 @@ test("placeholders keep their label and cannot push the layout past their bounds
     assert.ok(classes.includes("overflow-hidden") && classes.some((token) => token.startsWith("[max-height:")), id);
   }
   assert.ok(classesOf(root, "icon").includes("[max-height:25px]"));
-  assert.match(source, /Icono sin recurso/);
+  assert.doesNotMatch(source, /Icono sin recurso/, "a 25 px icon keeps only its dashed outline");
   assert.match(source, /Imagen sin recurso/);
   assert.match(source, /role="img" aria-label=/);
   assert.doesNotMatch(source, /<img|https?:|src=/, "no invented assets");
@@ -307,7 +310,7 @@ test("same input, same bytes; the schema is never mutated", () => {
   for (let run = 0; run < 5; run++) assert.equal(JSON.stringify(generateReactProject(input)), JSON.stringify(first));
   assert.equal(JSON.stringify(generateReactProject(structuredClone(input))), JSON.stringify(first));
   assert.deepEqual(input, before);
-  assert.equal(first.generatorVersion, "2");
+  assert.equal(first.generatorVersion, "4");
 });
 
 test("the plan can be inspected without generating and reports what it inferred", () => {

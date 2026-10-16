@@ -23,12 +23,21 @@ export function percentage(value: number, total: number): string {
 
 export type ClassFor = (node: UINode, parent: UINode | null) => string;
 
+export interface EmitOptions {
+  /**
+   * Whether an IMAGE/ICON placeholder shows its "sin recurso" label. Without it (every version up
+   * to 3) the label is always shown. When it returns false the placeholder keeps only a dashed
+   * outline over its box; its description stays in `aria-label` either way.
+   */
+  readonly placeholderLabel?: ((node: UINode) => boolean) | undefined;
+}
+
 const nodeTags: Record<UINode["type"], "div" | "button"> = {
   FRAME: "div", TEXT: "div", IMAGE: "div", ICON: "div",
   BUTTON: "button", INPUT: "div", DIVIDER: "div",
 };
 
-function render(node: UINode, parent: UINode | null, depth: number, classFor: ClassFor, insideButton = false): string[] {
+function render(node: UINode, parent: UINode | null, depth: number, classFor: ClassFor, options: EmitOptions, insideButton = false): string[] {
   const indent = "  ".repeat(depth);
   const attributes = " data-node-id={" + literal(node.id) + "} className={" + literal(classFor(node, parent)) + "}";
   // Wrappers retain children even for void controls permitted by the shared contract.
@@ -48,16 +57,22 @@ function render(node: UINode, parent: UINode | null, depth: number, classFor: Cl
     lines.push(indent + '  <hr className="m-0 w-full border-0 border-t border-current" />');
     if (node.text !== null) lines.push(indent + "  {" + literal(node.text.content) + "}");
   } else {
-    if (placeholder) lines.push(indent + '  <span className="block border border-dashed border-current p-2 text-xs">' +
-      "{" + literal(node.type === "IMAGE" ? "Imagen sin recurso" : "Icono sin recurso") + "}</span>");
+    if (placeholder && (options.placeholderLabel?.(node) ?? true)) {
+      lines.push(indent + '  <span className="block border border-dashed border-current p-2 text-xs">' +
+        "{" + literal(node.type === "IMAGE" ? "Imagen sin recurso" : "Icono sin recurso") + "}</span>");
+    } else if (placeholder) {
+      lines.push(indent + '  <span aria-hidden="true" className="pointer-events-none absolute [inset:0] border border-dashed border-current" />');
+    }
     if (node.text !== null) lines.push(indent + "  {" + literal(node.text.content) + "}");
   }
-  for (const child of node.children) lines.push(...render(child, node, depth + 1, classFor, insideButton || tag === "button"));
+  for (const child of node.children) lines.push(...render(child, node, depth + 1, classFor, options, insideButton || tag === "button"));
   lines.push(indent + "</" + tag + ">");
   return lines;
 }
 
-export function emitProject(schema: UISchema, generatorVersion: GeneratedProject["generatorVersion"], classFor: ClassFor): GeneratedProject {
+export function emitProject(
+  schema: UISchema, generatorVersion: GeneratedProject["generatorVersion"], classFor: ClassFor, options: EmitOptions = {},
+): GeneratedProject {
   return {
     target: "react-tailwind",
     generatorVersion,
@@ -69,7 +84,7 @@ export function emitProject(schema: UISchema, generatorVersion: GeneratedProject
       {
         path: "src/generated/GeneratedInterface.tsx", language: "typescript",
         content: ["export default function GeneratedInterface() {", "  return (",
-          ...render(schema.root, null, 2, classFor), "  );", "}", ""].join("\n"),
+          ...render(schema.root, null, 2, classFor, options), "  );", "}", ""].join("\n"),
       },
     ],
   };

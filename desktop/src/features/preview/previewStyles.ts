@@ -53,6 +53,15 @@ export const STANDARD_UTILITIES: Record<string, string> = {
   "items-center": "align-items: center;",
   "items-end": "align-items: flex-end;",
   "items-stretch": "align-items: stretch;",
+  // Emitted by generators v2-v4; without them the preview wrapped single-line text that the exported
+  // project keeps on one line (and let placeholders and rows overflow), so both must stay listed.
+  "whitespace-pre": "white-space: pre;",
+  "flex-nowrap": "flex-wrap: nowrap;",
+  "overflow-hidden": "overflow: hidden;",
+  "self-start": "align-self: flex-start;",
+  "self-center": "align-self: center;",
+  "self-end": "align-self: flex-end;",
+  "pointer-events-none": "pointer-events: none;",
   "whitespace-pre-wrap": "white-space: pre-wrap;",
   "break-words": "overflow-wrap: break-word;",
   "text-left": "text-align: left;",

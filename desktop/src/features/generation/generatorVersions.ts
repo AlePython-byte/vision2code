@@ -1,5 +1,5 @@
 import type { UISchema } from "@vision2code/contracts";
-import { generateReactProjectV2 } from "./generateReactProjectV2.ts";
+import { generateReactProjectV3 } from "./generateReactProjectV3.ts";
 import type { GeneratedProject } from "./generatedProject.ts";
 
 /**
@@ -8,5 +8,5 @@ import type { GeneratedProject } from "./generatedProject.ts";
  * kept; stored generations of older versions are data and never need their generator.
  */
 export const GENERATOR_VERSIONS: readonly { version: string; generate: (schema: UISchema) => GeneratedProject }[] = [
-  { version: "2", generate: generateReactProjectV2 },
+  { version: "3", generate: generateReactProjectV3 },
 ];

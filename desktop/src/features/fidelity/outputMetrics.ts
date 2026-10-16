@@ -1,3 +1,4 @@
+import { GENERIC_FAMILIES } from "../generation/fontFamily.ts";
 import type { GeneratedProject } from "../generation/generatedProject.ts";
 
 /**
@@ -23,6 +24,10 @@ export interface OutputMetrics {
   readonly spacingMargins: number;
   /** Column children that keep a fixed width instead of `w-full`. */
   readonly fixedWidthChildren: number;
+  /** Elements whose `font-family` names no generic family (falls back to the browser default). */
+  readonly fontsWithoutGeneric: number;
+  /** IMAGE/ICON placeholders that show their dashed "sin recurso" label. */
+  readonly placeholderLabels: number;
 }
 
 const classLists = (source: string): string[][] =>
@@ -43,5 +48,8 @@ export function computeOutputMetrics(project: GeneratedProject): OutputMetrics {
     selfAlignments: count((tokens) => tokens.some((token) => token === "self-start" || token === "self-center" || token === "self-end")),
     spacingMargins: count((tokens) => tokens.some((token) => token.startsWith("[margin-top:") || token.startsWith("[margin-left:"))),
     fixedWidthChildren: count((tokens) => tokens.includes("[max-width:100%]")),
+    fontsWithoutGeneric: count((tokens) => tokens.some((token) => token.startsWith("[font-family:") &&
+      !token.slice("[font-family:".length, -1).split(",").some((family) => GENERIC_FAMILIES.has(family)))),
+    placeholderLabels: source.split('<span className="block border border-dashed border-current p-2 text-xs">').length - 1,
   });
 }

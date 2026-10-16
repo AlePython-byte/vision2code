@@ -251,7 +251,7 @@ test("GeneratedProjectSchema rejects projects with invalid version or target", (
   assert.equal(
     GeneratedProjectSchema.safeParse({
       target: "react-tailwind",
-      generatorVersion: "4", // Only "1" and "2" (stored) and "3" (current generator) are known versions
+      generatorVersion: "5", // Only "1", "2" and "3" (stored) and "4" (current generator) are known versions
       files: [{ path: "App.tsx", content: "", language: "typescript" }],
     }).success,
     false

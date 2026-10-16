@@ -1,6 +1,6 @@
 /**
  * Prints schema metrics for every UISchema fixture in desktop/tests/fixtures/ui-schemas, and what
- * the previous generator (v2) and the current one (v3) emit for each, so a change to the prompt or
+ * the previous generator (v3) and the current one (v4) emit for each, so a change to the prompt or
  * the generator can be compared before and after. The browser-side comparison against the bounds
  * lives in `npm run measure:layout`.
  *
@@ -57,15 +57,14 @@ for (const name of names) {
       rows: m.rowCandidates, placeholders: m.placeholderCount, warnings: m.warningCount }]);
   }
   const short = name.replace(".v1.json", "");
-  const generators = [...GENERATOR_VERSIONS.map(({ version, generate }) => ({ version, generate, profile: "v2" as const })),
-    { version: "3", generate: generateReactProject, profile: "v3" as const }];
+  const generators = [...GENERATOR_VERSIONS.map(({ version, generate }) => ({ version, generate, profile: "v3" as const })),
+    { version: "4", generate: generateReactProject, profile: "v4" as const }];
   for (const { version, generate, profile } of generators) {
     const o = computeOutputMetrics(generate(schema));
     const plan = planLayout(schema, profile);
-    const v3 = profile === "v3";
     outputRows.push([short, `v${version}`, o.noWrapText, o.wrapText, o.forcedFullWidth, o.flexWrapRows, o.noWrapRows, o.rowChildBasis,
       o.fixedWidthChildren, o.selfAlignments, o.spacingMargins, plan.stats.gaps, plan.stats.paddings, plan.stats.justifyOverrides,
-      v3 ? plan.free.flexInferred : 0, v3 ? plan.free.trackGrids : 0, v3 ? plan.free.positioned : 0].map(String));
+      plan.free.flexInferred, plan.free.trackGrids, plan.free.positioned, o.fontsWithoutGeneric, o.placeholderLabels].map(String));
   }
 }
 
@@ -73,7 +72,7 @@ console.log("INPUT (UISchema)");
 table(["fixture", "nodes", "depth", "noLayout", "rows", "textRisk", "placeholders", "conf", "warn", "bytes", "files"], inputRows);
 console.log("\nOUTPUT (what each generator version emitted for the same schema)");
 table(["fixture", "gen", "noWrapText", "wrapText", "wFull", "wrapRows", "oneLineRows", "rowBasis", "fixedW", "selfAlign", "margins",
-  "infGap", "infPad", "justifyFix", "flexInf", "trackGrids", "positioned"], outputRows);
+  "infGap", "infPad", "justifyFix", "flexInf", "trackGrids", "positioned", "noGeneric", "labels"], outputRows);
 
 const modeOrder = ["fast", "balanced", "precise"];
 if (byMode.size > 0) {
@@ -105,5 +104,6 @@ Output: noWrapText = text that never wraps; wFull = children forced to full widt
 rowBasis = row children keeping their own width; fixedW = column children keeping their width; selfAlign / margins = per-child alignment and residual spacing;
 infGap / infPad = container gap and padding inferred; justifyFix = declared justify replaced because bounds contradict it;
 flexInf = NONE containers rendered as an inferred flex row/column; trackGrids = containers rendered on explicit grid tracks;
-positioned = containers that fell back to positioning by bounds (last resort; v3 only).`);
+positioned = containers that fell back to positioning by bounds (last resort);
+noGeneric = text whose font-family names no generic family (falls back to the browser's default serif); labels = placeholders showing their dashed label.`);
 process.exit(invalid > 0 ? 1 : 0);
