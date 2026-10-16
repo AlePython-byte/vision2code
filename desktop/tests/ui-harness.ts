@@ -49,7 +49,7 @@ export function html(file: string, component: string, language: Lang, props: Rec
 }
 
 /** Renders a component as a plain function with stateful fake hooks so handlers can be driven without a DOM. */
-export function driver(file: string, component: string, language: Lang, extra: Record<string, unknown> = {}) {
+export function driver(file: string, component: string, language: Lang, extra: Record<string, unknown> = {}, globals: Record<string, unknown> = {}) {
   const states: unknown[] = [];
   const refs: Array<{ current: unknown }> = [];
   let pending: Array<() => void | (() => void)> = [];
@@ -72,7 +72,7 @@ export function driver(file: string, component: string, language: Lang, extra: R
     useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(),
   };
   const document = { activeElement: null as unknown, addEventListener() {}, removeEventListener() {} };
-  const exports = loadModule(file, language, react, { document }, extra);
+  const exports = loadModule(file, language, react, { document, ...globals }, extra);
   return {
     refs, document,
     render(props: Record<string, unknown>): Node {

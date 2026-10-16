@@ -20,7 +20,8 @@ export const GeneratedFileSchema = z.strictObject({
 
 export const GeneratedProjectSchema = z.strictObject({
   target: z.literal("react-tailwind"),
-  generatorVersion: z.literal("1"),
+  // "1" and "2": stored by earlier generators (immutable, never regenerated). "3": current generator.
+  generatorVersion: z.enum(["1", "2", "3"]),
   files: z.array(GeneratedFileSchema).min(1),
 });
 

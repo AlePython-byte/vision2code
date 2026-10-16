@@ -540,7 +540,15 @@ test("a new analysis result after a restore is saved normally", async () => {
 });
 
 test("generator stays pure: no projects, auth, api or persistence imports", () => {
-  const source = readFileSync(new URL("../src/features/generation/generateReactProject.ts", import.meta.url), "utf8");
-  const imports = [...source.matchAll(/^import .* from "([^"]+)";$/gm)].map((match) => match[1]);
-  assert.deepEqual(imports, ["@vision2code/contracts", "./generatedProject.ts"]);
+  // v2 is split into pure sibling modules; each one may import only contract types and its pure siblings.
+  const importsOf = (file: string) => [...readFileSync(new URL("../src/features/generation/" + file, import.meta.url), "utf8")
+    .matchAll(/^import .* from "([^"]+)";$/gm)].map((match) => match[1]);
+  assert.deepEqual(importsOf("generateReactProject.ts"),
+    ["@vision2code/contracts", "./emitSource.ts", "./generatedProject.ts", "./layoutInference.ts", "./textLayout.ts"]);
+  assert.deepEqual(importsOf("generateReactProjectV2.ts"),
+    ["@vision2code/contracts", "./emitSource.ts", "./generatedProject.ts", "./layoutInference.ts", "./textLayout.ts"]);
+  assert.deepEqual(importsOf("layoutInference.ts"), ["@vision2code/contracts"]);
+  assert.deepEqual(importsOf("textLayout.ts"), ["@vision2code/contracts"]);
+  assert.deepEqual(importsOf("emitSource.ts"), ["@vision2code/contracts", "./generatedProject.ts"]);
+  assert.deepEqual(importsOf("generatorVersions.ts"), ["@vision2code/contracts", "./generateReactProjectV2.ts", "./generatedProject.ts"]);
 });

@@ -26,6 +26,8 @@ function fail(message: string): never {
 
 const uiSchema = UISchemaSchema.parse(JSON.parse(readFileSync(fixture, "utf8")));
 const generated = generateReactProject(uiSchema);
+// New generations come from generator v3; the export must build with its output.
+if (generated.generatorVersion !== "3") fail(`expected generator v3 output, got version ${generated.generatorVersion}`);
 const planned = buildRunnableExportPlan(generated.files, "Verificación del andamiaje");
 if (!planned.ok) fail(`the export plan was rejected by the validator (${planned.code})`);
 const { plan } = planned;
@@ -70,6 +72,21 @@ if (!existsSync(assets)) fail(`the build produced no dist/assets (folder kept at
 const css = readdirSync(assets).filter((name) => name.endsWith(".css")).map((name) => readFileSync(join(assets, name), "utf8")).join("\n");
 if (!/max-width:\s*640px/.test(css)) fail(`the built CSS has no utilities from the generated classes (folder kept at ${target})`);
 
-console.log("\nOK: the exported project installs and builds, and Tailwind emitted the generated utilities.");
+// The same exported project must also build with the real fixtures' v3 output (a richer layout set).
+const realFixtures = new URL("../desktop/tests/fixtures/ui-schemas/", import.meta.url);
+const realNames = existsSync(realFixtures) ? readdirSync(realFixtures).filter((name) => name.endsWith(".json")).sort() : [];
+for (const name of realNames) {
+  const schema = UISchemaSchema.parse(JSON.parse(readFileSync(new URL(name, realFixtures), "utf8")));
+  const project = generateReactProject(schema);
+  if (project.generatorVersion !== "3") fail(`${name}: expected generator v3 output`);
+  for (const file of project.files) writeFileSync(join(target, ...file.path.split("/")), file.content);
+  const validated = buildRunnableExportPlan(project.files, name);
+  if (!validated.ok) fail(`${name}: the export plan was rejected by the validator (${validated.code})`);
+  rmSync(join(target, "dist"), { recursive: true, force: true });
+  run(`npm run build (${name})`, ["run", "build"]);
+  if (!existsSync(join(target, "dist", "index.html"))) fail(`${name}: the build produced no dist/index.html (folder kept at ${target})`);
+}
+
+console.log(`\nOK: the exported project installs and builds, Tailwind emitted the generated utilities, and ${realNames.length} real fixture(s) build with generator v3.`);
 if (keep) console.log(`Kept at ${target} (run "npm run dev" there).`);
 else rmSync(root, { recursive: true, force: true });

@@ -1,0 +1,66 @@
+export default function GeneratedInterface() {
+  return (
+    <div data-node-id={"page"} className={"box-border min-w-0 relative w-full [max-width:1897px] [min-height:917px] flex flex-col justify-start items-center [gap:0px] [padding:0px_125px_0px_125px] [background-color:#08090A] [border-radius:12px] [opacity:1]"}>
+      <div data-node-id={"header"} className={"box-border min-w-0 relative w-full [max-width:1889px] [min-height:90px] flex flex-row flex-nowrap justify-start items-center [padding:24px_145px_24px_142px] [border:1px_solid_#1C1D1F] [opacity:1]"}>
+        <div role="img" aria-label={"White striped circular Linear symbol and Linear wordmark."} data-node-id={"brand"} className={"box-border min-w-0 relative [flex:0_1_110px] [min-height:28px] [max-height:28px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <div data-node-id={"navigation"} className={"box-border min-w-0 relative [flex:0_1_644px] [min-height:24px] [margin-left:733px] [padding:0px_0px_0px_0px] [color:#8A8F98] [opacity:1] whitespace-pre [font-size:17px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:sans-serif]"}>
+          {"Product     Resources     Customers     Pricing     Now     Contact     |     Log in"}
+        </div>
+        <button type="button" data-node-id={"signup"} className={"box-border min-w-0 relative [flex:0_1_91px] [min-height:40px] [margin-left:25px] flex flex-row flex-wrap justify-center items-center [padding:8px_16px_8px_16px] [background-color:#E6E6E6] [color:#08090A] [border-radius:24px] [opacity:1] whitespace-pre-wrap break-words [font-size:17px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:sans-serif]"}>
+          {"Sign up"}
+        </button>
+      </div>
+      <div data-node-id={"hero"} className={"box-border min-w-0 relative [width:1603px] [max-width:100%] [min-height:229px] flex flex-col justify-start items-stretch [gap:42px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+        <div data-node-id={"headline"} className={"box-border min-w-0 relative w-full [max-width:1040px] [min-height:160px] [padding:0px_0px_0px_0px] [color:#F5F6F7] [opacity:1] whitespace-pre-wrap break-words [font-size:80px] [font-weight:600] [line-height:80px] [letter-spacing:-3px] [text-align:start] [font-family:sans-serif]"}>
+          {"The product development\nsystem for teams and agents"}
+        </div>
+        <div data-node-id={"description"} className={"box-border min-w-0 relative w-full [max-width:850px] [min-height:28px] [padding:0px_0px_0px_0px] [color:#8A8F98] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:28px] [letter-spacing:-0.3px] [text-align:start] [font-family:sans-serif]"}>
+          {"Purpose-built for planning and building products. Designed for the AI era."}
+        </div>
+        <button type="button" data-node-id={"loops"} className={"box-border min-w-0 relative w-full [max-width:131px] [min-height:28px] flex flex-row flex-wrap justify-start items-center [gap:12px] [padding:0px_0px_0px_0px] [color:#A4AAB3] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:28px] [text-align:start] [font-family:sans-serif]"}>
+          {"New  Loops →"}
+        </button>
+      </div>
+      <div data-node-id={"preview"} className={"box-border min-w-0 relative w-full [max-width:1650px] [min-height:509px] [margin-top:89px] flex flex-row flex-nowrap justify-start items-stretch [gap:0px] [padding:10px_10px_0px_10px] [background-color:#131415] [color:#B9BEC6] [border:1px_solid_#333536] [border-radius:16px] [opacity:1]"}>
+        <div data-node-id={"sidebar"} className={"box-border min-w-0 relative [flex:0_1_290px] [min-height:499px] flex flex-col justify-start items-stretch [gap:24px] [padding:18px_20px_0px_17px] [opacity:1]"}>
+          <button type="button" data-node-id={"workspace"} className={"box-border min-w-0 relative w-full [max-width:252px] [min-height:33px] [margin-top:-4px] [padding:0px_0px_0px_0px] [color:#F5F6F7] [opacity:1] whitespace-pre [font-size:18px] [font-weight:600] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+            {"Linear"}
+          </button>
+          <div data-node-id={"sidebar-links"} className={"box-border min-w-0 relative w-full [max-width:253px] [min-height:344px] [padding:0px_0px_0px_0px] [color:#B9BEC6] [opacity:1] whitespace-pre-wrap break-words [font-size:16px] [font-weight:500] [line-height:33px] [text-align:start] [font-family:sans-serif]"}>
+            {"Pulse\nInbox\nMy issues\nReviews\n\nWorkspace ⌄\nInitiatives\nProjects\nMore\n\nFavorites ⌄"}
+          </div>
+          <button type="button" data-node-id={"selected-issue"} className={"box-border min-w-0 relative w-full [max-width:260px] [min-height:35px] [margin-top:-16px] flex flex-row flex-wrap justify-start items-center [gap:10px] [padding:5px_8px_5px_35px] [background-color:#202122] [color:#B9BEC6] [border-radius:10px] [opacity:1] whitespace-pre [font-size:16px] [font-weight:600] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+            {"Faster app launch"}
+          </button>
+          <button type="button" data-node-id={"agent-tasks"} className={"box-border min-w-0 relative [width:160px] [max-width:100%] [min-height:25px] [margin-top:-16px] [padding:0px_0px_0px_27px] [color:#B9BEC6] [opacity:1] whitespace-pre [font-size:16px] [font-weight:600] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+            {"Agent tasks"}
+          </button>
+        </div>
+        <div data-node-id={"issue-panel"} className={"box-border min-w-0 relative [flex:0_1_1340px] [min-height:499px] [padding:0px_16px_0px_28px] [background-color:#18191A] [border:1px_solid_#333536] [border-radius:10px] [opacity:1]"}>
+          <div data-node-id={"issue-toolbar"} className={"box-border min-w-0 relative w-full [max-width:1280px] [min-height:26px] [padding:0px_0px_0px_0px] [color:#CFD5DF] [opacity:1] whitespace-pre [font-size:15px] [font-weight:500] [line-height:26px] [text-align:start] [font-family:sans-serif]"}>
+            {"DRV-8852  Faster app launch   ★   ···                                                        1 / 84   ↑   ↓"}
+          </div>
+          <div data-node-id={"issue-content"} className={"box-border min-w-0 relative w-full [max-width:696px] [min-height:354px] [padding:0px_0px_0px_0px] [color:#BBC8DB] [opacity:1] whitespace-pre-wrap break-words [font-size:17px] [font-weight:400] [line-height:26px] [text-align:start] [font-family:sans-serif]"}>
+            {"Faster app launch\n\nRender UI before vehicle_state sync when minimum required state is present,\ninstead of blocking on full refresh during iOS startup.\n\nActivity\n\nLinear created the issue via Slack on behalf of Karri · 2min ago\nTriage Intelligence added the labels Performance and iOS · 2min ago\n\nkarri · 4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared..."}
+          </div>
+          <div data-node-id={"reviews"} className={"box-border min-w-0 relative w-full [max-width:104px] [min-height:60px] [padding:0px_0px_0px_0px] [color:#A7ADB7] [opacity:1] whitespace-pre-wrap break-words [font-size:15px] [font-weight:400] [line-height:35px] [text-align:start] [font-family:sans-serif]"}>
+            {"Reviews\nRevert"}
+          </div>
+          <div data-node-id={"agent-panel"} className={"box-border min-w-0 relative w-full [max-width:500px] [min-height:285px] flex flex-col justify-start items-stretch [gap:20px] [padding:20px_13px_0px_25px] [background-color:#1B1C1D] [color:#B9BEC6] [border:1px_solid_#3B3D3F] [border-radius:16px] [opacity:1]"}>
+            <div data-node-id={"agent-heading"} className={"box-border min-w-0 relative [width:455px] [max-width:100%] [min-height:25px] [padding:0px_0px_0px_0px] [color:#DBDFE5] [opacity:1] whitespace-pre [font-size:16px] [font-weight:500] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+              {"Linear  Opus 5"}
+            </div>
+            <div data-node-id={"agent-prompt"} className={"box-border min-w-0 relative [width:428px] [max-width:100%] [min-height:75px] self-end [margin-top:13px] [padding:13px_12px_13px_12px] [background-color:#262728] [color:#E9EAEC] [border:1px_solid_#141516] [border-radius:12px] [opacity:1] whitespace-pre-wrap break-words [font-size:16px] [font-weight:600] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+              {"Fix the dimmed ride rows that never reset and open\na PR"}
+            </div>
+            <div data-node-id={"agent-progress"} className={"box-border min-w-0 relative w-full [max-width:460px] [min-height:124px] [margin-top:-12px] [padding:0px_0px_0px_0px] [color:#B9BEC6] [opacity:1] whitespace-pre-wrap break-words [font-size:16px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:sans-serif]"}>
+              {"DRV-364 added to context\n\nWorked for 10 sec ▸\nPushed and opened a draft PR. Removed dimmedIds —\nisItemDimmed now checks waitingStatusById directly."}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

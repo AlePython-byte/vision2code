@@ -1,0 +1,1072 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1897,
+    "height": 917
+  },
+  "confidence": 0.94,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "page",
+        "value": "#08090A"
+      },
+      {
+        "name": "panel",
+        "value": "#151617"
+      },
+      {
+        "name": "raised",
+        "value": "#232425"
+      },
+      {
+        "name": "primaryText",
+        "value": "#F5F6F7"
+      },
+      {
+        "name": "secondaryText",
+        "value": "#8A8F98"
+      },
+      {
+        "name": "appText",
+        "value": "#B9BEC6"
+      },
+      {
+        "name": "border",
+        "value": "#333536"
+      },
+      {
+        "name": "yellow",
+        "value": "#F2D600"
+      }
+    ],
+    "typography": [
+      {
+        "name": "hero",
+        "fontFamily": "sans-serif",
+        "fontSize": 80,
+        "fontWeight": 600,
+        "lineHeight": 80,
+        "letterSpacing": -3
+      },
+      {
+        "name": "body",
+        "fontFamily": "sans-serif",
+        "fontSize": 20,
+        "fontWeight": 400,
+        "lineHeight": 28,
+        "letterSpacing": -0.3
+      },
+      {
+        "name": "navigation",
+        "fontFamily": "sans-serif",
+        "fontSize": 17,
+        "fontWeight": 400,
+        "lineHeight": 24,
+        "letterSpacing": null
+      },
+      {
+        "name": "appBody",
+        "fontFamily": "sans-serif",
+        "fontSize": 16,
+        "fontWeight": 400,
+        "lineHeight": 25,
+        "letterSpacing": null
+      }
+    ],
+    "spacing": [
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      90
+    ],
+    "radii": [
+      8,
+      12,
+      16,
+      24
+    ]
+  },
+  "root": {
+    "id": "page",
+    "type": "FRAME",
+    "name": "Dark landing page",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1897,
+      "height": 917
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "CENTER",
+      "gap": 0,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 125,
+        "bottom": 0,
+        "left": 125
+      }
+    },
+    "style": {
+      "background": "#08090A",
+      "color": null,
+      "border": null,
+      "radius": 12,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "header",
+        "type": "FRAME",
+        "name": "Site header",
+        "bounds": {
+          "x": 6,
+          "y": 0,
+          "width": 1889,
+          "height": 90
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 24,
+            "right": 145,
+            "bottom": 24,
+            "left": 142
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": {
+            "width": 1,
+            "color": "#1C1D1F"
+          },
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "brand",
+            "type": "IMAGE",
+            "name": "Linear brand",
+            "bounds": {
+              "x": 148,
+              "y": 30,
+              "width": 110,
+              "height": 28
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White striped circular Linear symbol and Linear wordmark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "navigation",
+            "type": "TEXT",
+            "name": "Navigation links",
+            "bounds": {
+              "x": 991,
+              "y": 33,
+              "width": 644,
+              "height": 24
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#8A8F98",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Product     Resources     Customers     Pricing     Now     Contact     |     Log in",
+              "fontFamily": "sans-serif",
+              "fontSize": 17,
+              "fontWeight": 400,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "signup",
+            "type": "BUTTON",
+            "name": "Sign up",
+            "bounds": {
+              "x": 1660,
+              "y": 24,
+              "width": 91,
+              "height": 40
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "ROW",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 8,
+                "right": 16,
+                "bottom": 8,
+                "left": 16
+              }
+            },
+            "style": {
+              "background": "#E6E6E6",
+              "color": "#08090A",
+              "border": null,
+              "radius": 24,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Sign up",
+              "fontFamily": "sans-serif",
+              "fontSize": 17,
+              "fontWeight": 500,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "hero",
+        "type": "FRAME",
+        "name": "Product introduction",
+        "bounds": {
+          "x": 148,
+          "y": 90,
+          "width": 1603,
+          "height": 229
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "COLUMN",
+          "justify": "START",
+          "align": "STRETCH",
+          "gap": 42,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "headline",
+            "type": "TEXT",
+            "name": "Main headline",
+            "bounds": {
+              "x": 148,
+              "y": 90,
+              "width": 1040,
+              "height": 160
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#F5F6F7",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "The product development\nsystem for teams and agents",
+              "fontFamily": "sans-serif",
+              "fontSize": 80,
+              "fontWeight": 600,
+              "lineHeight": 80,
+              "letterSpacing": -3,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "description",
+            "type": "TEXT",
+            "name": "Product description",
+            "bounds": {
+              "x": 149,
+              "y": 291,
+              "width": 850,
+              "height": 28
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#8A8F98",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Purpose-built for planning and building products. Designed for the AI era.",
+              "fontFamily": "sans-serif",
+              "fontSize": 20,
+              "fontWeight": 400,
+              "lineHeight": 28,
+              "letterSpacing": -0.3,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "loops",
+            "type": "BUTTON",
+            "name": "Loops announcement",
+            "bounds": {
+              "x": 1619,
+              "y": 291,
+              "width": 131,
+              "height": 28
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "ROW",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": 12,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#A4AAB3",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "New  Loops →",
+              "fontFamily": "sans-serif",
+              "fontSize": 20,
+              "fontWeight": 400,
+              "lineHeight": 28,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "preview",
+        "type": "FRAME",
+        "name": "Application preview",
+        "bounds": {
+          "x": 125,
+          "y": 408,
+          "width": 1650,
+          "height": 509
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "START",
+          "align": "STRETCH",
+          "gap": 0,
+          "columns": null,
+          "padding": {
+            "top": 10,
+            "right": 10,
+            "bottom": 0,
+            "left": 10
+          }
+        },
+        "style": {
+          "background": "#131415",
+          "color": "#B9BEC6",
+          "border": {
+            "width": 1,
+            "color": "#333536"
+          },
+          "radius": 16,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "sidebar",
+            "type": "FRAME",
+            "name": "Workspace sidebar",
+            "bounds": {
+              "x": 135,
+              "y": 418,
+              "width": 290,
+              "height": 499
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 24,
+              "columns": null,
+              "padding": {
+                "top": 18,
+                "right": 20,
+                "bottom": 0,
+                "left": 17
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "workspace",
+                "type": "BUTTON",
+                "name": "Workspace selector",
+                "bounds": {
+                  "x": 153,
+                  "y": 432,
+                  "width": 252,
+                  "height": 33
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#F5F6F7",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Linear",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 600,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "sidebar-links",
+                "type": "TEXT",
+                "name": "Workspace navigation",
+                "bounds": {
+                  "x": 152,
+                  "y": 488,
+                  "width": 253,
+                  "height": 344
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#B9BEC6",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Pulse\nInbox\nMy issues\nReviews\n\nWorkspace ⌄\nInitiatives\nProjects\nMore\n\nFavorites ⌄",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
+                  "fontWeight": 500,
+                  "lineHeight": 33,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "selected-issue",
+                "type": "BUTTON",
+                "name": "Selected favorite issue",
+                "bounds": {
+                  "x": 145,
+                  "y": 840,
+                  "width": 260,
+                  "height": 35
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "ROW",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": 10,
+                  "columns": null,
+                  "padding": {
+                    "top": 5,
+                    "right": 8,
+                    "bottom": 5,
+                    "left": 35
+                  }
+                },
+                "style": {
+                  "background": "#202122",
+                  "color": "#B9BEC6",
+                  "border": null,
+                  "radius": 10,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Faster app launch",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
+                  "fontWeight": 600,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "agent-tasks",
+                "type": "BUTTON",
+                "name": "Agent tasks",
+                "bounds": {
+                  "x": 153,
+                  "y": 883,
+                  "width": 160,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 27
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#B9BEC6",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Agent tasks",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 16,
+                  "fontWeight": 600,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "issue-panel",
+            "type": "FRAME",
+            "name": "Issue detail",
+            "bounds": {
+              "x": 425,
+              "y": 418,
+              "width": 1340,
+              "height": 499
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 16,
+                "bottom": 0,
+                "left": 28
+              }
+            },
+            "style": {
+              "background": "#18191A",
+              "color": null,
+              "border": {
+                "width": 1,
+                "color": "#333536"
+              },
+              "radius": 10,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "issue-toolbar",
+                "type": "TEXT",
+                "name": "Issue toolbar",
+                "bounds": {
+                  "x": 453,
+                  "y": 434,
+                  "width": 1280,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "SPACE_BETWEEN",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#CFD5DF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "DRV-8852  Faster app launch   ★   ···                                                        1 / 84   ↑   ↓",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 15,
+                  "fontWeight": 500,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "issue-content",
+                "type": "TEXT",
+                "name": "Issue description and activity",
+                "bounds": {
+                  "x": 516,
+                  "y": 554,
+                  "width": 696,
+                  "height": 354
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#BBC8DB",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Faster app launch\n\nRender UI before vehicle_state sync when minimum required state is present,\ninstead of blocking on full refresh during iOS startup.\n\nActivity\n\nLinear created the issue via Slack on behalf of Karri · 2min ago\nTriage Intelligence added the labels Performance and iOS · 2min ago\n\nkarri · 4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared...",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 17,
+                  "fontWeight": 400,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "reviews",
+                "type": "TEXT",
+                "name": "Review status",
+                "bounds": {
+                  "x": 1402,
+                  "y": 545,
+                  "width": 104,
+                  "height": 60
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A7ADB7",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Reviews\nRevert",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 15,
+                  "fontWeight": 400,
+                  "lineHeight": 35,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "agent-panel",
+                "type": "FRAME",
+                "name": "Agent conversation",
+                "bounds": {
+                  "x": 1249,
+                  "y": 632,
+                  "width": 500,
+                  "height": 285
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": 20,
+                  "columns": null,
+                  "padding": {
+                    "top": 20,
+                    "right": 13,
+                    "bottom": 0,
+                    "left": 25
+                  }
+                },
+                "style": {
+                  "background": "#1B1C1D",
+                  "color": "#B9BEC6",
+                  "border": {
+                    "width": 1,
+                    "color": "#3B3D3F"
+                  },
+                  "radius": 16,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "agent-heading",
+                    "type": "TEXT",
+                    "name": "Agent header",
+                    "bounds": {
+                      "x": 1275,
+                      "y": 652,
+                      "width": 455,
+                      "height": 25
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#DBDFE5",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Linear  Opus 5",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 500,
+                      "lineHeight": 25,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "agent-prompt",
+                    "type": "TEXT",
+                    "name": "Agent request",
+                    "bounds": {
+                      "x": 1307,
+                      "y": 710,
+                      "width": 428,
+                      "height": 75
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 13,
+                        "right": 12,
+                        "bottom": 13,
+                        "left": 12
+                      }
+                    },
+                    "style": {
+                      "background": "#262728",
+                      "color": "#E9EAEC",
+                      "border": {
+                        "width": 1,
+                        "color": "#141516"
+                      },
+                      "radius": 12,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Fix the dimmed ride rows that never reset and open\na PR",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 600,
+                      "lineHeight": 25,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "agent-progress",
+                    "type": "TEXT",
+                    "name": "Agent work summary",
+                    "bounds": {
+                      "x": 1274,
+                      "y": 793,
+                      "width": 460,
+                      "height": 124
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#B9BEC6",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "DRV-364 added to context\n\nWorked for 10 sec ▸\nPushed and opened a draft PR. Removed dimmedIds —\nisItemDimmed now checks waitingStatusById directly.",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 400,
+                      "lineHeight": 25,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Font families and exact color values are estimated from the screenshot.",
+    "The application preview and agent conversation are cropped at the bottom.",
+    "Grouped application text uses approximate typography; headings and metadata have varying sizes and weights in the screenshot.",
+    "Minor toolbar icons are omitted, and navigation spacing is approximate."
+  ]
+}

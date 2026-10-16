@@ -1,0 +1,1121 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1886,
+    "height": 912
+  },
+  "confidence": 0.94,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "page",
+        "value": "#FAFBFC"
+      },
+      {
+        "name": "surface",
+        "value": "#FFFFFF"
+      },
+      {
+        "name": "text",
+        "value": "#111827"
+      },
+      {
+        "name": "muted",
+        "value": "#6B7280"
+      },
+      {
+        "name": "border",
+        "value": "#E1E5EB"
+      },
+      {
+        "name": "blue",
+        "value": "#3B82F6"
+      },
+      {
+        "name": "purple",
+        "value": "#8B5CF6"
+      },
+      {
+        "name": "cyan",
+        "value": "#0EA5E9"
+      },
+      {
+        "name": "magenta",
+        "value": "#D946EF"
+      }
+    ],
+    "typography": [
+      {
+        "name": "body",
+        "fontFamily": "sans-serif",
+        "fontSize": 18,
+        "fontWeight": 400,
+        "lineHeight": 26,
+        "letterSpacing": null
+      },
+      {
+        "name": "small",
+        "fontFamily": "sans-serif",
+        "fontSize": 16,
+        "fontWeight": 400,
+        "lineHeight": 24,
+        "letterSpacing": null
+      },
+      {
+        "name": "metric",
+        "fontFamily": "sans-serif",
+        "fontSize": 38,
+        "fontWeight": 600,
+        "lineHeight": 46,
+        "letterSpacing": -1
+      }
+    ],
+    "spacing": [
+      8,
+      16,
+      24,
+      30,
+      32
+    ],
+    "radii": [
+      6,
+      10,
+      16
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "Dashboard page",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1886,
+      "height": 912
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "STRETCH",
+      "gap": 0,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": "#FAFBFC",
+      "color": null,
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "announcement",
+        "type": "FRAME",
+        "name": "Announcement banner",
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1886,
+          "height": 59
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 181,
+            "bottom": 0,
+            "left": 181
+          }
+        },
+        "style": {
+          "background": "#050505",
+          "color": "#FFFFFF",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "vercel",
+            "type": "IMAGE",
+            "name": "Vercel brand",
+            "bounds": {
+              "x": 181,
+              "y": 19,
+              "width": 104,
+              "height": 21
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White triangle and Vercel wordmark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "announcement-text",
+            "type": "TEXT",
+            "name": "Announcement link",
+            "bounds": {
+              "x": 1228,
+              "y": 19,
+              "width": 475,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Tremor is joining Vercel. Read more about our journey ↗",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 600,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "navigation",
+        "type": "FRAME",
+        "name": "Main navigation",
+        "bounds": {
+          "x": 0,
+          "y": 59,
+          "width": 1886,
+          "height": 81
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 20,
+            "right": 185,
+            "bottom": 16,
+            "left": 181
+          }
+        },
+        "style": {
+          "background": "#FFFFFF",
+          "color": "#111827",
+          "border": {
+            "width": 1,
+            "color": "#E1E5EB"
+          },
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "brand",
+            "type": "TEXT",
+            "name": "Tremor blocks brand",
+            "bounds": {
+              "x": 181,
+              "y": 87,
+              "width": 155,
+              "height": 27
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#111827",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "tremor blocks",
+              "fontFamily": null,
+              "fontSize": 24,
+              "fontWeight": 600,
+              "lineHeight": 28,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "product-selector",
+            "type": "BUTTON",
+            "name": "Product selector",
+            "bounds": {
+              "x": 357,
+              "y": 79,
+              "width": 119,
+              "height": 45
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 10,
+                "right": 16,
+                "bottom": 10,
+                "left": 16
+              }
+            },
+            "style": {
+              "background": "#F3F4F6",
+              "color": "#111827",
+              "border": null,
+              "radius": 8,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Tremor",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 400,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "nav-links",
+            "type": "TEXT",
+            "name": "Navigation links",
+            "bounds": {
+              "x": 1316,
+              "y": 88,
+              "width": 329,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#111827",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Blocks     Templates     Getting Started",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 500,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "github",
+            "type": "ICON",
+            "name": "GitHub icon",
+            "bounds": {
+              "x": 1676,
+              "y": 87,
+              "width": 25,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#111827",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Dark GitHub mark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "dashboard",
+        "type": "FRAME",
+        "name": "Dashboard grid",
+        "bounds": {
+          "x": 144,
+          "y": 156,
+          "width": 1593,
+          "height": 756
+        },
+        "layout": {
+          "mode": "GRID",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": 32,
+          "columns": 4,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "left-stack",
+            "type": "FRAME",
+            "name": "Shop summary column",
+            "bounds": {
+              "x": 150,
+              "y": 162,
+              "width": 362,
+              "height": 750
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 43,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "shop-status",
+                "type": "FRAME",
+                "name": "Shop operational status",
+                "bounds": {
+                  "x": 150,
+                  "y": 162,
+                  "width": 362,
+                  "height": 237
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": 24,
+                  "columns": null,
+                  "padding": {
+                    "top": 31,
+                    "right": 30,
+                    "bottom": 30,
+                    "left": 30
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#111827",
+                  "border": {
+                    "width": 1,
+                    "color": "#E1E5EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 16,
+                    "blur": 28,
+                    "spread": -10,
+                    "color": "#11182726"
+                  },
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "shop-heading",
+                    "type": "TEXT",
+                    "name": "Shop name and status",
+                    "bounds": {
+                      "x": 200,
+                      "y": 194,
+                      "width": 282,
+                      "height": 59
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#111827",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Operational\nEmma's Online-Shop",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 32,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "uptime",
+                    "type": "IMAGE",
+                    "name": "Thirty day status history",
+                    "bounds": {
+                      "x": 180,
+                      "y": 278,
+                      "width": 302,
+                      "height": 87
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": {
+                      "description": "Narrow blue and gray vertical status segments, labeled 30 days ago at left and Today at right.",
+                      "fit": "CONTAIN"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "trends",
+                "type": "FRAME",
+                "name": "Percentage trend indicators",
+                "bounds": {
+                  "x": 150,
+                  "y": 442,
+                  "width": 362,
+                  "height": 137
+                },
+                "layout": {
+                  "mode": "GRID",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": 16,
+                  "columns": 2,
+                  "padding": {
+                    "top": 18,
+                    "right": 56,
+                    "bottom": 19,
+                    "left": 56
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#3B82F6",
+                  "border": {
+                    "width": 1,
+                    "color": "#E1E5EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 16,
+                    "blur": 28,
+                    "spread": -10,
+                    "color": "#11182726"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "9.3% ↑     3.3% ↗\n1.9% ↘     0.6% ↓",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 500,
+                  "lineHeight": 58,
+                  "letterSpacing": null,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "payments",
+                "type": "FRAME",
+                "name": "Online payments card",
+                "bounds": {
+                  "x": 150,
+                  "y": 625,
+                  "width": 362,
+                  "height": 287
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": 16,
+                  "columns": null,
+                  "padding": {
+                    "top": 30,
+                    "right": 30,
+                    "bottom": 0,
+                    "left": 30
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": "#111827",
+                  "border": {
+                    "width": 1,
+                    "color": "#E1E5EB"
+                  },
+                  "radius": 10,
+                  "shadow": {
+                    "x": 0,
+                    "y": 16,
+                    "blur": 28,
+                    "spread": -10,
+                    "color": "#11182726"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Online payments",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 500,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": [
+                  {
+                    "id": "payment-tabs",
+                    "type": "TEXT",
+                    "name": "Payment region tabs",
+                    "bounds": {
+                      "x": 181,
+                      "y": 701,
+                      "width": 301,
+                      "height": 37
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#6B7280",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Europe     North America",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 18,
+                      "fontWeight": 400,
+                      "lineHeight": 26,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "payments-chart",
+                    "type": "IMAGE",
+                    "name": "Payment stacked bar chart",
+                    "bounds": {
+                      "x": 181,
+                      "y": 783,
+                      "width": 301,
+                      "height": 129
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": {
+                      "description": "Partially visible blue stacked bars with purple and magenta caps and light horizontal grid lines. Europe tab is highlighted blue with an underline.",
+                      "fit": "NONE"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "portfolio",
+            "type": "FRAME",
+            "name": "Portfolio value card",
+            "bounds": {
+              "x": 556,
+              "y": 162,
+              "width": 769,
+              "height": 527
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 30,
+              "columns": null,
+              "padding": {
+                "top": 30,
+                "right": 31,
+                "bottom": 30,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#111827",
+              "border": {
+                "width": 1,
+                "color": "#E1E5EB"
+              },
+              "radius": 10,
+              "shadow": {
+                "x": 0,
+                "y": 16,
+                "blur": 28,
+                "spread": -10,
+                "color": "#11182726"
+              },
+              "opacity": 1
+            },
+            "text": {
+              "content": "Portfolio Value\n$328,505.10",
+              "fontFamily": "sans-serif",
+              "fontSize": null,
+              "fontWeight": null,
+              "lineHeight": null,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": [
+              {
+                "id": "portfolio-chart",
+                "type": "IMAGE",
+                "name": "Portfolio daily bar chart",
+                "bounds": {
+                  "x": 587,
+                  "y": 298,
+                  "width": 707,
+                  "height": 357
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": {
+                  "description": "Blue daily bars over horizontal gray grid lines. Axis labels: Aug 25, Aug 29, Sep 02, Sep 06, Sep 10, Sep 14, Sep 18, Sep 22, Sep 26. Floating white tooltip reads Aug 25 and ETF Shares Vital $6.198,2.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "expenses",
+            "type": "FRAME",
+            "name": "Expenses breakdown card",
+            "bounds": {
+              "x": 1368,
+              "y": 162,
+              "width": 364,
+              "height": 527
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 18,
+              "columns": null,
+              "padding": {
+                "top": 51,
+                "right": 31,
+                "bottom": 54,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#6B7280",
+              "border": {
+                "width": 1,
+                "color": "#E1E5EB"
+              },
+              "radius": 10,
+              "shadow": {
+                "x": 0,
+                "y": 16,
+                "blur": 28,
+                "spread": -10,
+                "color": "#11182726"
+              },
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "expense-donut",
+                "type": "IMAGE",
+                "name": "Expense donut chart",
+                "bounds": {
+                  "x": 1449,
+                  "y": 213,
+                  "width": 200,
+                  "height": 200
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": {
+                  "description": "Donut chart with dominant blue segment and smaller purple, cyan, and magenta segments. Center value $25.280.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              },
+              {
+                "id": "expense-list",
+                "type": "TEXT",
+                "name": "Expense categories and amounts",
+                "bounds": {
+                  "x": 1399,
+                  "y": 432,
+                  "width": 302,
+                  "height": 196
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#6B7280",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Expenses                         Amount\nTravel                              $15.730\nIT & equipment                  $4.420\nTraining & developm...       $3.920\nOffice supplies                   $1.210",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 400,
+                  "lineHeight": 46,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "holdings-table",
+            "type": "FRAME",
+            "name": "Investment holdings table",
+            "bounds": {
+              "x": 556,
+              "y": 732,
+              "width": 1176,
+              "height": 180
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 40,
+                "right": 31,
+                "bottom": 0,
+                "left": 31
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#111827",
+              "border": {
+                "width": 1,
+                "color": "#E1E5EB"
+              },
+              "radius": 10,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Name                         Value             Invested             Cashflow             Gain          Realized          Dividends\nETF Shares Vital       $17,349.30        $19,698.65         $20,033.74        +$15,012.39       +$177.4          +$490.97",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 400,
+              "lineHeight": 66,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Font family and geometry are visually estimated.",
+    "The payment chart and investment table continue below the screenshot; the clipped second table row is not transcribed.",
+    "Grouped text uses approximate spacing to preserve column relationships; some groups contain mixed typography and colors."
+  ]
+}

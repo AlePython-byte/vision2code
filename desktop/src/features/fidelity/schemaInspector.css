@@ -1,0 +1,15 @@
+/* Development-only inspector styles: loaded with the inspector's dynamic chunk, never in production. */
+@layer components {
+  .schema-inspector { width: min(760px, 100%); max-height: min(86vh, 860px); overflow-y: auto; display: grid; gap: 16px; align-content: start; }
+  .schema-inspector-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .schema-inspector-header .eyebrow, .schema-inspector h3 { margin: 0 0 6px; }
+  .schema-inspector-close { padding: 8px; min-height: 36px; }
+  .schema-inspector-close svg { width: 16px; height: 16px; }
+  .schema-metrics { width: 100%; border-collapse: collapse; font: 12px var(--font-mono); }
+  .schema-metrics th, .schema-metrics td { padding: 6px 8px; border-bottom: 1px solid var(--color-line); text-align: left; vertical-align: top; }
+  .schema-metrics th { width: 55%; color: var(--color-muted); font-weight: 500; }
+  .schema-warnings { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 12px; }
+  .schema-json { max-height: 320px; margin: 10px 0 0; padding: 12px; overflow: auto; border-radius: var(--radius-sm); background: var(--color-tint); box-shadow: var(--shadow-inset); color: var(--color-ink); font: 11px/1.5 var(--font-mono); white-space: pre; }
+  .schema-json:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .schema-inspector-note { margin: 0; min-height: 16px; color: var(--color-muted); font-size: 12px; }
+}
