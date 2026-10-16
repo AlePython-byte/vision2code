@@ -8,7 +8,9 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import { AnalysisResponseSchema, ApiErrorResponseSchema } from "@vision2code/contracts";
 import { AppModule } from "../src/app.module.js";
 import { configureApplication } from "../src/configure-application.js";
-import { AI_PROVIDER, MAX_ANALYSIS_IMAGE_BYTES } from "../src/analysis/analysis.constants.js";
+import { AI_PROVIDER, ANALYSIS_QUOTA, MAX_ANALYSIS_IMAGE_BYTES } from "../src/analysis/analysis.constants.js";
+import { AnalysisQuota } from "../src/analysis/analysis-quota.js";
+import { DEFAULT_ANALYSIS_PROFILES } from "../src/analysis/analysis-profiles.js";
 import type { AnalysisImageInput } from "../src/analysis/analysis-image-input.js";
 import type { AIProvider } from "../src/ai/ai-provider.js";
 import { ProviderFailureError } from "../src/analysis/provider-failure.error.js";
@@ -42,7 +44,11 @@ describe("analysis HTTP boundary without live AI", () => {
     const module = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(AI_PROVIDER)
       .useValue({ analyze(input: AnalysisImageInput, signal?: AbortSignal) {
         calls += 1; received = input; return analyze(input, signal);
-      } }).overrideProvider(SUPABASE_JWT_VERIFIER).useValue(verifier).compile();
+      } }).overrideProvider(SUPABASE_JWT_VERIFIER).useValue(verifier)
+      // These tests are about the HTTP boundary, not the per-user limit (analysis-quota-http.test.ts):
+      // one user sends dozens of analyses here, so the quota is generous.
+      .overrideProvider(ANALYSIS_QUOTA).useValue(new AnalysisQuota({ unitsPerHour: 100_000, maxConcurrent: 4, maxTrackedUsers: 100 }, DEFAULT_ANALYSIS_PROFILES))
+      .compile();
     app = module.createNestApplication<NestExpressApplication>();
     app.useLogger(false);
     configureApplication(app);

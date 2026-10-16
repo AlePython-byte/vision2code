@@ -170,8 +170,9 @@ test("the SDK transport times out at the named deadline without retries", async 
     options.signal.addEventListener("abort", () => { aborted = true; reject(new Error("secret-timeout-details")); }, { once: true });
     started();
   }));
+  // The deadline running out is a timeout of its own (HTTP 504), no longer a generic "unavailable".
   const pending = assert.rejects(adapter.analyze(input),
-    (error: unknown) => error instanceof ProviderFailureError && error.kind === "UNAVAILABLE");
+    (error: unknown) => error instanceof ProviderFailureError && error.kind === "TIMEOUT");
   await ready;
   context.mock.timers.tick(ANALYSIS_TIMEOUT_MS - 1);
   assert.equal(aborted, false);
@@ -192,4 +193,25 @@ test("cancellation aborts the SDK transport and returns a sanitized availability
   await assert.rejects(adapter.analyze(input, controller.signal),
     (error: unknown) => error instanceof ProviderFailureError && error.kind === "UNAVAILABLE");
   assert.equal(aborted, true);
+});
+
+test("the provider reports the token usage of a completed or token-limited response, and none when it does not say", async () => {
+  const text = JSON.stringify(fixture);
+  const message = { id: "msg", type: "message", role: "assistant", status: "completed", content: [{ type: "output_text", text, annotations: [] }] };
+  const withUsage = (status: string, extra: object = {}) => Response.json({ id: "resp_u", object: "response", status, ...extra, output: [message],
+    usage: { input_tokens: 2_700, output_tokens: 9_000, total_tokens: 11_700, input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 },
+      output_tokens_details: { reasoning_tokens: 6_500 } } });
+  const reported: unknown[] = [];
+  await provider(async () => withUsage("completed")).analyze(input, undefined, (usage) => reported.push(usage));
+  await assert.rejects(provider(async () => withUsage("incomplete", { incomplete_details: { reason: "max_output_tokens" } }))
+    .analyze(input, undefined, (usage) => reported.push(usage)), ProviderFailureError);
+  assert.deepEqual(reported, Array(2).fill({ inputTokens: 2_700, outputTokens: 9_000, reasoningTokens: 6_500 }), "even a truncated call reports what it cost");
+  // The default helper response has no reasoning breakdown: it counts as 0, not as missing.
+  const plain: unknown[] = [];
+  await provider(async () => response()).analyze(input, undefined, (usage) => plain.push(usage));
+  assert.deepEqual(plain, [{ inputTokens: 100, outputTokens: 50, reasoningTokens: 0 }]);
+  const none: unknown[] = [];
+  await provider(async () => Response.json({ id: "r", object: "response", status: "completed", output: [message] }))
+    .analyze(input, undefined, (usage) => none.push(usage));
+  assert.deepEqual(none, [], "no usage in the payload: nothing is reported");
 });

@@ -5,14 +5,23 @@ import type { AIProvider } from "../ai/ai-provider.js";
 import { AnalysisImageInputSchema } from "./analysis-image-input.js";
 import type { AnalysisImageInput } from "./analysis-image-input.js";
 import { InvalidAnalysisOutputError } from "./invalid-analysis-output.error.js";
+import type { AnalysisUsage } from "./analysis-summary-log.js";
+
+export interface AnalysisHooks {
+  /** Runs after validation and right before the paid call; throwing there skips the provider. */
+  readonly beforeProvider?: ((input: AnalysisImageInput) => void) | undefined;
+  /** Token usage reported by the provider, when it does. */
+  readonly onUsage?: ((usage: AnalysisUsage) => void) | undefined;
+}
 
 export class AnalyzeInterfaceUseCase {
   constructor(private readonly provider: AIProvider) {}
 
-  async execute(input: AnalysisImageInput, signal?: AbortSignal): Promise<UISchema> {
+  async execute(input: AnalysisImageInput, signal?: AbortSignal, hooks: AnalysisHooks = {}): Promise<UISchema> {
     signal?.throwIfAborted();
     const validatedInput = AnalysisImageInputSchema.parse(input);
-    const output = await this.provider.analyze(validatedInput, signal);
+    hooks.beforeProvider?.(validatedInput);
+    const output = await this.provider.analyze(validatedInput, signal, hooks.onUsage);
     signal?.throwIfAborted();
     const result = UISchemaSchema.safeParse(output);
     if (!result.success) {

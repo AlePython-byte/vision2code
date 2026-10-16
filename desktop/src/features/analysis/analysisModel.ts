@@ -18,6 +18,8 @@ export interface AnalysisState {
   result: AnalysisResponse | null;
   error: string | null;
   errorRequestId: string | null;
+  /** Set only when the server's analysis limit was reached: how long until another analysis fits. */
+  errorRetryAfterSeconds?: number | null;
   context?: AnalysisContext | null;
 }
 export interface AnalysisModelOptions {
@@ -79,7 +81,7 @@ export function createAnalysisModel(analyzeScreenshot: AnalyzeScreenshot, option
         targetProjectId: context.targetProjectId ?? null,
         fidelity: context.fidelity ?? DEFAULT_VISUAL_FIDELITY,
       });
-      update({ ...state, status: "ANALYZING", result: null, error: null, errorRequestId: null, context: captured });
+      update({ ...state, status: "ANALYZING", result: null, error: null, errorRequestId: null, errorRetryAfterSeconds: null, context: captured });
       options.onReplaced?.();
       try {
         // The mode captured at start travels with the request; later dial changes do not affect it.
@@ -90,7 +92,8 @@ export function createAnalysisModel(analyzeScreenshot: AnalyzeScreenshot, option
         if (active !== controller || controller.signal.aborted) return;
         update({ ...state, status: "ERROR",
           error: error instanceof AnalysisClientError ? error.message : "No se pudo completar el análisis. Inténtalo de nuevo.",
-          errorRequestId: error instanceof AnalysisClientError ? error.requestId : null });
+          errorRequestId: error instanceof AnalysisClientError ? error.requestId : null,
+          errorRetryAfterSeconds: error instanceof AnalysisClientError ? error.retryAfterSeconds : null });
       } finally {
         if (active === controller) active = null;
       }
