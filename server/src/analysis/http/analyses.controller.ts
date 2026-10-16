@@ -5,7 +5,7 @@ import type { AnalysisResponse } from "@vision2code/contracts";
 import { SupabaseAuthGuard } from "../../auth/supabase-auth.guard.js";
 import type { RequestContext } from "../../http/request-id.middleware.js";
 import { AnalyzeInterfaceUseCase } from "../analyze-interface.use-case.js";
-import { ANALYSIS_TIMEOUT_MS } from "../analysis.constants.js";
+import { ANALYSIS_SERVER_TIMEOUT_MS, DEFAULT_ANALYSIS_FIDELITY } from "@vision2code/contracts";
 import { ProviderFailureError } from "../provider-failure.error.js";
 import { AnalysisUploadInterceptor, validateAnalysisUpload } from "./analysis-upload.js";
 
@@ -25,7 +25,8 @@ export class AnalysesController {
     const disconnected = new AbortController();
     const onClose = () => { if (!response.writableEnded) disconnected.abort(); };
     response.once("close", onClose);
-    const signal = AbortSignal.any([disconnected.signal, AbortSignal.timeout(ANALYSIS_TIMEOUT_MS)]);
+    // Each mode has its own deadline: precise reasons longer over a higher-detail image.
+    const signal = AbortSignal.any([disconnected.signal, AbortSignal.timeout(ANALYSIS_SERVER_TIMEOUT_MS[input.fidelity ?? DEFAULT_ANALYSIS_FIDELITY])]);
     try {
       const uiSchema = await this.analyzeInterface.execute(input, signal);
       return AnalysisResponseSchema.parse({ requestId: request.requestId, uiSchema });

@@ -1,0 +1,136 @@
+export default function GeneratedInterface() {
+  return (
+    <div data-node-id={"root"} className={"box-border min-w-0 relative w-full [max-width:1886px] [min-height:912px] flex flex-col justify-start items-stretch [gap:0px] [padding:0px_0px_0px_0px] [background-color:#F9FAFB] [opacity:1]"}>
+      <div data-node-id={"announcement"} className={"box-border min-w-0 relative w-full [max-width:1886px] [min-height:59px] flex flex-row flex-nowrap justify-start items-center [gap:944px] [padding:18px_185px_19px_181px] [background-color:#050505] [color:#FFFFFF] [opacity:1]"}>
+        <div role="img" aria-label={"White triangular Vercel mark followed by the Vercel wordmark."} data-node-id={"vercel"} className={"box-border min-w-0 relative [flex:0_1_103px] [min-height:21px] [max-height:21px] overflow-hidden [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <div data-node-id={"announcement-link"} className={"box-border min-w-0 relative [flex:0_1_473px] [min-height:22px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:18px] [font-weight:600] [line-height:22px] [text-align:start] [font-family:'Arial']"}>
+          {"Tremor is joining Vercel. Read more about our journey ↗"}
+        </div>
+      </div>
+      <div data-node-id={"navigation"} className={"box-border min-w-0 relative w-full [max-width:1886px] [min-height:81px] flex flex-row flex-nowrap justify-start items-center [padding:20px_185px_16px_181px] [background-color:#FFFFFF] [border:1px_solid_#E2E5EA] [opacity:1]"}>
+        <div role="img" aria-label={"Dark tremor blocks wordmark with bold tremor and monospaced blocks lettering."} data-node-id={"tremor-brand"} className={"box-border min-w-0 relative [flex:0_1_156px] [min-height:24px] [max-height:24px] overflow-hidden [padding:0px_0px_0px_0px] [color:#111827] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <button type="button" data-node-id={"product-selector"} className={"box-border min-w-0 relative [flex:0_1_119px] [min-height:45px] [margin-left:20px] [padding:0px_0px_0px_0px] [background-color:#F3F4F6] [color:#111827] [border-radius:8px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+          {"Tremor"}
+        </button>
+        <div data-node-id={"navigation-links"} className={"box-border min-w-0 relative [flex:0_1_385px] [min-height:26px] [margin-left:840px] flex flex-row flex-nowrap justify-start items-center [gap:30px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <div data-node-id={"blocks-link"} className={"box-border min-w-0 relative [flex:0_1_56px] [min-height:24px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:24px] [text-align:start] [font-family:'Arial']"}>
+            {"Blocks"}
+          </div>
+          <div data-node-id={"templates-link"} className={"box-border min-w-0 relative [flex:0_1_87px] [min-height:24px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:24px] [text-align:start] [font-family:'Arial']"}>
+            {"Templates"}
+          </div>
+          <div data-node-id={"getting-started-link"} className={"box-border min-w-0 relative [flex:0_1_126px] [min-height:24px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:24px] [text-align:start] [font-family:'Arial']"}>
+            {"Getting Started"}
+          </div>
+          <div role="img" aria-label={"Dark GitHub Octocat silhouette."} data-node-id={"github"} className={"box-border min-w-0 relative [flex:0_1_25px] [min-height:25px] [max-height:25px] overflow-hidden [padding:0px_0px_0px_0px] [color:#111827] [opacity:1]"}>
+            <span className="block border border-dashed border-current p-2 text-xs">{"Icono sin recurso"}</span>
+          </div>
+        </div>
+      </div>
+      <div data-node-id={"dashboard"} className={"box-border min-w-0 relative [width:1595px] [max-width:100%] [min-height:757px] [margin-top:15px] [margin-left:143px] grid [grid-template-columns:minmax(0,376fr)_minmax(0,37fr)_minmax(0,769fr)_minmax(0,43fr)_minmax(0,364fr)_minmax(0,6fr)] [grid-template-rows:minmax(7px,auto)_minmax(527px,auto)_minmax(43px,auto)_minmax(180px,auto)] [padding:0px_0px_0px_0px] [opacity:1]"}>
+        <div data-node-id={"left-column"} className={"box-border min-w-0 relative w-full [max-width:376px] [grid-column:1/2] [grid-row:1/5] [min-height:757px] flex flex-col justify-start items-stretch [gap:36px] [padding:7px_6px_0px_7px] [opacity:1]"}>
+          <div data-node-id={"status-card"} className={"box-border min-w-0 relative w-full [max-width:363px] [min-height:237px] flex flex-col justify-start items-start [padding:31px_31px_31px_31px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [box-shadow:0px_18px_28px_-8px_#11182726] [opacity:1]"}>
+            <div data-node-id={"operational-label"} className={"box-border min-w-0 relative [width:129px] [max-width:100%] [min-height:24px] [margin-left:21px] [padding:0px_0px_0px_0px] [color:#3B82F6] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:24px] [text-align:start] [font-family:'Arial']"}>
+              {"✓ Operational"}
+            </div>
+            <div data-node-id={"shop-name"} className={"box-border min-w-0 relative [width:203px] [max-width:100%] [min-height:27px] [margin-top:7px] [margin-left:19px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:21px] [font-weight:500] [line-height:27px] [text-align:start] [font-family:'Arial']"}>
+              {"Emma's Online-Shop"}
+            </div>
+            <div role="img" aria-label={"Thirty narrow vertical status bars, mostly blue, with several light gray bars near the right and two blue bars at the end."} data-node-id={"uptime-bars"} className={"box-border min-w-0 relative w-full [max-width:301px] [min-height:50px] [max-height:50px] overflow-hidden [margin-top:26px] [padding:0px_0px_0px_0px] [border-radius:5px] [opacity:1]"}>
+              <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+            </div>
+            <div data-node-id={"status-range"} className={"box-border min-w-0 relative w-full [max-width:301px] [min-height:24px] [margin-top:16px] flex flex-row flex-nowrap justify-between items-center [gap:149px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+              <div data-node-id={"range-start"} className={"box-border min-w-0 relative [flex:0_1_101px] [min-height:24px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:'Arial']"}>
+                {"30 days ago"}
+              </div>
+              <div data-node-id={"range-end"} className={"box-border min-w-0 relative [flex:0_1_51px] [min-height:24px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:24px] [text-align:end] [font-family:'Arial']"}>
+                {"Today"}
+              </div>
+            </div>
+          </div>
+          <div data-node-id={"metrics-card"} className={"box-border min-w-0 relative w-full [max-width:363px] [min-height:137px] [margin-top:7px] grid [grid-template-columns:repeat(2,minmax(0,1fr))] justify-center items-center [gap:16px] [padding:18px_57px_19px_56px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [box-shadow:0px_18px_28px_-8px_#11182726] [opacity:1]"}>
+            <button type="button" data-node-id={"metric-up"} className={"box-border min-w-0 relative w-full [max-width:117px] [min-height:42px] [padding:0px_0px_0px_0px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#DDE1E7] [border-radius:11px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+              {"9.3%  ↑"}
+            </button>
+            <button type="button" data-node-id={"metric-up-right"} className={"box-border min-w-0 relative w-full [max-width:117px] [min-height:42px] [padding:0px_0px_0px_0px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#DDE1E7] [border-radius:11px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+              {"3.3%  ↗"}
+            </button>
+            <button type="button" data-node-id={"metric-down-right"} className={"box-border min-w-0 relative w-full [max-width:117px] [min-height:42px] [padding:0px_0px_0px_0px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#DDE1E7] [border-radius:11px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+              {"1.9%  ↘"}
+            </button>
+            <button type="button" data-node-id={"metric-down"} className={"box-border min-w-0 relative w-full [max-width:117px] [min-height:42px] [padding:0px_0px_0px_0px] [background-color:#FFFFFF] [color:#3B82F6] [border:1px_solid_#DDE1E7] [border-radius:11px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+              {"0.6%  ↓"}
+            </button>
+          </div>
+          <div data-node-id={"payments-card"} className={"box-border min-w-0 relative w-full [max-width:363px] [min-height:287px] [margin-top:10px] flex flex-col justify-start items-stretch [padding:31px_31px_0px_31px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [box-shadow:0px_18px_28px_-8px_#11182726] [opacity:1]"}>
+            <div data-node-id={"payments-heading"} className={"box-border min-w-0 relative [width:141px] [max-width:100%] [min-height:26px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:26px] [text-align:start] [font-family:'Arial']"}>
+              {"Online payments"}
+            </div>
+            <div data-node-id={"payment-tabs"} className={"box-border min-w-0 relative w-full [max-width:301px] [min-height:42px] [margin-top:14px] flex flex-row flex-nowrap justify-start items-stretch [gap:19px] [padding:0px_59px_0px_0px] [border:1px_solid_#E2E5EA] [opacity:1]"}>
+              <button type="button" data-node-id={"europe-tab"} className={"box-border min-w-0 relative [flex:0_1_79px] [min-height:42px] [padding:0px_0px_0px_0px] [color:#3B82F6] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:500] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+                {"Europe"}
+              </button>
+              <button type="button" data-node-id={"north-america-tab"} className={"box-border min-w-0 relative [flex:0_1_144px] [min-height:42px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+                {"North America"}
+              </button>
+            </div>
+            <div role="img" aria-label={"Partially visible stacked column chart with blue bars and smaller purple and magenta segments, on faint horizontal gridlines. Lower chart is clipped by the screenshot."} data-node-id={"payments-chart"} className={"box-border min-w-0 relative w-full [max-width:301px] [min-height:129px] [max-height:129px] overflow-hidden [margin-top:45px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+              <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+            </div>
+          </div>
+        </div>
+        <div data-node-id={"portfolio-card"} className={"box-border min-w-0 relative w-full [max-width:769px] [grid-column:3/4] [grid-row:2/3] [aspect-ratio:769/527] [padding:31px_31px_34px_31px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [box-shadow:0px_18px_28px_-8px_#11182726] [opacity:1]"}>
+          <div data-node-id={"portfolio-label"} className={"box-border min-w-0 absolute [left:4.0312%] [top:5.8824%] [width:15.8648%] [height:4.7438%] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Arial']"}>
+            {"Portfolio Value"}
+          </div>
+          <div data-node-id={"portfolio-total"} className={"box-border min-w-0 absolute [left:4.0312%] [top:11.3852%] [width:28.7386%] [height:9.1082%] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:40px] [font-weight:600] [line-height:48px] [letter-spacing:-1px] [text-align:start] [font-family:'Arial']"}>
+            {"$328,505.10"}
+          </div>
+          <div role="img" aria-label={"Blue daily vertical bars over five faint horizontal gridlines. Values dip near September 8 then rise toward the highest final bar. Horizontal axis labels read Aug 25, Aug 29, Sep 02, Sep 06, Sep 10, Sep 14, Sep 18, Sep 22, Sep 26. A pale vertical highlight appears near the first bar."} data-node-id={"portfolio-chart"} className={"box-border min-w-0 absolute [left:4.0312%] [top:26.7552%] [width:91.9376%] [height:66.7932%] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+          </div>
+          <div data-node-id={"chart-tooltip"} className={"box-border min-w-0 absolute [left:10.2731%] [top:25.8065%] [width:41.3524%] [height:17.6471%] flex flex-col justify-start items-stretch [gap:17px] [padding:12px_20px_11px_20px] [background-color:#FFFFFF] [border:1px_solid_#E2E5EA] [border-radius:10px] [box-shadow:0px_4px_5px_0px_#00000026] [opacity:1]"}>
+            <div data-node-id={"tooltip-date"} className={"box-border min-w-0 relative [width:65px] [max-width:100%] [min-height:25px] [padding:0px_0px_0px_0px] [color:#374151] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:25px] [text-align:start] [font-family:'Arial']"}>
+              {"Aug 25"}
+            </div>
+            <div data-node-id={"tooltip-series"} className={"box-border min-w-0 relative w-full [max-width:278px] [min-height:25px] [margin-top:3px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Arial']"}>
+              {"● ETF Shares Vital       $6.198,2"}
+            </div>
+          </div>
+        </div>
+        <div data-node-id={"expenses-card"} className={"box-border min-w-0 relative w-full [max-width:364px] [grid-column:5/6] [grid-row:2/3] [min-height:527px] flex flex-col justify-start items-stretch [padding:51px_31px_53px_31px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [box-shadow:0px_18px_28px_-8px_#11182726] [opacity:1]"}>
+          <div role="img" aria-label={"Donut chart with a dominant blue segment and smaller purple, cyan, and magenta segments. Center total reads $25.280."} data-node-id={"expense-donut"} className={"box-border min-w-0 relative [width:201px] [max-width:100%] [min-height:200px] [max-height:200px] overflow-hidden self-center [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+          </div>
+          <div data-node-id={"expense-header"} className={"box-border min-w-0 relative w-full [max-width:302px] [min-height:22px] [margin-top:19px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:14px] [font-weight:400] [line-height:22px] [text-align:start] [font-family:'Arial']"}>
+            {"Expenses                                      Amount"}
+          </div>
+          <div data-node-id={"travel-expense"} className={"box-border min-w-0 relative w-full [max-width:302px] [min-height:45px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:45px] [text-align:start] [font-family:'Arial']"}>
+            {"■  Travel                         $15.730"}
+          </div>
+          <div data-node-id={"equipment-expense"} className={"box-border min-w-0 relative w-full [max-width:302px] [min-height:46px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:46px] [text-align:start] [font-family:'Arial']"}>
+            {"■  IT \u0026 equipment              $4.420"}
+          </div>
+          <div data-node-id={"training-expense"} className={"box-border min-w-0 relative w-full [max-width:302px] [min-height:46px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:46px] [text-align:start] [font-family:'Arial']"}>
+            {"■  Training \u0026 developm...     $3.920"}
+          </div>
+          <div data-node-id={"office-expense"} className={"box-border min-w-0 relative w-full [max-width:302px] [min-height:45px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:45px] [text-align:start] [font-family:'Arial']"}>
+            {"■  Office supplies               $1.210"}
+          </div>
+        </div>
+        <div data-node-id={"holdings-card"} className={"box-border min-w-0 relative w-full [max-width:1176px] [grid-column:3/6] [grid-row:4/5] [min-height:180px] flex flex-col justify-start items-stretch [gap:0px] [padding:32px_31px_0px_31px] [background-color:#FFFFFF] [border:1px_solid_#E6E9ED] [border-radius:8px] [opacity:1]"}>
+          <div data-node-id={"holdings-header"} className={"box-border min-w-0 relative w-full [max-width:1114px] [min-height:50px] [padding:0px_0px_0px_0px] [color:#111827] [opacity:1] whitespace-pre [font-size:18px] [font-weight:500] [line-height:50px] [text-align:start] [font-family:'Arial']"}>
+            {"Name                                      Value              Invested             Cashflow                       Gain          Realized          Dividends"}
+          </div>
+          <div data-node-id={"holdings-first-row"} className={"box-border min-w-0 relative w-full [max-width:1114px] [min-height:66px] [padding:0px_0px_0px_0px] [color:#6B7280] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:66px] [text-align:start] [font-family:'Arial']"}>
+            {"ETF Shares Vital                  $17,349.30          $19,698.65          $20,033.74          +$15,012.39          +$177.4          +$490.97"}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

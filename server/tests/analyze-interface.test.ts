@@ -69,10 +69,11 @@ test("the provider receives unchanged image bytes, metadata, and the abort signa
   const provider = new StubAIProvider(validOutput);
   const signal = new AbortController().signal;
   await new AnalyzeInterfaceUseCase(provider).execute(input, signal);
-  assert.deepEqual(provider.receivedInput, input);
+  // The use case fills the default mode; everything else reaches the provider unchanged.
+  assert.deepEqual(provider.receivedInput, { ...input, fidelity: "balanced" });
   assert.equal(provider.receivedInput?.bytes, input.bytes);
   assert.equal(provider.receivedSignal, signal);
-  assert.deepEqual(Object.keys(provider.receivedInput ?? {}).sort(), ["bytes", "height", "mimeType", "width"]);
+  assert.deepEqual(Object.keys(provider.receivedInput ?? {}).sort(), ["bytes", "fidelity", "height", "mimeType", "width"]);
 });
 
 test("output stack selection cannot enter the analysis input", async () => {

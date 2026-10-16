@@ -5,6 +5,14 @@ export type { ApiErrorCode, ApiErrorResponse } from "./api-error.js";
 export { UINodeSchema, UISchemaSchema } from "./ui-schema.js";
 export type { UINode, UISchema } from "./ui-schema.js";
 export { AnalysisResponseSchema } from "./analysis-response.js";
+export {
+  ANALYSIS_CLIENT_GRACE_MS,
+  ANALYSIS_SERVER_TIMEOUT_MS,
+  AnalysisFidelitySchema,
+  DEFAULT_ANALYSIS_FIDELITY,
+  analysisClientTimeoutMs,
+} from "./analysis-request.js";
+export type { AnalysisFidelity } from "./analysis-request.js";
 export type { AnalysisResponse } from "./analysis-response.js";
 
 export const OutputStackSchema = z.enum(["REACT_TAILWIND", "HTML_CSS"]);

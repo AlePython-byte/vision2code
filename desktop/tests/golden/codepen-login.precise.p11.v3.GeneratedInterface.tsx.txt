@@ -1,0 +1,140 @@
+export default function GeneratedInterface() {
+  return (
+    <div data-node-id={"root"} className={"box-border min-w-0 relative w-full [max-width:1891px] [aspect-ratio:1891/905] [padding:0px_0px_0px_0px] [background-color:#000000] [opacity:1]"}>
+      <div data-node-id={"sidebar"} className={"box-border min-w-0 absolute [left:0.3173%] [top:0%] [width:11.8456%] [height:100%] [padding:29px_21px_0px_23px] [background-color:#1E1F26] [color:#FFFFFF] [opacity:1]"}>
+        <div role="img" aria-label={"White CODEPEN wordmark with an outlined geometric cube replacing the O."} data-node-id={"sidebar-logo"} className={"box-border min-w-0 absolute [left:10.2679%] [top:3.2044%] [width:80.3571%] [height:3.6464%] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <button type="button" data-node-id={"editor-button"} className={"box-border min-w-0 absolute [left:10.7143%] [top:9.6133%] [width:78.125%] [height:6.0773%] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:8px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:700] [line-height:24px] [text-align:center] [font-family:'Lato']"}>
+          {"Try The Editor"}
+        </button>
+        <div data-node-id={"editor-tagline"} className={"box-border min-w-0 absolute [left:16.9643%] [top:16.7956%] [width:66.0714%] [height:1.6575%] [padding:0px_0px_0px_0px] [color:#B0B3C0] [opacity:1] whitespace-pre [font-size:12px] [font-weight:700] [line-height:15px] [text-align:center] [font-family:monospace]"}>
+          {"CODE, DEPLOY \u0026 SHARE"}
+        </div>
+        <div data-node-id={"sidebar-navigation"} className={"box-border min-w-0 absolute [left:10.7143%] [top:23.4254%] [width:59.8214%] [height:26.9613%] flex flex-col justify-start items-start [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <button type="button" data-node-id={"nav-search"} className={"box-border min-w-0 relative [width:114px] [max-width:100%] [min-height:26px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:21px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+            {"Search Pens"}
+          </button>
+          <button type="button" data-node-id={"nav-challenges"} className={"box-border min-w-0 relative [width:104px] [max-width:100%] [min-height:26px] [margin-top:24px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:21px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+            {"Challenges"}
+          </button>
+          <button type="button" data-node-id={"nav-spark"} className={"box-border min-w-0 relative [width:55px] [max-width:100%] [min-height:26px] [margin-top:24px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:21px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+            {"Spark"}
+          </button>
+          <button type="button" data-node-id={"nav-pricing"} className={"box-border min-w-0 relative [width:67px] [max-width:100%] [min-height:26px] [margin-top:42px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:21px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+            {"Pricing"}
+          </button>
+          <button type="button" data-node-id={"nav-pro"} className={"box-border min-w-0 relative w-full [max-width:134px] [min-height:26px] [margin-top:24px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:21px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+            {"CodePen PRO"}
+          </button>
+        </div>
+        <div role="img" aria-label={"Black design.dev advertisement with a white D logo and the text “The Newsletter For Creators”."} data-node-id={"advertisement-image"} className={"box-border min-w-0 absolute [left:11.1607%] [top:71.8232%] [width:72.3214%] [height:13.8122%] [padding:0px_0px_0px_0px] [background-color:#000000] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <div data-node-id={"advertisement-copy"} className={"box-border min-w-0 absolute [left:10.7143%] [top:87.0718%] [width:77.6786%] [height:9.8343%] [padding:0px_0px_0px_0px] [color:#9398AA] [opacity:1] whitespace-pre-wrap break-words [font-size:15px] [font-weight:400] [line-height:23px] [text-align:start] [font-family:'Lato']"}>
+          {"Get the Drop. Weekly\nfront-end tools, tips, and\nresources. Plus a free icon\npack to get you started."}
+        </div>
+        <div data-node-id={"advertisement-attribution"} className={"box-border min-w-0 absolute [left:10.7143%] [top:97.7901%] [width:44.6429%] [height:1.989%] [padding:0px_0px_0px_0px] [color:#9398AA] [opacity:1] whitespace-pre [font-size:13px] [font-weight:400] [line-height:18px] [text-align:start] [font-family:'Lato']"}>
+          {"(ads via Carbon)"}
+        </div>
+      </div>
+      <div data-node-id={"topbar"} className={"box-border min-w-0 absolute [left:12.1629%] [top:0%] [width:87.8371%] [height:9.9448%] [padding:16px_14px_19px_19px] [background-color:#000000] [opacity:1]"}>
+        <div data-node-id={"global-search"} className={"box-border min-w-0 absolute [left:1.1439%] [top:17.7778%] [width:22.5768%] [height:61.1111%] [padding:0px_0px_0px_0px] [background-color:#252830] [color:#9398AA] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:700] [line-height:24px] [text-align:start] [font-family:'Lato']"}>
+          <input type="text" readOnly aria-label={"Campo de texto"} value={"Search CodePen..."} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+        </div>
+        <div role="img" aria-label={"Circular gray information icon containing a lowercase i."} data-node-id={"search-info"} className={"box-border min-w-0 absolute [left:21.7941%] [top:35.5556%] [width:1.3245%] [height:24.4444%] [padding:0px_0px_0px_0px] [color:#6A6F80] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Icono sin recurso"}</span>
+        </div>
+        <button type="button" data-node-id={"header-signup"} className={"box-border min-w-0 absolute [left:92.655%] [top:17.7778%] [width:6.5021%] [height:61.1111%] [padding:0px_0px_0px_0px] [background-color:#47CF73] [color:#000000] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:24px] [text-align:center] [font-family:'Lato']"}>
+          {"Sign Up"}
+        </button>
+      </div>
+      <div data-node-id={"main"} className={"box-border min-w-0 absolute [left:12.1629%] [top:9.9448%] [width:87.8371%] [height:78.453%] [padding:0px_0px_0px_0px] [background-color:#191A22] [color:#FFFFFF] [opacity:1]"}>
+        <div role="img" aria-label={"Very low-contrast repeating dark geometric cube pattern on a charcoal background."} data-node-id={"main-pattern"} className={"box-border min-w-0 absolute [left:0%] [top:0%] [width:100%] [height:100%] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <div data-node-id={"login-heading"} className={"box-border min-w-0 absolute [left:21.5533%] [top:15.2113%] [width:13.5461%] [height:14.2254%] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:84px] [font-weight:700] [line-height:101px] [text-align:start] [font-family:'Lato']"}>
+          {"Log In"}
+        </div>
+        <div data-node-id={"login-methods"} className={"box-border min-w-0 absolute [left:21.5533%] [top:32.1127%] [width:57.1945%] [height:53.2394%] flex flex-row flex-nowrap justify-start items-start [gap:37.5px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <div data-node-id={"social-login"} className={"box-border min-w-0 relative [flex:0_1_393px] [min-height:172px] flex flex-col justify-start items-start [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <button type="button" data-node-id={"google-login"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:53px] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:'Lato']"}>
+              {"Log In with Google"}
+            </button>
+            <button type="button" data-node-id={"github-login"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:53px] [margin-top:13px] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:'Lato']"}>
+              {"Log In with GitHub"}
+            </button>
+            <button type="button" data-node-id={"social-explanation"} className={"box-border min-w-0 relative [width:210px] [max-width:100%] [min-height:26px] [margin-top:27px] [margin-left:12px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:26px] [text-align:start] [font-family:'Lato']"}>
+              {"How social log in works"}
+            </button>
+          </div>
+          <div data-node-id={"method-separator"} className={"box-border min-w-0 relative [flex:0_1_50px] [aspect-ratio:50/378] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <div data-node-id={"separator-line"} className={"box-border min-w-0 absolute [left:48%] [top:0%] [width:4%] [height:100%] [padding:0px_0px_0px_0px] [background-color:#9398AA] [opacity:1]"}>
+              <hr className="m-0 w-full border-0 border-t border-current" />
+            </div>
+            <div data-node-id={"separator-label"} className={"box-border min-w-0 absolute [left:0%] [top:44.9735%] [width:100%] [height:10.0529%] [padding:0px_0px_0px_0px] [background-color:#191A22] [color:#B0B3C0] [border:2px_solid_#9398AA] [border-radius:12px] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:34px] [text-align:center] [font-family:'Lato']"}>
+              {"OR"}
+            </div>
+          </div>
+          <div data-node-id={"credential-form"} className={"box-border min-w-0 relative [flex:0_1_432px] [min-height:344px] flex flex-col justify-start items-stretch [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <div data-node-id={"username-label"} className={"box-border min-w-0 relative [width:166px] [max-width:100%] [min-height:24px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:'Lato']"}>
+              {"Username or Email"}
+            </div>
+            <div data-node-id={"username-input"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:60px] [margin-top:6px] [padding:0px_0px_0px_0px] [background-color:#D5D7DE] [border-radius:3px] [opacity:1]"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={""} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <div data-node-id={"password-label"} className={"box-border min-w-0 relative [width:85px] [max-width:100%] [min-height:24px] [margin-top:27px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:24px] [text-align:start] [font-family:'Lato']"}>
+              {"Password"}
+            </div>
+            <div data-node-id={"password-input"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:60px] [margin-top:5px] [padding:0px_0px_0px_0px] [background-color:#D5D7DE] [border-radius:3px] [opacity:1]"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={""} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <button type="button" data-node-id={"login-submit"} className={"box-border min-w-0 relative w-full [max-width:432px] [min-height:56px] [margin-top:25px] [padding:0px_0px_0px_0px] [background-color:#47CF73] [color:#000000] [border-radius:4px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:24px] [text-align:center] [font-family:'Lato']"}>
+              {"Log In"}
+            </button>
+            <button type="button" data-node-id={"forgot-password"} className={"box-border min-w-0 relative [width:147px] [max-width:100%] [min-height:24px] self-center [margin-top:33px] [padding:0px_0px_0px_0px] [color:#76DAFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:24px] [text-align:center] [font-family:'Lato']"}>
+              {"Forgot Password?"}
+            </button>
+          </div>
+        </div>
+        <div data-node-id={"account-prompt"} className={"box-border min-w-0 absolute [left:42.5647%] [top:92.8169%] [width:15.2318%] [height:3.5211%] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:center] [font-family:'Lato']"}>
+          {"Need an account? Sign up now!"}
+        </div>
+      </div>
+      <div data-node-id={"footer"} className={"box-border min-w-0 absolute [left:12.1629%] [top:88.3978%] [width:87.8371%] [height:11.6022%] [padding:51px_114px_0px_120px] [background-color:#000000] [color:#9398AA] [opacity:1]"}>
+        <div data-node-id={"footer-primary-row"} className={"box-border min-w-0 absolute [left:7.2246%] [top:48.5714%] [width:34.7381%] [height:23.8095%] flex flex-row flex-nowrap justify-start items-center [gap:10px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <div data-node-id={"footer-brand"} className={"box-border min-w-0 relative [flex:0_1_77px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:20px] [font-weight:700] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"CodePen"}
+          </div>
+          <button type="button" data-node-id={"footer-about"} className={"box-border min-w-0 relative [flex:0_1_52px] [min-height:25px] [margin-left:9px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"About"}
+          </button>
+          <button type="button" data-node-id={"footer-changelog"} className={"box-border min-w-0 relative [flex:0_1_87px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Changelog"}
+          </button>
+          <button type="button" data-node-id={"footer-pricing"} className={"box-border min-w-0 relative [flex:0_1_58px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Pricing"}
+          </button>
+          <button type="button" data-node-id={"footer-blog"} className={"box-border min-w-0 relative [flex:0_1_38px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Blog"}
+          </button>
+          <button type="button" data-node-id={"footer-docs"} className={"box-border min-w-0 relative [flex:0_1_40px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Docs"}
+          </button>
+          <button type="button" data-node-id={"footer-support"} className={"box-border min-w-0 relative [flex:0_1_66px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Support"}
+          </button>
+          <button type="button" data-node-id={"footer-advertise"} className={"box-border min-w-0 relative [flex:0_1_80px] [min-height:25px] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+            {"Advertise"}
+          </button>
+        </div>
+        <div data-node-id={"footer-secondary-row"} className={"box-border min-w-0 absolute [left:7.2246%] [top:84.7619%] [width:22.4564%] [height:15.2381%] [padding:0px_0px_0px_0px] [color:#A5A8B8] [opacity:1] whitespace-pre [font-size:20px] [font-weight:400] [line-height:25px] [text-align:start] [font-family:'Lato']"}>
+          {"For   Teams  Privacy  Embeds  Asset Hosting"}
+        </div>
+        <div role="img" aria-label={"White CODEPEN wordmark with geometric outlined cube symbol."} data-node-id={"footer-logo"} className={"box-border min-w-0 absolute [left:82.2396%] [top:66.6667%] [width:10.897%] [height:31.4286%] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}

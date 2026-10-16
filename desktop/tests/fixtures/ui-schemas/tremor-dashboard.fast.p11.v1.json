@@ -1,0 +1,973 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1886,
+    "height": 912
+  },
+  "confidence": 0.76,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "page",
+        "value": "#F8FAFC"
+      },
+      {
+        "name": "surface",
+        "value": "#FFFFFF"
+      },
+      {
+        "name": "primary",
+        "value": "#3B82F6"
+      },
+      {
+        "name": "text",
+        "value": "#111827"
+      },
+      {
+        "name": "muted",
+        "value": "#6B7280"
+      },
+      {
+        "name": "border",
+        "value": "#E5E7EB"
+      },
+      {
+        "name": "purple",
+        "value": "#8B5CF6"
+      }
+    ],
+    "typography": [
+      {
+        "name": "body",
+        "fontFamily": "sans-serif",
+        "fontSize": 18,
+        "fontWeight": 400,
+        "lineHeight": 26,
+        "letterSpacing": null
+      },
+      {
+        "name": "metric",
+        "fontFamily": "sans-serif",
+        "fontSize": 36,
+        "fontWeight": 600,
+        "lineHeight": 44,
+        "letterSpacing": null
+      }
+    ],
+    "spacing": [
+      12,
+      16,
+      24,
+      32,
+      40
+    ],
+    "radii": [
+      6,
+      8,
+      12
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "Portfolio dashboard",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1886,
+      "height": 912
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "STRETCH",
+      "gap": 0,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": "#F8FAFC",
+      "color": null,
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "announcement",
+        "type": "FRAME",
+        "name": "Announcement bar",
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1886,
+          "height": 59
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 15,
+            "right": 181,
+            "bottom": 15,
+            "left": 181
+          }
+        },
+        "style": {
+          "background": "#000000",
+          "color": "#FFFFFF",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "vercel",
+            "type": "IMAGE",
+            "name": "Vercel wordmark",
+            "bounds": {
+              "x": 181,
+              "y": 15,
+              "width": 106,
+              "height": 29
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White triangular Vercel symbol and wordmark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "announcement-copy",
+            "type": "TEXT",
+            "name": "Announcement message",
+            "bounds": {
+              "x": 1227,
+              "y": 18,
+              "width": 478,
+              "height": 24
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Tremor is joining Vercel. Read more about our journey. ↗",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 400,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "navigation",
+        "type": "FRAME",
+        "name": "Main navigation",
+        "bounds": {
+          "x": 181,
+          "y": 77,
+          "width": 1524,
+          "height": 44
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "brand",
+            "type": "TEXT",
+            "name": "Product wordmark",
+            "bounds": {
+              "x": 181,
+              "y": 88,
+              "width": 154,
+              "height": 26
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#111827",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "tremor blocks",
+              "fontFamily": "sans-serif",
+              "fontSize": 22,
+              "fontWeight": 600,
+              "lineHeight": 26,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "theme",
+            "type": "BUTTON",
+            "name": "Theme selector",
+            "bounds": {
+              "x": 359,
+              "y": 77,
+              "width": 113,
+              "height": 44
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#374151",
+              "border": {
+                "width": 1,
+                "color": "#E5E7EB"
+              },
+              "radius": 6,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Theme ⌄",
+              "fontFamily": "sans-serif",
+              "fontSize": 17,
+              "fontWeight": 400,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "navigation-links",
+            "type": "TEXT",
+            "name": "Navigation links",
+            "bounds": {
+              "x": 1318,
+              "y": 88,
+              "width": 387,
+              "height": 26
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#111827",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Docs    Templates    Getting Started",
+              "fontFamily": "sans-serif",
+              "fontSize": 18,
+              "fontWeight": 500,
+              "lineHeight": 26,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "dashboard",
+        "type": "FRAME",
+        "name": "Dashboard cards",
+        "bounds": {
+          "x": 147,
+          "y": 158,
+          "width": 1586,
+          "height": 754
+        },
+        "layout": {
+          "mode": "GRID",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": 40,
+          "columns": 3,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "sidebar",
+            "type": "FRAME",
+            "name": "Supporting metrics",
+            "bounds": {
+              "x": 147,
+              "y": 158,
+              "width": 369,
+              "height": 754
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 40,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "operator",
+                "type": "IMAGE",
+                "name": "Operator status card",
+                "bounds": {
+                  "x": 147,
+                  "y": 158,
+                  "width": 369,
+                  "height": 244
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": null,
+                  "border": {
+                    "width": 1,
+                    "color": "#E5E7EB"
+                  },
+                  "radius": 8,
+                  "shadow": {
+                    "x": 0,
+                    "y": 5,
+                    "blur": 12,
+                    "spread": 0,
+                    "color": "#0000000D"
+                  },
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Operator\nEmma's Online Shop",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 20,
+                  "fontWeight": 500,
+                  "lineHeight": 30,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": {
+                  "description": "Operator card with blue status symbol, vertical blue accent, a row of thin blue activity bars and small endpoint labels.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              },
+              {
+                "id": "adjustments",
+                "type": "FRAME",
+                "name": "Percentage adjustments",
+                "bounds": {
+                  "x": 147,
+                  "y": 442,
+                  "width": 369,
+                  "height": 143
+                },
+                "layout": {
+                  "mode": "GRID",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": 20,
+                  "columns": 2,
+                  "padding": {
+                    "top": 26,
+                    "right": 63,
+                    "bottom": 26,
+                    "left": 63
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": null,
+                  "border": {
+                    "width": 1,
+                    "color": "#E5E7EB"
+                  },
+                  "radius": 8,
+                  "shadow": {
+                    "x": 0,
+                    "y": 5,
+                    "blur": 12,
+                    "spread": 0,
+                    "color": "#0000000D"
+                  },
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "increase-small",
+                    "type": "BUTTON",
+                    "name": "Small increase",
+                    "bounds": {
+                      "x": 210,
+                      "y": 468,
+                      "width": 102,
+                      "height": 35
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#FFFFFF",
+                      "color": "#3B82F6",
+                      "border": {
+                        "width": 1,
+                        "color": "#DBEAFE"
+                      },
+                      "radius": 6,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "0.5%  +",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 500,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "decrease-small",
+                    "type": "BUTTON",
+                    "name": "Small decrease",
+                    "bounds": {
+                      "x": 332,
+                      "y": 468,
+                      "width": 121,
+                      "height": 35
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#FFFFFF",
+                      "color": "#3B82F6",
+                      "border": {
+                        "width": 1,
+                        "color": "#DBEAFE"
+                      },
+                      "radius": 6,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "0.5%  −",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 500,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "increase-large",
+                    "type": "BUTTON",
+                    "name": "Large increase",
+                    "bounds": {
+                      "x": 210,
+                      "y": 524,
+                      "width": 102,
+                      "height": 35
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#FFFFFF",
+                      "color": "#3B82F6",
+                      "border": {
+                        "width": 1,
+                        "color": "#DBEAFE"
+                      },
+                      "radius": 6,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "1.0%  +",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 500,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "decrease-large",
+                    "type": "BUTTON",
+                    "name": "Large decrease",
+                    "bounds": {
+                      "x": 332,
+                      "y": 524,
+                      "width": 121,
+                      "height": 35
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#FFFFFF",
+                      "color": "#3B82F6",
+                      "border": {
+                        "width": 1,
+                        "color": "#DBEAFE"
+                      },
+                      "radius": 6,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "1.0%  −",
+                      "fontFamily": "sans-serif",
+                      "fontSize": 16,
+                      "fontWeight": 500,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "benchmarks",
+                "type": "IMAGE",
+                "name": "Benchmark chart",
+                "bounds": {
+                  "x": 147,
+                  "y": 625,
+                  "width": 369,
+                  "height": 287
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": "#FFFFFF",
+                  "color": null,
+                  "border": {
+                    "width": 1,
+                    "color": "#E5E7EB"
+                  },
+                  "radius": 8,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Benchmarks\nEurope    North America",
+                  "fontFamily": "sans-serif",
+                  "fontSize": 18,
+                  "fontWeight": 500,
+                  "lineHeight": 42,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": {
+                  "description": "Partially visible benchmark card with Europe selected in blue, North America tab, and paired purple and blue vertical bars.",
+                  "fit": "CONTAIN"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "portfolio",
+            "type": "IMAGE",
+            "name": "Portfolio value chart",
+            "bounds": {
+              "x": 553,
+              "y": 158,
+              "width": 777,
+              "height": 535
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#111827",
+              "border": {
+                "width": 1,
+                "color": "#E5E7EB"
+              },
+              "radius": 8,
+              "shadow": {
+                "x": 0,
+                "y": 5,
+                "blur": 12,
+                "spread": 0,
+                "color": "#0000000D"
+              },
+              "opacity": 1
+            },
+            "text": {
+              "content": "Portfolio value\n$328,505.10",
+              "fontFamily": "sans-serif",
+              "fontSize": null,
+              "fontWeight": null,
+              "lineHeight": null,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": {
+              "description": "White card with portfolio value heading and large bold amount. Blue vertical bar chart fluctuates before rising toward the right. Light horizontal gridlines, small date labels, and an open white tooltip overlay.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "allocation",
+            "type": "IMAGE",
+            "name": "Asset allocation chart",
+            "bounds": {
+              "x": 1368,
+              "y": 158,
+              "width": 365,
+              "height": 535
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": null,
+              "border": {
+                "width": 1,
+                "color": "#E5E7EB"
+              },
+              "radius": 8,
+              "shadow": {
+                "x": 0,
+                "y": 5,
+                "blur": 12,
+                "spread": 0,
+                "color": "#0000000D"
+              },
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Donut chart dominated by a blue segment with purple and magenta segments, a monetary total in its center, and a four-row asset legend with colored squares and right-aligned amounts beneath.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "holdings",
+            "type": "IMAGE",
+            "name": "Holdings table",
+            "bounds": {
+              "x": 553,
+              "y": 733,
+              "width": 1180,
+              "height": 179
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#FFFFFF",
+              "color": "#111827",
+              "border": {
+                "width": 1,
+                "color": "#E5E7EB"
+              },
+              "radius": 8,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Name                 Value       Invested       Cash Flow       Gain       Realized       Dividends",
+              "fontFamily": "sans-serif",
+              "fontSize": 17,
+              "fontWeight": 600,
+              "lineHeight": 26,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": {
+              "description": "Top portion of a holdings table with column headings, colored asset indicators, monetary values, and horizontal row separators. Lower rows are cropped by the screenshot.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Small chart labels, tooltip contents, allocation values, and table row text are not confidently legible and are not transcribed.",
+    "Chart cards are represented as composite images to preserve their visible visual structure.",
+    "Typography and pixel measurements are approximate. The benchmark chart and holdings table continue below the screenshot.",
+    "A small GitHub icon is visible at the right of the navigation links but is not separately represented."
+  ]
+}

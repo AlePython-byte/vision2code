@@ -1,9 +1,5 @@
 export const DEFAULT_OPENAI_MODEL = "gpt-6.1-sol";
-export const OPENAI_REASONING_EFFORT = "low";
-// Responses counts both visible output and reasoning tokens toward this bound.
-export const OPENAI_MAX_OUTPUT_TOKENS = 8000;
-// Let the model select image detail for the compact structure analysis.
-export const OPENAI_IMAGE_DETAIL = "auto";
+// Reasoning effort, image detail and output budget are per fidelity mode: see ../analysis-profiles.ts.
 
 export function readOpenAIConfiguration(environment: NodeJS.ProcessEnv = process.env) {
   const apiKey = environment.OPENAI_API_KEY?.trim();

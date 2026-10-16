@@ -1,11 +1,13 @@
 import { AnalysisResponseSchema, ApiErrorResponseSchema } from "@vision2code/contracts";
-import type { AnalysisResponse, ApiErrorCode } from "@vision2code/contracts";
+import { analysisClientTimeoutMs, DEFAULT_ANALYSIS_FIDELITY } from "@vision2code/contracts";
+import type { AnalysisFidelity, AnalysisResponse, ApiErrorCode } from "@vision2code/contracts";
 import type { Screenshot } from "../screenshot/loadScreenshot.ts";
 import { resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
 import { screenshotMimeType } from "../screenshot/validation.ts";
 export { DEFAULT_API_BASE_URL, resolveApiBaseUrl } from "../api/apiBaseUrl.ts";
 
-export const ANALYSIS_REQUEST_TIMEOUT_MS = 150_000;
+/** Client deadline of the default (balanced) mode; every mode waits its server deadline plus a grace period. */
+export const ANALYSIS_REQUEST_TIMEOUT_MS = analysisClientTimeoutMs(DEFAULT_ANALYSIS_FIDELITY);
 
 const errorMessages: Record<ApiErrorCode, string> = {
   AI_UNAVAILABLE: "El servicio de análisis no está disponible temporalmente. Inténtalo de nuevo.",
@@ -17,6 +19,8 @@ const errorMessages: Record<ApiErrorCode, string> = {
   NOT_FOUND: "El servicio de análisis no está disponible en esta dirección.",
   INTERNAL_ERROR: "No se pudo completar el análisis. Inténtalo de nuevo.",
   UNAUTHORIZED: "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
+  AI_OUTPUT_TRUNCATED: "El análisis se interrumpió antes de terminar. Prueba con el modo Rápido o con una captura más simple.",
+  AI_SETTINGS_UNSUPPORTED: "El servicio de análisis no admite la configuración de este modo. Prueba con otro modo.",
 };
 
 export class AnalysisClientError extends Error {
@@ -31,7 +35,12 @@ export class AnalysisClientError extends Error {
   }
 }
 
-export type AnalyzeScreenshot = (screenshot: Screenshot, signal: AbortSignal) => Promise<AnalysisResponse>;
+/** `fidelity` names the mode only; the server owns and caps what it means. */
+export interface AnalyzeOptions {
+  readonly fidelity?: AnalysisFidelity | undefined;
+}
+
+export type AnalyzeScreenshot = (screenshot: Screenshot, signal: AbortSignal, options?: AnalyzeOptions) => Promise<AnalysisResponse>;
 
 /** Session access supplied by the composition root; the analysis feature never imports auth. */
 export interface AnalysisAuth {
@@ -46,12 +55,14 @@ export function createAnalysisClient(
   transport: typeof fetch = globalThis.fetch,
   auth?: AnalysisAuth
 ): AnalyzeScreenshot {
-  return async (screenshot, signal) => {
+  return async (screenshot, signal, options = {}) => {
     const controller = new AbortController();
     let timedOut = false;
     const abort = () => controller.abort();
     signal.addEventListener("abort", abort, { once: true });
-    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, ANALYSIS_REQUEST_TIMEOUT_MS);
+    // Precise reasons longer server-side, so its deadline is longer too.
+    const deadline = analysisClientTimeoutMs(options.fidelity ?? DEFAULT_ANALYSIS_FIDELITY);
+    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, deadline);
     const unauthorized = (requestId: string | null) => {
       auth?.onUnauthorized?.();
       return new AnalysisClientError(errorMessages.UNAUTHORIZED, requestId, "UNAUTHORIZED");
@@ -68,6 +79,7 @@ export function createAnalysisClient(
       body.set("image", screenshot.file.slice(0, screenshot.file.size, mime), screenshot.file.name);
       body.set("viewportWidth", String(screenshot.width));
       body.set("viewportHeight", String(screenshot.height));
+      if (options.fidelity !== undefined) body.set("fidelity", options.fidelity);
       const init: RequestInit = {
         method: "POST",
         body,

@@ -116,12 +116,13 @@ describe("analysis HTTP boundary without live AI", () => {
       assert.equal(calls, 0);
     }
   });
-  it("returns the shared response and forwards only image bytes and dimensions", async () => {
+  it("returns the shared response and forwards only image bytes, dimensions and the (default) mode", async () => {
     const response = await post(form());
     assert.equal(response.status, 200);
     assert.deepEqual(AnalysisResponseSchema.parse(await response.json()), { requestId: "analysis-test", uiSchema: fixture });
     assert.equal(calls, 1);
-    assert.deepEqual(received, { bytes: png, mimeType: "image/png", width: 640, height: 480 });
+    // No fidelity field: analyzed as balanced, the default every older client gets.
+    assert.deepEqual(received, { bytes: png, mimeType: "image/png", width: 640, height: 480, fidelity: "balanced" });
   });
   it("accepts PNG, JPEG and WEBP headers", async () => {
     for (const [mime, bytes] of [["image/png", png], ["image/jpeg", new Uint8Array([255, 216, 255])],
@@ -160,6 +161,36 @@ describe("analysis HTTP boundary without live AI", () => {
     const duplicate = form(); duplicate.append("viewportWidth", "640");
     const extra = form(); extra.append("image", new Blob([png], { type: "image/png" }), "second.png");
     for (const body of [stack, duplicate, extra]) await expectError(body, 400, "INVALID_REQUEST");
+  });
+  // ---- TASK 011D: fidelity mode -------------------------------------------------------------
+  it("forwards each valid fidelity mode to the provider", async () => {
+    for (const fidelity of ["fast", "balanced", "precise"]) {
+      const body = form(); body.set("fidelity", fidelity);
+      const response = await post(body);
+      assert.equal(response.status, 200, fidelity); await response.arrayBuffer();
+      assert.equal(received?.fidelity, fidelity);
+    }
+  });
+  it("rejects an unknown, uppercase, empty or duplicated fidelity with the standard 400 before the provider", async () => {
+    for (const value of ["turbo", "PRECISE", "", "x".repeat(40)]) {
+      const body = form(); body.set("fidelity", value);
+      await expectError(body, 400, "INVALID_REQUEST");
+    }
+    const duplicated = form(); duplicated.set("fidelity", "fast"); duplicated.append("fidelity", "precise");
+    await expectError(duplicated, 400, "INVALID_REQUEST");
+  });
+  it("still requires a verified session when a fidelity is sent", async () => {
+    const body = form(); body.set("fidelity", "precise");
+    await expectUnauthorized(null, body);
+  });
+  it("maps a truncated provider output and rejected mode settings to clear, safe errors", async () => {
+    analyze = async () => { throw new ProviderFailureError("TRUNCATED"); };
+    const truncated = await expectError(form(), 502, "AI_OUTPUT_TRUNCATED", 1);
+    assert.match(truncated.error.message, /se interrumpió antes de terminar/);
+    analyze = async () => { throw new ProviderFailureError("UNSUPPORTED_SETTINGS"); };
+    calls = 0;
+    const unsupported = await expectError(form(), 502, "AI_SETTINGS_UNSUPPORTED", 1);
+    assert.match(unsupported.error.message, /no admite la configuración de este modo/);
   });
   it("rejects JSON and user-supplied image URLs", async () => {
     const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
