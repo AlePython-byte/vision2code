@@ -32,3 +32,9 @@ test("the analysis quota error carries the wait in seconds; nothing else is adde
   }
   assert.equal(ApiErrorResponseSchema.safeParse({ error: { ...error, retryAfterSeconds: 60, remainingUnits: 3 } }).success, false, "no other quota detail leaks");
 });
+
+test("the analysis timeout is its own error code, with no wait attached", () => {
+  const error = { code: "AI_TIMEOUT", message: "El análisis tardó demasiado.", requestId: "test-123" };
+  assert.equal(ApiErrorResponseSchema.safeParse({ error }).success, true);
+  assert.equal(ApiErrorResponseSchema.safeParse({ error: { ...error, code: "AI_TIME_OUT" } }).success, false);
+});

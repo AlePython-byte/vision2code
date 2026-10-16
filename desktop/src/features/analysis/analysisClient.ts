@@ -22,6 +22,14 @@ const errorMessages: Record<ApiErrorCode, string> = {
   AI_OUTPUT_TRUNCATED: "El análisis se interrumpió antes de terminar. Prueba con el modo Rápido o con una captura más simple.",
   AI_SETTINGS_UNSUPPORTED: "El servicio de análisis no admite la configuración de este modo. Prueba con otro modo.",
   ANALYSIS_QUOTA_EXCEEDED: "Has alcanzado tu límite de análisis por ahora. Inténtalo de nuevo más tarde.",
+  AI_TIMEOUT: "El análisis tardó demasiado. Prueba con un modo más rápido o con una captura más simple.",
+};
+
+/** The server's deadline ran out: suggest only modes that are faster than the one used. */
+const timeoutMessages: Record<AnalysisFidelity, string> = {
+  precise: "El análisis tardó demasiado. Prueba con un modo más rápido (Equilibrado o Rápido).",
+  balanced: "El análisis tardó demasiado. Prueba con el modo Rápido o con una captura más simple.",
+  fast: "El análisis tardó demasiado. Prueba con una captura más simple o inténtalo de nuevo.",
 };
 
 export class AnalysisClientError extends Error {
@@ -109,7 +117,8 @@ export function createAnalysisClient(
         if (response.status === 401) throw unauthorized(parsed.success ? parsed.data.error.requestId : null);
         if (parsed.success) {
           const { code, requestId, retryAfterSeconds } = parsed.data.error;
-          throw new AnalysisClientError(errorMessages[code], requestId, code, code === "ANALYSIS_QUOTA_EXCEEDED" ? retryAfterSeconds ?? null : null);
+          const message = code === "AI_TIMEOUT" ? timeoutMessages[options.fidelity ?? DEFAULT_ANALYSIS_FIDELITY] : errorMessages[code];
+          throw new AnalysisClientError(message, requestId, code, code === "ANALYSIS_QUOTA_EXCEEDED" ? retryAfterSeconds ?? null : null);
         }
         throw new AnalysisClientError(response.status >= 500
           ? "El servicio de análisis no está disponible temporalmente. Inténtalo de nuevo."

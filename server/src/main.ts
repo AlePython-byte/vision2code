@@ -6,6 +6,7 @@ import { AppModule } from "./app.module.js";
 import { configureApplication } from "./configure-application.js";
 import { readConfiguration } from "./configuration.js";
 import { ConfigurationError } from "./configuration-error.js";
+import { readAnalysisDeadlines } from "./analysis/analysis-deadlines.js";
 import { readAnalysisProfiles } from "./analysis/analysis-profiles.js";
 import { readAnalysisQuotaConfiguration } from "./analysis/analysis-quota.js";
 
@@ -17,6 +18,7 @@ function validateAnalysisConfiguration(): void {
   try {
     readAnalysisProfiles();
     readAnalysisQuotaConfiguration();
+    readAnalysisDeadlines();
   } catch (error) {
     throw error instanceof ConfigurationError ? error : new ConfigurationError(error instanceof Error ? error.message : "Invalid analysis configuration.");
   }

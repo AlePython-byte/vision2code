@@ -172,12 +172,28 @@ The API excludes generated code, reasoning, token usage, and raw provider intern
 | Image above 10 MB | 413 | `IMAGE_TOO_LARGE` |
 | Our own per-user limit reached (hourly budget or simultaneous analyses) | 429 | `ANALYSIS_QUOTA_EXCEEDED` (with `Retry-After` and `retryAfterSeconds`) |
 | OpenAI HTTP 429 | 429 | `AI_RATE_LIMITED` |
-| Network/provider failure, timeout or cancellation | 503 | `AI_UNAVAILABLE` |
+| Network/provider failure (a client that disconnects is not an error to show) | 503 | `AI_UNAVAILABLE` |
+| The server's deadline for the mode ran out | 504 | `AI_TIMEOUT` |
 | Invalid, refused or content-filtered provider output | 502 | `AI_OUTPUT_INVALID` |
 | Output cut at the mode's token budget | 502 | `AI_OUTPUT_TRUNCATED` |
 | The model rejects a setting of the mode | 502 | `AI_SETTINGS_UNSUPPORTED` |
 
-The analysis deadline depends on the mode (90 s fast, 120 s balanced, 180 s precise; `ANALYSIS_SERVER_TIMEOUT_MS` in the shared contracts) and is shared by the HTTP analysis cancellation signal and the SDK timeout. The desktop waits each mode's deadline plus 30 s, so the server's own error always arrives first. Provider 429s surface as `AI_RATE_LIMITED`; our own per-user limit is described below.
+The analysis deadline depends on the mode (90 s fast, 120 s balanced, 180 s precise; `ANALYSIS_SERVER_TIMEOUT_MS` in the shared contracts) and is shared by the HTTP analysis cancellation signal and the SDK timeout. The desktop waits each mode's deadline plus 30 s, so the server's own error always arrives first. When the deadline runs out the answer is 504 `AI_TIMEOUT` (distinct from 503: the provider was reached but did not answer in time). A client that closes the connection is told apart from a timeout by the reason of the abort (the timer aborts with a `TimeoutError`, a closed connection with an `AbortError`); nobody is left to read that response, so it is only logged as `client_abort`. The desktop says the analysis took too long and suggests only faster modes than the one used (after Precise: Balanced or Fast; after Balanced: Fast or a simpler screenshot; after Fast: a simpler screenshot), never expires the session and never retries by itself. A timed-out analysis is still charged to the quota (the call was made) and frees its concurrency slot. To shorten a deadline, for example to provoke a timeout locally, set `ANALYSIS_<MODE>_TIMEOUT_SECONDS` (`MODE` = `FAST`, `BALANCED`, `PRECISE`): it can only shorten the contract deadline (floor 5 s), never extend it, because the desktop waits the contract deadline plus 30 s. Provider 429s surface as `AI_RATE_LIMITED`; our own per-user limit is described below.
+
+**Reading the analysis log.** Every analysis that reached the provider writes one JSON line with context `AnalysisSummary` (also in production: it holds only the request id, the mode, an outcome from a closed list and numbers; never the image, the schema, the token, an error message or any identifier of the user):
+
+```json
+{"context":"AnalysisSummary","requestId":"…","fidelity":"precise","outcome":"ok","durationMs":71234,"inputTokens":2710,"outputTokens":9120,"reasoningTokens":6400}
+```
+
+`outcome` is `ok`, `timeout`, `client_abort`, `provider_error`, `truncated` or `invalid`. The token fields are `null` when the provider did not report usage, which is always the case for `timeout`, `client_abort` and a failure before a response. To tune the profiles, run each mode a few times over the same screenshots and compare:
+
+- **`durationMs` against the mode's deadline** (90, 120, 180 s): runs that end near it, or in `timeout`, mean the mode is too slow for that screenshot. Repeated `timeout` in `precise` is the signal to lower its reasoning effort (`ANALYSIS_PRECISE_REASONING_EFFORT=low`) before touching the deadline.
+- **`reasoningTokens` against `outputTokens`**: reasoning is billed as output and counts toward `max_output_tokens`. If reasoning is most of the output (for example 6,400 of 9,100) the reasoning effort, not the screenshot, is what makes the mode slow and expensive; if `outputTokens` is close to the mode's cap, expect `truncated` and raise the cap (within its hard limit) or lower the reasoning effort.
+- **`inputTokens`** shows what the image costs at the mode's detail (`low`, `auto`, `high`).
+- Typical durations per mode are not known yet: this line exists to measure them. Fill them in here after a few real runs.
+
+The line is written to the console; the development diagnostics (`AnalysisDiagnostic`) remain development-only.
 
 **Per-user analysis limit** (`server/src/analysis/analysis-quota.ts`). `POST /analyses` is the only endpoint that spends money, so each account has its own budget before the provider's quota is reached:
 

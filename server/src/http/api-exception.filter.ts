@@ -21,6 +21,7 @@ const errorMessages: Record<ApiErrorCode, string> = {
   AI_OUTPUT_TRUNCATED: "El análisis se interrumpió antes de terminar. Prueba con el modo Rápido o con una captura más simple.",
   AI_SETTINGS_UNSUPPORTED: "El servicio de análisis no admite la configuración de este modo. Prueba con otro modo.",
   ANALYSIS_QUOTA_EXCEEDED: "Has alcanzado tu límite de análisis por ahora. Inténtalo de nuevo más tarde.",
+  AI_TIMEOUT: "El análisis tardó demasiado. Prueba con un modo más rápido o con una captura más simple.",
 };
 
 const providerFailures: Record<ProviderFailureError["kind"], { status: number; code: ApiErrorCode }> = {
@@ -28,6 +29,8 @@ const providerFailures: Record<ProviderFailureError["kind"], { status: number; c
   UNAVAILABLE: { status: 503, code: "AI_UNAVAILABLE" },
   TRUNCATED: { status: 502, code: "AI_OUTPUT_TRUNCATED" },
   UNSUPPORTED_SETTINGS: { status: 502, code: "AI_SETTINGS_UNSUPPORTED" },
+  // 504: the upstream provider did not answer within our deadline (503 stays for "unavailable").
+  TIMEOUT: { status: 504, code: "AI_TIMEOUT" },
 };
 
 @Catch()

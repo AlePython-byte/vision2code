@@ -4,8 +4,10 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { UISchemaSchema } from "@vision2code/contracts";
 import type { AIProvider } from "../../ai/ai-provider.js";
 import type { AnalysisImageInput } from "../analysis-image-input.js";
-import { ANALYSIS_SERVER_TIMEOUT_MS, DEFAULT_ANALYSIS_FIDELITY, type AnalysisFidelity } from "@vision2code/contracts";
+import { DEFAULT_ANALYSIS_FIDELITY, type AnalysisFidelity } from "@vision2code/contracts";
 import { ANALYSIS_TIMEOUT_MS } from "../analysis.constants.js";
+import { DEFAULT_ANALYSIS_DEADLINES, type AnalysisDeadlines } from "../analysis-deadlines.js";
+import type { AnalysisUsage } from "../analysis-summary-log.js";
 import { DEFAULT_ANALYSIS_PROFILES, type AnalysisProfile } from "../analysis-profiles.js";
 import { InvalidAnalysisOutputError } from "../invalid-analysis-output.error.js";
 import { ProviderFailureError } from "../provider-failure.error.js";
@@ -16,12 +18,14 @@ export class OpenAIProvider implements AIProvider {
   private readonly format = zodTextFormat(UISchemaSchema, "ui_schema_v1");
 
   private readonly profiles: Readonly<Record<AnalysisFidelity, AnalysisProfile>>;
+  private readonly deadlines: AnalysisDeadlines;
 
   constructor(
-    private readonly configuration: { apiKey: string; model: string; profiles?: Readonly<Record<AnalysisFidelity, AnalysisProfile>> },
+    private readonly configuration: { apiKey: string; model: string; profiles?: Readonly<Record<AnalysisFidelity, AnalysisProfile>>; deadlines?: AnalysisDeadlines },
     client?: OpenAI,
   ) {
     this.profiles = configuration.profiles ?? DEFAULT_ANALYSIS_PROFILES;
+    this.deadlines = configuration.deadlines ?? DEFAULT_ANALYSIS_DEADLINES;
     if (!configuration.apiKey.trim()) throw new Error("OPENAI_API_KEY is required to construct the analysis provider.");
     this.client = client ?? new OpenAI({
       apiKey: configuration.apiKey,
@@ -32,10 +36,10 @@ export class OpenAIProvider implements AIProvider {
     });
   }
 
-  async analyze(input: AnalysisImageInput, signal?: AbortSignal): Promise<unknown> {
+  async analyze(input: AnalysisImageInput, signal?: AbortSignal, onUsage?: (usage: AnalysisUsage) => void): Promise<unknown> {
     const fidelity = input.fidelity ?? DEFAULT_ANALYSIS_FIDELITY;
     const profile = this.profiles[fidelity];
-    const timeout = ANALYSIS_SERVER_TIMEOUT_MS[fidelity] ?? ANALYSIS_TIMEOUT_MS;
+    const timeout = this.deadlines[fidelity] ?? ANALYSIS_TIMEOUT_MS;
     try {
       const response = await this.client.responses.create({
         model: this.configuration.model,
@@ -50,6 +54,10 @@ export class OpenAIProvider implements AIProvider {
             image_url: `data:${input.mimeType};base64,${Buffer.from(input.bytes).toString("base64")}` },
         ] }],
       }, { signal: signal ?? null, maxRetries: 0, timeout });
+      if (response.usage != null) {
+        onUsage?.({ inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens,
+          reasoningTokens: response.usage.output_tokens_details?.reasoning_tokens ?? 0 });
+      }
       const hasParsedOutput = "output_parsed" in response && response.output_parsed != null;
       logAnalysisDiagnostic("provider_response", {
         promptVersion: ANALYZER_SYSTEM_PROMPT_VERSION,
@@ -101,6 +109,9 @@ export class OpenAIProvider implements AIProvider {
       });
       if (error instanceof InvalidAnalysisOutputError || error instanceof ProviderFailureError) throw error;
       if (error instanceof OpenAI.APIError && error.status === 429) throw new ProviderFailureError("RATE_LIMITED");
+      // The SDK's own deadline (the same one as the server's) ran out. A caller's abort is APIUserAbortError and is
+      // classified by whoever owns the signal.
+      if (error instanceof OpenAI.APIConnectionTimeoutError) throw new ProviderFailureError("TIMEOUT");
       // A 400 naming an unsupported parameter or value means this model rejects the mode's settings.
       if (error instanceof OpenAI.BadRequestError && (error.code === "unsupported_parameter" || error.code === "unsupported_value")) {
         throw new ProviderFailureError("UNSUPPORTED_SETTINGS");

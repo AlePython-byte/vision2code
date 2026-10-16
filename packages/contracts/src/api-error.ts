@@ -9,6 +9,8 @@ export const ApiErrorCodeSchema = z.enum([
   "AI_OUTPUT_TRUNCATED", "AI_SETTINGS_UNSUPPORTED",
   // Our own per-user analysis limit (hourly budget or simultaneous analyses), not the provider's 429.
   "ANALYSIS_QUOTA_EXCEEDED",
+  // The server's own deadline for the mode ran out while the provider was still working (HTTP 504).
+  "AI_TIMEOUT",
 ]);
 export type ApiErrorCode = z.infer<typeof ApiErrorCodeSchema>;
 
