@@ -112,19 +112,19 @@ test("cycleFidelity cycles through fast, balanced, and precise in round-robin or
 test("all fidelity labels and descriptions are correctly localized in Spanish and English", () => {
   // Spanish labels and descriptions
   assert.equal(es.fidelityFast, "Rápido");
-  assert.equal(es.fidelityFastDesc, "Menor tiempo de análisis.");
+  assert.equal(es.fidelityFastDesc, "Análisis más rápido y económico: menos nodos y menos detalle de imagen.");
   assert.equal(es.fidelityBalanced, "Equilibrado");
-  assert.equal(es.fidelityBalancedDesc, "Balance entre velocidad y detalle.");
+  assert.equal(es.fidelityBalancedDesc, "Equilibrio entre detalle, tiempo y coste. Recomendado.");
   assert.equal(es.fidelityPrecise, "Preciso");
-  assert.equal(es.fidelityPreciseDesc, "Mayor detalle, generación más lenta.");
+  assert.equal(es.fidelityPreciseDesc, "Más nodos y detalle de imagen alto: tarda más y consume más.");
 
   // English labels and descriptions
   assert.equal(en.fidelityFast, "Fast");
-  assert.equal(en.fidelityFastDesc, "Faster analysis with reduced detail.");
+  assert.equal(en.fidelityFastDesc, "Faster, cheaper analysis: fewer nodes and less image detail.");
   assert.equal(en.fidelityBalanced, "Balanced");
-  assert.equal(en.fidelityBalancedDesc, "Balanced speed and visual detail.");
+  assert.equal(en.fidelityBalancedDesc, "Balances detail, time and cost. Recommended.");
   assert.equal(en.fidelityPrecise, "Precise");
-  assert.equal(en.fidelityPreciseDesc, "Higher detail, slower generation.");
+  assert.equal(en.fidelityPreciseDesc, "More nodes and high image detail: takes longer and costs more.");
 });
 
 test("VisualFidelitySelector renders accessible radiogroup, dial rotor, and active states", () => {
@@ -144,7 +144,7 @@ test("VisualFidelitySelector renders accessible radiogroup, dial rotor, and acti
   assert.match(html, /role="radio"/);
   assert.match(html, /transform:rotate\(0deg\)/);
   assert.match(html, /Equilibrado/);
-  assert.match(html, /Balance entre velocidad y detalle\./);
+  assert.match(html, /Equilibrio entre detalle, tiempo y coste\. Recomendado\./);
   assert.match(html, /data-fidelity="balanced"/);
 
   // Render fast
@@ -156,7 +156,7 @@ test("VisualFidelitySelector renders accessible radiogroup, dial rotor, and acti
   );
   assert.match(html, /transform:rotate\(-35deg\)/);
   assert.match(html, /Rápido/);
-  assert.match(html, /Menor tiempo de análisis\./);
+  assert.match(html, /Análisis más rápido y económico/);
   assert.match(html, /data-fidelity="fast"/);
 
   // Render precise
@@ -168,7 +168,7 @@ test("VisualFidelitySelector renders accessible radiogroup, dial rotor, and acti
   );
   assert.match(html, /transform:rotate\(35deg\)/);
   assert.match(html, /Preciso/);
-  assert.match(html, /Mayor detalle, generación más lenta\./);
+  assert.match(html, /tarda más y consume más\./);
   assert.match(html, /data-fidelity="precise"/);
 });
 

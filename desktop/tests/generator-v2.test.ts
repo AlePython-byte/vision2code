@@ -17,7 +17,8 @@ import { fakeClient, projectA, generationOne, generationTwo, storedGeneration } 
 const fixturesUrl = new URL("./fixtures/ui-schemas/", import.meta.url);
 const goldenUrl = new URL("./golden/", import.meta.url);
 const load = (url: URL): UISchema => UISchemaSchema.parse(JSON.parse(readFileSync(url, "utf8")));
-const names = readdirSync(fixturesUrl).filter((name) => name.endsWith(".json")).sort();
+// v2 is the frozen "before" of the baseline fixtures only; per-mode (`.p11.`) fixtures have no v2 golden.
+const names = readdirSync(fixturesUrl).filter((name) => name.endsWith(".json") && !name.includes(".p11.")).sort();
 const simple = load(new URL("../../packages/contracts/tests/fixtures/simple-interface.json", import.meta.url));
 const interfaceOf = (project: GeneratedProject) => project.files.find((file) => file.path.endsWith("GeneratedInterface.tsx"))!.content;
 /** What an old stored generation looks like to the app: the same shape, labelled with its version. */
@@ -29,7 +30,8 @@ test("golden: frozen generator v2 output is byte-for-byte what was reviewed, for
   for (const name of names) {
     const actual = interfaceOf(generateReactProjectV2(load(new URL(name, fixturesUrl))));
     const golden = new URL(`${name.replace(".v1.json", "")}.v2.GeneratedInterface.tsx.txt`, goldenUrl);
-    if (!existsSync(golden)) writeFileSync(golden, actual);
+    if (process.env.UPDATE_GOLDEN === "1") writeFileSync(golden, actual);
+    assert.ok(existsSync(golden), `${name}: missing golden file; review the output, then create it with UPDATE_GOLDEN=1`);
     assert.equal(actual, readFileSync(golden, "utf8"), `${name}: generator v2 is frozen and must not change`);
   }
 });

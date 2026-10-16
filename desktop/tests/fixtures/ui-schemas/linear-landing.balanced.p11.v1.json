@@ -1,0 +1,983 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1897,
+    "height": 917
+  },
+  "confidence": 0.95,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "page-background",
+        "value": "#080909"
+      },
+      {
+        "name": "primary-text",
+        "value": "#F4F5F5"
+      },
+      {
+        "name": "secondary-text",
+        "value": "#8A8F98"
+      },
+      {
+        "name": "subtle-border",
+        "value": "#202122"
+      },
+      {
+        "name": "button-background",
+        "value": "#E6E6E6"
+      },
+      {
+        "name": "button-text",
+        "value": "#101112"
+      }
+    ],
+    "typography": [
+      {
+        "name": "navigation",
+        "fontFamily": "Inter",
+        "fontSize": 16,
+        "fontWeight": 400,
+        "lineHeight": 24,
+        "letterSpacing": 0
+      },
+      {
+        "name": "hero-heading",
+        "fontFamily": "Inter",
+        "fontSize": 80,
+        "fontWeight": 500,
+        "lineHeight": 80,
+        "letterSpacing": -3.6
+      },
+      {
+        "name": "hero-supporting",
+        "fontFamily": "Inter",
+        "fontSize": 20,
+        "fontWeight": 400,
+        "lineHeight": 28,
+        "letterSpacing": -0.4
+      }
+    ],
+    "spacing": [
+      16,
+      24,
+      30,
+      40,
+      48,
+      90
+    ],
+    "radii": [
+      16,
+      24
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "Marketing page",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1897,
+      "height": 917
+    },
+    "layout": {
+      "mode": "FLEX",
+      "direction": "COLUMN",
+      "justify": "START",
+      "align": "STRETCH",
+      "gap": 0,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": "#080909",
+      "color": null,
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "header",
+        "type": "FRAME",
+        "name": "Header",
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1897,
+          "height": 90
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "ROW",
+          "justify": "SPACE_BETWEEN",
+          "align": "CENTER",
+          "gap": 733,
+          "columns": null,
+          "padding": {
+            "top": 24,
+            "right": 146,
+            "bottom": 26,
+            "left": 148
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "brand",
+            "type": "IMAGE",
+            "name": "Linear wordmark",
+            "bounds": {
+              "x": 148,
+              "y": 30,
+              "width": 110,
+              "height": 28
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White striped circular Linear symbol followed by the Linear wordmark.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "navigation",
+            "type": "FRAME",
+            "name": "Header navigation",
+            "bounds": {
+              "x": 991,
+              "y": 24,
+              "width": 760,
+              "height": 40
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "ROW",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": 30,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "product",
+                "type": "BUTTON",
+                "name": "Product link",
+                "bounds": {
+                  "x": 991,
+                  "y": 32,
+                  "width": 60,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Product",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "resources",
+                "type": "BUTTON",
+                "name": "Resources link",
+                "bounds": {
+                  "x": 1081,
+                  "y": 32,
+                  "width": 81,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Resources",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "customers",
+                "type": "BUTTON",
+                "name": "Customers link",
+                "bounds": {
+                  "x": 1192,
+                  "y": 32,
+                  "width": 83,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Customers",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "pricing",
+                "type": "BUTTON",
+                "name": "Pricing link",
+                "bounds": {
+                  "x": 1305,
+                  "y": 32,
+                  "width": 54,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Pricing",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "now",
+                "type": "BUTTON",
+                "name": "Now link",
+                "bounds": {
+                  "x": 1389,
+                  "y": 32,
+                  "width": 35,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Now",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "contact",
+                "type": "BUTTON",
+                "name": "Contact link",
+                "bounds": {
+                  "x": 1454,
+                  "y": 32,
+                  "width": 60,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Contact",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "nav-divider",
+                "type": "DIVIDER",
+                "name": "Account separator",
+                "bounds": {
+                  "x": 1550,
+                  "y": 34,
+                  "width": 2,
+                  "height": 20
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": "#242628",
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "login",
+                "type": "BUTTON",
+                "name": "Log in link",
+                "bounds": {
+                  "x": 1588,
+                  "y": 32,
+                  "width": 48,
+                  "height": 24
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#8A8F98",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Log in",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 400,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "signup",
+                "type": "BUTTON",
+                "name": "Sign up button",
+                "bounds": {
+                  "x": 1660,
+                  "y": 24,
+                  "width": 91,
+                  "height": 40
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 8,
+                    "right": 16,
+                    "bottom": 8,
+                    "left": 16
+                  }
+                },
+                "style": {
+                  "background": "#E6E6E6",
+                  "color": "#101112",
+                  "border": null,
+                  "radius": 24,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Sign up",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": 500,
+                  "lineHeight": 24,
+                  "letterSpacing": 0,
+                  "textAlign": "CENTER"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "main",
+        "type": "FRAME",
+        "name": "Hero content",
+        "bounds": {
+          "x": 125,
+          "y": 90,
+          "width": 1650,
+          "height": 827
+        },
+        "layout": {
+          "mode": "FLEX",
+          "direction": "COLUMN",
+          "justify": "START",
+          "align": "STRETCH",
+          "gap": 90,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": null,
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "hero-copy",
+            "type": "FRAME",
+            "name": "Hero introduction",
+            "bounds": {
+              "x": 148,
+              "y": 90,
+              "width": 1603,
+              "height": 228
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "STRETCH",
+              "gap": 40,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "heading",
+                "type": "TEXT",
+                "name": "Hero heading",
+                "bounds": {
+                  "x": 148,
+                  "y": 90,
+                  "width": 1060,
+                  "height": 160
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#F4F5F5",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "The product development\nsystem for teams and agents",
+                  "fontFamily": "Inter",
+                  "fontSize": 80,
+                  "fontWeight": 500,
+                  "lineHeight": 80,
+                  "letterSpacing": -3.6,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "support-row",
+                "type": "FRAME",
+                "name": "Description and announcement",
+                "bounds": {
+                  "x": 149,
+                  "y": 290,
+                  "width": 1602,
+                  "height": 28
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "ROW",
+                  "justify": "SPACE_BETWEEN",
+                  "align": "CENTER",
+                  "gap": 836,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "description",
+                    "type": "TEXT",
+                    "name": "Product description",
+                    "bounds": {
+                      "x": 149,
+                      "y": 290,
+                      "width": 634,
+                      "height": 28
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#8A8F98",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Purpose-built for planning and building products. Designed for the AI era.",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 28,
+                      "letterSpacing": -0.4,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "announcement",
+                    "type": "FRAME",
+                    "name": "Loops announcement",
+                    "bounds": {
+                      "x": 1619,
+                      "y": 290,
+                      "width": 132,
+                      "height": 28
+                    },
+                    "layout": {
+                      "mode": "FLEX",
+                      "direction": "ROW",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": 15,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": null,
+                    "children": [
+                      {
+                        "id": "new-label",
+                        "type": "TEXT",
+                        "name": "New label",
+                        "bounds": {
+                          "x": 1619,
+                          "y": 290,
+                          "width": 39,
+                          "height": 28
+                        },
+                        "layout": {
+                          "mode": "NONE",
+                          "direction": "NONE",
+                          "justify": "START",
+                          "align": "START",
+                          "gap": null,
+                          "columns": null,
+                          "padding": {
+                            "top": 0,
+                            "right": 0,
+                            "bottom": 0,
+                            "left": 0
+                          }
+                        },
+                        "style": {
+                          "background": null,
+                          "color": "#C6CBD3",
+                          "border": null,
+                          "radius": null,
+                          "shadow": null,
+                          "opacity": 1
+                        },
+                        "text": {
+                          "content": "New",
+                          "fontFamily": "Inter",
+                          "fontSize": 20,
+                          "fontWeight": 600,
+                          "lineHeight": 28,
+                          "letterSpacing": -0.4,
+                          "textAlign": "START"
+                        },
+                        "image": null,
+                        "children": []
+                      },
+                      {
+                        "id": "loops",
+                        "type": "BUTTON",
+                        "name": "Loops link",
+                        "bounds": {
+                          "x": 1673,
+                          "y": 290,
+                          "width": 78,
+                          "height": 28
+                        },
+                        "layout": {
+                          "mode": "NONE",
+                          "direction": "NONE",
+                          "justify": "START",
+                          "align": "CENTER",
+                          "gap": null,
+                          "columns": null,
+                          "padding": {
+                            "top": 0,
+                            "right": 0,
+                            "bottom": 0,
+                            "left": 0
+                          }
+                        },
+                        "style": {
+                          "background": null,
+                          "color": "#8A8F98",
+                          "border": null,
+                          "radius": null,
+                          "shadow": null,
+                          "opacity": 1
+                        },
+                        "text": {
+                          "content": "Loops →",
+                          "fontFamily": "Inter",
+                          "fontSize": 20,
+                          "fontWeight": 400,
+                          "lineHeight": 28,
+                          "letterSpacing": -0.4,
+                          "textAlign": "START"
+                        },
+                        "image": null,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "product-preview",
+            "type": "IMAGE",
+            "name": "Linear application preview",
+            "bounds": {
+              "x": 125,
+              "y": 408,
+              "width": 1650,
+              "height": 509
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#141516",
+              "color": null,
+              "border": {
+                "width": 1,
+                "color": "#303132"
+              },
+              "radius": 16,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Large dark Linear application screenshot, cropped at the viewport bottom. Left sidebar shows Linear, Pulse, Inbox, My issues, Reviews, Workspace, Initiatives, Projects, More, Favorites, Faster app launch, and Agent tasks. Main issue header reads DRV-8852 Faster app launch, with a yellow status symbol and star. The issue body has the title Faster app launch, a description about rendering UI before vehicle_state sync during iOS startup, and an Activity section with updates and a partially visible comment. A Reviews area shows Revert. A floating Linear Opus 5 agent panel at lower right shows the request “Fix the dimmed ride rows that never reset and open a PR”, DRV-364 added to context, and a partially visible response about opening a draft PR.",
+              "fit": "COVER"
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Font family and numerical typography values are visually estimated.",
+    "The lower application interface is treated as an embedded product-preview image; its bottom is clipped by the screenshot.",
+    "Header navigation spacing varies slightly; its row gap is an approximation."
+  ]
+}

@@ -4,17 +4,24 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { UISchemaSchema } from "@vision2code/contracts";
 import type { AIProvider } from "../../ai/ai-provider.js";
 import type { AnalysisImageInput } from "../analysis-image-input.js";
+import { ANALYSIS_SERVER_TIMEOUT_MS, DEFAULT_ANALYSIS_FIDELITY, type AnalysisFidelity } from "@vision2code/contracts";
 import { ANALYSIS_TIMEOUT_MS } from "../analysis.constants.js";
+import { DEFAULT_ANALYSIS_PROFILES, type AnalysisProfile } from "../analysis-profiles.js";
 import { InvalidAnalysisOutputError } from "../invalid-analysis-output.error.js";
 import { ProviderFailureError } from "../provider-failure.error.js";
-import { ANALYZER_SYSTEM_PROMPT } from "../prompts/analyzer-system.v1.js";
-import { OPENAI_IMAGE_DETAIL, OPENAI_MAX_OUTPUT_TOKENS, OPENAI_REASONING_EFFORT } from "./openai.configuration.js";
+import { ANALYZER_SYSTEM_PROMPT_VERSION, buildAnalyzerSystemPrompt } from "../prompts/analyzer-system.js";
 
 export class OpenAIProvider implements AIProvider {
   private readonly client: OpenAI;
   private readonly format = zodTextFormat(UISchemaSchema, "ui_schema_v1");
 
-  constructor(private readonly configuration: { apiKey: string; model: string }, client?: OpenAI) {
+  private readonly profiles: Readonly<Record<AnalysisFidelity, AnalysisProfile>>;
+
+  constructor(
+    private readonly configuration: { apiKey: string; model: string; profiles?: Readonly<Record<AnalysisFidelity, AnalysisProfile>> },
+    client?: OpenAI,
+  ) {
+    this.profiles = configuration.profiles ?? DEFAULT_ANALYSIS_PROFILES;
     if (!configuration.apiKey.trim()) throw new Error("OPENAI_API_KEY is required to construct the analysis provider.");
     this.client = client ?? new OpenAI({
       apiKey: configuration.apiKey,
@@ -26,22 +33,27 @@ export class OpenAIProvider implements AIProvider {
   }
 
   async analyze(input: AnalysisImageInput, signal?: AbortSignal): Promise<unknown> {
+    const fidelity = input.fidelity ?? DEFAULT_ANALYSIS_FIDELITY;
+    const profile = this.profiles[fidelity];
+    const timeout = ANALYSIS_SERVER_TIMEOUT_MS[fidelity] ?? ANALYSIS_TIMEOUT_MS;
     try {
       const response = await this.client.responses.create({
         model: this.configuration.model,
-        instructions: ANALYZER_SYSTEM_PROMPT,
+        instructions: buildAnalyzerSystemPrompt(profile),
         store: false,
-        reasoning: { effort: OPENAI_REASONING_EFFORT },
-        max_output_tokens: OPENAI_MAX_OUTPUT_TOKENS,
+        reasoning: { effort: profile.reasoningEffort },
+        max_output_tokens: profile.maxOutputTokens,
         text: { format: this.format },
         input: [{ role: "user", content: [
           { type: "input_text", text: `Analyze this screenshot. Source width: ${input.width}px; source height: ${input.height}px. Return UISchema v1 only.` },
-          { type: "input_image", detail: OPENAI_IMAGE_DETAIL,
+          { type: "input_image", detail: profile.imageDetail,
             image_url: `data:${input.mimeType};base64,${Buffer.from(input.bytes).toString("base64")}` },
         ] }],
-      }, { signal: signal ?? null, maxRetries: 0, timeout: ANALYSIS_TIMEOUT_MS });
+      }, { signal: signal ?? null, maxRetries: 0, timeout });
       const hasParsedOutput = "output_parsed" in response && response.output_parsed != null;
       logAnalysisDiagnostic("provider_response", {
+        promptVersion: ANALYZER_SYSTEM_PROMPT_VERSION,
+        fidelity,
         status: safeDiagnosticValue(response.status, ["completed", "incomplete", "failed", "cancelled", "queued", "in_progress"]),
         completed: response.status === "completed",
         incomplete: response.status === "incomplete",
@@ -55,6 +67,10 @@ export class OpenAIProvider implements AIProvider {
         errorCode: safeDiagnosticValue(response.error?.code, ["server_error", "rate_limit_exceeded", "invalid_prompt", "vector_store_timeout"]),
       });
       if (response.status === "failed" || response.status === "cancelled") throw new ProviderFailureError("UNAVAILABLE");
+      // Stopped at the mode's output budget: a partial schema is useless, and the user can choose a lighter mode.
+      if (response.status === "incomplete" && response.incomplete_details?.reason === "max_output_tokens") {
+        throw new ProviderFailureError("TRUNCATED");
+      }
       if (response.status !== "completed" || response.output.some((item) =>
         item.type === "message" && item.content.some((part) => part.type === "refusal"))) {
         throw new InvalidAnalysisOutputError();
@@ -81,10 +97,14 @@ export class OpenAIProvider implements AIProvider {
           && error.status! >= 100 && error.status! <= 599 ? error.status : null,
         errorCode: error instanceof OpenAI.APIError
           ? safeDiagnosticValue(error.code, ["rate_limit_exceeded", "insufficient_quota", "invalid_api_key", "invalid_request_error",
-            "server_error", "model_not_found", "context_length_exceeded", "invalid_image"]) : null,
+            "server_error", "model_not_found", "context_length_exceeded", "invalid_image", "unsupported_parameter", "unsupported_value"]) : null,
       });
       if (error instanceof InvalidAnalysisOutputError || error instanceof ProviderFailureError) throw error;
       if (error instanceof OpenAI.APIError && error.status === 429) throw new ProviderFailureError("RATE_LIMITED");
+      // A 400 naming an unsupported parameter or value means this model rejects the mode's settings.
+      if (error instanceof OpenAI.BadRequestError && (error.code === "unsupported_parameter" || error.code === "unsupported_value")) {
+        throw new ProviderFailureError("UNSUPPORTED_SETTINGS");
+      }
       // Never attach an SDK exception as a cause: it can contain credentials or provider content.
       throw new ProviderFailureError("UNAVAILABLE");
     }

@@ -29,13 +29,15 @@ test("golden: generator v3 output is byte-for-byte what was reviewed, for every 
   for (const name of names) {
     const actual = interfaceOf(generateReactProject(load(new URL(name, fixturesUrl))));
     const golden = new URL(`${short(name)}.v3.GeneratedInterface.tsx.txt`, goldenUrl);
-    if (process.env.UPDATE_GOLDEN === "1" || !existsSync(golden)) writeFileSync(golden, actual);
+    if (process.env.UPDATE_GOLDEN === "1") writeFileSync(golden, actual);
+    assert.ok(existsSync(golden), `${name}: missing golden file; review the output, then create it with UPDATE_GOLDEN=1`);
     assert.equal(actual, readFileSync(golden, "utf8"), `${name} changed: review the diff, then run with UPDATE_GOLDEN=1`);
   }
 });
 
 test("every golden file belongs to a fixture and a generator version", () => {
-  const expected = names.flatMap((name) => ["v2", "v3"].map((version) => `${short(name)}.${version}.GeneratedInterface.tsx.txt`)).sort();
+  // v3 is pinned for every fixture; v2 only as the "before" of the baseline fixtures (never for per-mode `.p11.` ones).
+  const expected = names.flatMap((name) => (name.includes(".p11.") ? ["v3"] : ["v2", "v3"]).map((version) => `${short(name)}.${version}.GeneratedInterface.tsx.txt`)).sort();
   assert.deepEqual(readdirSync(goldenUrl).filter((name) => name.endsWith(".txt")).sort(), expected);
 });
 
@@ -115,11 +117,12 @@ test("no element is both flex and grid, and a track grid carries no gap or justi
 
 test("the containers v2 left flat are now structured, and the fallback is not needed on these fixtures", () => {
   const expectations: Record<string, { trackGrids: number }> = {
-    "codepen-login": { trackGrids: 1 }, // login-area: heading, three columns and a prompt
+    "codepen-login": { trackGrids: 2 }, // the re-saved fixture: two NONE areas without a flow (heading/columns/prompt)
     "linear-landing": { trackGrids: 2 }, // issue-panel (NONE) and hero (a column whose last band is a row)
     "tremor-dashboard": { trackGrids: 1 }, // dashboard: GRID declared with 4 columns over 3
   };
-  for (const name of names) {
+  // Only the baseline fixtures have reviewed expectations; per-mode fixtures added later are measured, not pinned.
+  for (const name of names.filter((entry) => short(entry) in expectations)) {
     const { free } = planLayout(load(new URL(name, fixturesUrl)), "v3");
     assert.equal(free.positioned, 0, `${name}: positioning by bounds is a last resort and was not needed`);
     assert.equal(free.trackGrids, expectations[short(name)]!.trackGrids, `${name}: track grids`);

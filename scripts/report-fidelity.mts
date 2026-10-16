@@ -30,6 +30,11 @@ function table(columns: string[], rows: string[][]) {
   for (const row of rows) console.log(line(row));
 }
 
+/** `<site>.<mode>.p11[.rN].v1.json`: a prompt v1.1 analysis of one site in one mode (rN = repeated run). */
+const MODE_FIXTURE = /^(?<site>[a-z0-9-]+)\.(?<mode>fast|balanced|precise)\.p11(?:\.r(?<run>\d+))?\.v1\.json$/;
+interface ModeSample { nodes: number; textRisk: number; noLayout: number; rows: number; placeholders: number; warnings: number }
+const byMode = new Map<string, ModeSample[]>();
+
 const inputRows: string[][] = [];
 const outputRows: string[][] = [];
 let invalid = 0;
@@ -45,6 +50,12 @@ for (const name of names) {
   inputRows.push([name, m.nodeCount, m.maxDepth, m.containersWithoutLayout, m.rowCandidates, m.textClampRisk, m.placeholderCount,
     m.confidence.toFixed(2), m.warningCount, m.jsonBytes, generateReactProject(schema).files.length].map(String));
 
+  const match = MODE_FIXTURE.exec(name);
+  if (match?.groups) {
+    const key = `${match.groups.site}|${match.groups.mode}`;
+    byMode.set(key, [...(byMode.get(key) ?? []), { nodes: m.nodeCount, textRisk: m.textClampRisk, noLayout: m.containersWithoutLayout,
+      rows: m.rowCandidates, placeholders: m.placeholderCount, warnings: m.warningCount }]);
+  }
   const short = name.replace(".v1.json", "");
   const generators = [...GENERATOR_VERSIONS.map(({ version, generate }) => ({ version, generate, profile: "v2" as const })),
     { version: "3", generate: generateReactProject, profile: "v3" as const }];
@@ -63,6 +74,31 @@ table(["fixture", "nodes", "depth", "noLayout", "rows", "textRisk", "placeholder
 console.log("\nOUTPUT (what each generator version emitted for the same schema)");
 table(["fixture", "gen", "noWrapText", "wrapText", "wFull", "wrapRows", "oneLineRows", "rowBasis", "fixedW", "selfAlign", "margins",
   "infGap", "infPad", "justifyFix", "flexInf", "trackGrids", "positioned"], outputRows);
+
+const modeOrder = ["fast", "balanced", "precise"];
+if (byMode.size > 0) {
+  // Mean over repeated runs, with the range when there is more than one: the model is not deterministic.
+  const cell = (values: number[]) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const text = Number.isInteger(mean) ? String(mean) : mean.toFixed(1);
+    return values.length > 1 ? `${text} (${Math.min(...values)}-${Math.max(...values)})` : text;
+  };
+  const rows = [...byMode.entries()]
+    .sort(([a], [b]) => {
+      const [siteA, modeA] = a.split("|");
+      const [siteB, modeB] = b.split("|");
+      return siteA!.localeCompare(siteB!) || modeOrder.indexOf(modeA!) - modeOrder.indexOf(modeB!);
+    })
+    .map(([key, samples]) => {
+      const [site, mode] = key.split("|");
+      const pick = (field: keyof ModeSample) => cell(samples.map((sample) => sample[field]));
+      return [site!, mode!, String(samples.length), pick("nodes"), pick("textRisk"), pick("noLayout"), pick("rows"), pick("placeholders"), pick("warnings")];
+    });
+  console.log("\nBY MODE (prompt v1.1 fixtures <site>.<mode>.p11[.rN].v1.json; mean over runs, range in parentheses)");
+  table(["site", "mode", "runs", "nodes", "textRisk", "noLayout", "rows", "placeholders", "warn"], rows);
+} else {
+  console.log("\nBY MODE: no prompt v1.1 fixtures yet (name them <site>.<mode>.p11.v1.json; see the fixtures README).");
+}
 console.log(`\n${names.length} fixture(s), ${invalid} invalid.
 Input: noLayout = containers with 2+ children and layout NONE; rows = row candidates; textRisk = single-line text estimated wider than its bounds.
 Output: noWrapText = text that never wraps; wFull = children forced to full width (root excluded); wrapRows/oneLineRows = rows allowed to wrap / kept on one line;

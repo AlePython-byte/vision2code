@@ -2,18 +2,20 @@ import { BadRequestException, Injectable, PayloadTooLargeException } from "@nest
 import { FileInterceptor } from "@nestjs/platform-express";
 import type { CallHandler, ExecutionContext } from "@nestjs/common";
 import { z } from "zod";
+import { AnalysisFidelitySchema, DEFAULT_ANALYSIS_FIDELITY } from "@vision2code/contracts";
 import { ApiHttpException } from "../../http/api-http.exception.js";
 import { AnalysisImageMimeTypeSchema } from "../analysis-image-input.js";
 import type { AnalysisImageInput } from "../analysis-image-input.js";
 import { MAX_ANALYSIS_IMAGE_BYTES } from "../analysis.constants.js";
 
 const DimensionSchema = z.string().regex(/^[1-9]\d*$/).transform(Number).pipe(z.number().int().positive());
-const MetadataSchema = z.strictObject({ viewportWidth: DimensionSchema, viewportHeight: DimensionSchema });
+// `fidelity` is optional so clients that predate it keep working; an unknown value is a 400.
+const MetadataSchema = z.strictObject({ viewportWidth: DimensionSchema, viewportHeight: DimensionSchema, fidelity: AnalysisFidelitySchema.optional() });
 
 // With no destination/storage option, Multer keeps the file in memory only.
 const UploadInterceptor = FileInterceptor("image", {
-  // Busboy emits limits at the boundary; allow the inclusive byte cap and three parts.
-  limits: { fileSize: MAX_ANALYSIS_IMAGE_BYTES + 1, files: 1, fields: 2, parts: 4, fieldSize: 32 },
+  // Busboy emits limits at the boundary; allow the inclusive byte cap, the image and three fields.
+  limits: { fileSize: MAX_ANALYSIS_IMAGE_BYTES + 1, files: 1, fields: 3, parts: 5, fieldSize: 32 },
   fileFilter: (_request, file, callback) => {
     if (!AnalysisImageMimeTypeSchema.safeParse(file.mimetype).success) {
       callback(new ApiHttpException("UNSUPPORTED_IMAGE", 415), false);
@@ -49,5 +51,6 @@ export function validateAnalysisUpload(file: Express.Multer.File | undefined, me
   if (!signature) throw new ApiHttpException("UNSUPPORTED_IMAGE", 415);
   const parsed = MetadataSchema.safeParse(metadata);
   if (!parsed.success) throw new BadRequestException();
-  return { bytes: new Uint8Array(bytes), mimeType: mime.data, width: parsed.data.viewportWidth, height: parsed.data.viewportHeight };
+  return { bytes: new Uint8Array(bytes), mimeType: mime.data, width: parsed.data.viewportWidth, height: parsed.data.viewportHeight,
+    fidelity: parsed.data.fidelity ?? DEFAULT_ANALYSIS_FIDELITY };
 }

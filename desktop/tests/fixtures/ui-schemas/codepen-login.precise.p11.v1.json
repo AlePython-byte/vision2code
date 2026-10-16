@@ -1,0 +1,2172 @@
+{
+  "schemaVersion": "1.0",
+  "source": {
+    "width": 1891,
+    "height": 905
+  },
+  "confidence": 0.95,
+  "designTokens": {
+    "colors": [
+      {
+        "name": "black",
+        "value": "#000000"
+      },
+      {
+        "name": "sidebar",
+        "value": "#1E1F26"
+      },
+      {
+        "name": "mainBackground",
+        "value": "#191A22"
+      },
+      {
+        "name": "searchBackground",
+        "value": "#252830"
+      },
+      {
+        "name": "socialButton",
+        "value": "#444857"
+      },
+      {
+        "name": "inputBackground",
+        "value": "#D5D7DE"
+      },
+      {
+        "name": "primary",
+        "value": "#47CF73"
+      },
+      {
+        "name": "link",
+        "value": "#76DAFF"
+      },
+      {
+        "name": "text",
+        "value": "#FFFFFF"
+      },
+      {
+        "name": "muted",
+        "value": "#9398AA"
+      },
+      {
+        "name": "proBadge",
+        "value": "#FFDD40"
+      }
+    ],
+    "typography": [
+      {
+        "name": "pageHeading",
+        "fontFamily": "Lato",
+        "fontSize": 84,
+        "fontWeight": 700,
+        "lineHeight": 101,
+        "letterSpacing": null
+      },
+      {
+        "name": "body",
+        "fontFamily": "Lato",
+        "fontSize": 20,
+        "fontWeight": 400,
+        "lineHeight": 24,
+        "letterSpacing": null
+      },
+      {
+        "name": "navigation",
+        "fontFamily": "Lato",
+        "fontSize": 21,
+        "fontWeight": 700,
+        "lineHeight": 26,
+        "letterSpacing": null
+      },
+      {
+        "name": "small",
+        "fontFamily": "Lato",
+        "fontSize": 15,
+        "fontWeight": 400,
+        "lineHeight": 23,
+        "letterSpacing": null
+      },
+      {
+        "name": "tagline",
+        "fontFamily": "monospace",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "lineHeight": 15,
+        "letterSpacing": null
+      }
+    ],
+    "spacing": [
+      8,
+      12,
+      16,
+      24,
+      30,
+      38,
+      50,
+      60
+    ],
+    "radii": [
+      3,
+      4,
+      6,
+      12
+    ]
+  },
+  "root": {
+    "id": "root",
+    "type": "FRAME",
+    "name": "Application viewport",
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1891,
+      "height": 905
+    },
+    "layout": {
+      "mode": "ABSOLUTE",
+      "direction": "NONE",
+      "justify": "START",
+      "align": "START",
+      "gap": null,
+      "columns": null,
+      "padding": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      }
+    },
+    "style": {
+      "background": "#000000",
+      "color": null,
+      "border": null,
+      "radius": null,
+      "shadow": null,
+      "opacity": 1
+    },
+    "text": null,
+    "image": null,
+    "children": [
+      {
+        "id": "sidebar",
+        "type": "FRAME",
+        "name": "Left sidebar",
+        "bounds": {
+          "x": 6,
+          "y": 0,
+          "width": 224,
+          "height": 905
+        },
+        "layout": {
+          "mode": "ABSOLUTE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 29,
+            "right": 21,
+            "bottom": 0,
+            "left": 23
+          }
+        },
+        "style": {
+          "background": "#1E1F26",
+          "color": "#FFFFFF",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "sidebar-logo",
+            "type": "IMAGE",
+            "name": "CodePen wordmark",
+            "bounds": {
+              "x": 29,
+              "y": 29,
+              "width": 180,
+              "height": 33
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White CODEPEN wordmark with an outlined geometric cube replacing the O.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "editor-button",
+            "type": "BUTTON",
+            "name": "Try editor",
+            "bounds": {
+              "x": 30,
+              "y": 87,
+              "width": 175,
+              "height": 55
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#444857",
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": 8,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Try The Editor",
+              "fontFamily": "Lato",
+              "fontSize": 20,
+              "fontWeight": 700,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": {
+              "description": "Rounded button outlined with a multicolor cyan, purple, and gold border.",
+              "fit": "FILL"
+            },
+            "children": []
+          },
+          {
+            "id": "editor-tagline",
+            "type": "TEXT",
+            "name": "Editor tagline",
+            "bounds": {
+              "x": 44,
+              "y": 152,
+              "width": 148,
+              "height": 15
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#B0B3C0",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "CODE, DEPLOY & SHARE",
+              "fontFamily": "monospace",
+              "fontSize": 12,
+              "fontWeight": 700,
+              "lineHeight": 15,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "sidebar-navigation",
+            "type": "FRAME",
+            "name": "Primary navigation",
+            "bounds": {
+              "x": 30,
+              "y": 212,
+              "width": 134,
+              "height": 244
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "COLUMN",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "nav-search",
+                "type": "BUTTON",
+                "name": "Search Pens",
+                "bounds": {
+                  "x": 30,
+                  "y": 212,
+                  "width": 114,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Search Pens",
+                  "fontFamily": "Lato",
+                  "fontSize": 21,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "nav-challenges",
+                "type": "BUTTON",
+                "name": "Challenges",
+                "bounds": {
+                  "x": 30,
+                  "y": 262,
+                  "width": 104,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Challenges",
+                  "fontFamily": "Lato",
+                  "fontSize": 21,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "nav-spark",
+                "type": "BUTTON",
+                "name": "Spark",
+                "bounds": {
+                  "x": 30,
+                  "y": 312,
+                  "width": 55,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Spark",
+                  "fontFamily": "Lato",
+                  "fontSize": 21,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "nav-pricing",
+                "type": "BUTTON",
+                "name": "Pricing",
+                "bounds": {
+                  "x": 30,
+                  "y": 380,
+                  "width": 67,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Pricing",
+                  "fontFamily": "Lato",
+                  "fontSize": 21,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "nav-pro",
+                "type": "BUTTON",
+                "name": "CodePen Pro",
+                "bounds": {
+                  "x": 30,
+                  "y": 430,
+                  "width": 134,
+                  "height": 26
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "CodePen PRO",
+                  "fontFamily": "Lato",
+                  "fontSize": 21,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": {
+                  "description": "The PRO suffix appears in small black capitals on a yellow rectangular badge.",
+                  "fit": "NONE"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "advertisement-image",
+            "type": "IMAGE",
+            "name": "Newsletter advertisement",
+            "bounds": {
+              "x": 31,
+              "y": 650,
+              "width": 162,
+              "height": 125
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#000000",
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Black design.dev advertisement with a white D logo and the text “The Newsletter For Creators”.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "advertisement-copy",
+            "type": "TEXT",
+            "name": "Advertisement description",
+            "bounds": {
+              "x": 30,
+              "y": 788,
+              "width": 174,
+              "height": 89
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#9398AA",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Get the Drop. Weekly\nfront-end tools, tips, and\nresources. Plus a free icon\npack to get you started.",
+              "fontFamily": "Lato",
+              "fontSize": 15,
+              "fontWeight": 400,
+              "lineHeight": 23,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "advertisement-attribution",
+            "type": "TEXT",
+            "name": "Advertisement attribution",
+            "bounds": {
+              "x": 30,
+              "y": 885,
+              "width": 100,
+              "height": 18
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#9398AA",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "(ads via Carbon)",
+              "fontFamily": "Lato",
+              "fontSize": 13,
+              "fontWeight": 400,
+              "lineHeight": 18,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "topbar",
+        "type": "FRAME",
+        "name": "Top toolbar",
+        "bounds": {
+          "x": 230,
+          "y": 0,
+          "width": 1661,
+          "height": 90
+        },
+        "layout": {
+          "mode": "ABSOLUTE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "CENTER",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 16,
+            "right": 14,
+            "bottom": 19,
+            "left": 19
+          }
+        },
+        "style": {
+          "background": "#000000",
+          "color": null,
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "global-search",
+            "type": "INPUT",
+            "name": "Global search",
+            "bounds": {
+              "x": 249,
+              "y": 16,
+              "width": 375,
+              "height": 55
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#252830",
+              "color": "#9398AA",
+              "border": null,
+              "radius": 6,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Search CodePen...",
+              "fontFamily": "Lato",
+              "fontSize": 20,
+              "fontWeight": 700,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": {
+              "description": "Muted gray magnifying glass at the left of the search field.",
+              "fit": "NONE"
+            },
+            "children": []
+          },
+          {
+            "id": "search-info",
+            "type": "ICON",
+            "name": "Search information",
+            "bounds": {
+              "x": 592,
+              "y": 32,
+              "width": 22,
+              "height": 22
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#6A6F80",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Circular gray information icon containing a lowercase i.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          },
+          {
+            "id": "header-signup",
+            "type": "BUTTON",
+            "name": "Sign up",
+            "bounds": {
+              "x": 1769,
+              "y": 16,
+              "width": 108,
+              "height": 55
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": "#47CF73",
+              "color": "#000000",
+              "border": null,
+              "radius": 6,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Sign Up",
+              "fontFamily": "Lato",
+              "fontSize": 20,
+              "fontWeight": 400,
+              "lineHeight": 24,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "main",
+        "type": "FRAME",
+        "name": "Login content",
+        "bounds": {
+          "x": 230,
+          "y": 90,
+          "width": 1661,
+          "height": 710
+        },
+        "layout": {
+          "mode": "ABSOLUTE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "style": {
+          "background": "#191A22",
+          "color": "#FFFFFF",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "main-pattern",
+            "type": "IMAGE",
+            "name": "Geometric background",
+            "bounds": {
+              "x": 230,
+              "y": 90,
+              "width": 1661,
+              "height": 710
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "Very low-contrast repeating dark geometric cube pattern on a charcoal background.",
+              "fit": "COVER"
+            },
+            "children": []
+          },
+          {
+            "id": "login-heading",
+            "type": "TEXT",
+            "name": "Login heading",
+            "bounds": {
+              "x": 588,
+              "y": 198,
+              "width": 225,
+              "height": 101
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Log In",
+              "fontFamily": "Lato",
+              "fontSize": 84,
+              "fontWeight": 700,
+              "lineHeight": 101,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "login-methods",
+            "type": "FRAME",
+            "name": "Login methods row",
+            "bounds": {
+              "x": 588,
+              "y": 318,
+              "width": 950,
+              "height": 378
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "ROW",
+              "justify": "START",
+              "align": "START",
+              "gap": 37.5,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "social-login",
+                "type": "FRAME",
+                "name": "Social login column",
+                "bounds": {
+                  "x": 588,
+                  "y": 318,
+                  "width": 393,
+                  "height": 172
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "google-login",
+                    "type": "BUTTON",
+                    "name": "Google login",
+                    "bounds": {
+                      "x": 588,
+                      "y": 318,
+                      "width": 393,
+                      "height": 53
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#444857",
+                      "color": "#FFFFFF",
+                      "border": null,
+                      "radius": 4,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Log In with Google",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": {
+                      "description": "Multicolor Google G icon aligned to the left of the label.",
+                      "fit": "NONE"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "github-login",
+                    "type": "BUTTON",
+                    "name": "GitHub login",
+                    "bounds": {
+                      "x": 588,
+                      "y": 384,
+                      "width": 393,
+                      "height": 53
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#444857",
+                      "color": "#FFFFFF",
+                      "border": null,
+                      "radius": 4,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Log In with GitHub",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": {
+                      "description": "White GitHub Octocat mark aligned to the left of the label.",
+                      "fit": "NONE"
+                    },
+                    "children": []
+                  },
+                  {
+                    "id": "social-explanation",
+                    "type": "BUTTON",
+                    "name": "Social login explanation",
+                    "bounds": {
+                      "x": 600,
+                      "y": 464,
+                      "width": 210,
+                      "height": 26
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#FFFFFF",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "How social log in works",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 26,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": {
+                      "description": "Small white right-pointing disclosure triangle before the label.",
+                      "fit": "NONE"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "method-separator",
+                "type": "FRAME",
+                "name": "Login method separator",
+                "bounds": {
+                  "x": 1018,
+                  "y": 318,
+                  "width": 50,
+                  "height": 378
+                },
+                "layout": {
+                  "mode": "ABSOLUTE",
+                  "direction": "NONE",
+                  "justify": "CENTER",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "separator-line",
+                    "type": "DIVIDER",
+                    "name": "Vertical separator",
+                    "bounds": {
+                      "x": 1042,
+                      "y": 318,
+                      "width": 2,
+                      "height": 378
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#9398AA",
+                      "color": null,
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "separator-label",
+                    "type": "TEXT",
+                    "name": "Alternative label",
+                    "bounds": {
+                      "x": 1018,
+                      "y": 488,
+                      "width": 50,
+                      "height": 38
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#191A22",
+                      "color": "#B0B3C0",
+                      "border": {
+                        "width": 2,
+                        "color": "#9398AA"
+                      },
+                      "radius": 12,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "OR",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 34,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "credential-form",
+                "type": "FRAME",
+                "name": "Credential login column",
+                "bounds": {
+                  "x": 1106,
+                  "y": 320,
+                  "width": 432,
+                  "height": 344
+                },
+                "layout": {
+                  "mode": "FLEX",
+                  "direction": "COLUMN",
+                  "justify": "START",
+                  "align": "STRETCH",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": null,
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": null,
+                "image": null,
+                "children": [
+                  {
+                    "id": "username-label",
+                    "type": "TEXT",
+                    "name": "Username label",
+                    "bounds": {
+                      "x": 1106,
+                      "y": 320,
+                      "width": 166,
+                      "height": 24
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#FFFFFF",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Username or Email",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "username-input",
+                    "type": "INPUT",
+                    "name": "Username or email input",
+                    "bounds": {
+                      "x": 1106,
+                      "y": 350,
+                      "width": 432,
+                      "height": 60
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#D5D7DE",
+                      "color": null,
+                      "border": null,
+                      "radius": 3,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "password-label",
+                    "type": "TEXT",
+                    "name": "Password label",
+                    "bounds": {
+                      "x": 1106,
+                      "y": 437,
+                      "width": 85,
+                      "height": 24
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "START",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#FFFFFF",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Password",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "START"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "password-input",
+                    "type": "INPUT",
+                    "name": "Password input",
+                    "bounds": {
+                      "x": 1106,
+                      "y": 466,
+                      "width": 432,
+                      "height": 60
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "START",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#D5D7DE",
+                      "color": null,
+                      "border": null,
+                      "radius": 3,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": null,
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "login-submit",
+                    "type": "BUTTON",
+                    "name": "Log in",
+                    "bounds": {
+                      "x": 1106,
+                      "y": 551,
+                      "width": 432,
+                      "height": 56
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": "#47CF73",
+                      "color": "#000000",
+                      "border": null,
+                      "radius": 4,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Log In",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  },
+                  {
+                    "id": "forgot-password",
+                    "type": "BUTTON",
+                    "name": "Forgot password",
+                    "bounds": {
+                      "x": 1249,
+                      "y": 640,
+                      "width": 147,
+                      "height": 24
+                    },
+                    "layout": {
+                      "mode": "NONE",
+                      "direction": "NONE",
+                      "justify": "CENTER",
+                      "align": "CENTER",
+                      "gap": null,
+                      "columns": null,
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "left": 0
+                      }
+                    },
+                    "style": {
+                      "background": null,
+                      "color": "#76DAFF",
+                      "border": null,
+                      "radius": null,
+                      "shadow": null,
+                      "opacity": 1
+                    },
+                    "text": {
+                      "content": "Forgot Password?",
+                      "fontFamily": "Lato",
+                      "fontSize": 20,
+                      "fontWeight": 400,
+                      "lineHeight": 24,
+                      "letterSpacing": null,
+                      "textAlign": "CENTER"
+                    },
+                    "image": null,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "account-prompt",
+            "type": "TEXT",
+            "name": "Account signup prompt",
+            "bounds": {
+              "x": 937,
+              "y": 749,
+              "width": 253,
+              "height": 25
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "CENTER",
+              "align": "CENTER",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#FFFFFF",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "Need an account? Sign up now!",
+              "fontFamily": "Lato",
+              "fontSize": 20,
+              "fontWeight": 400,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "CENTER"
+            },
+            "image": null,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "footer",
+        "type": "FRAME",
+        "name": "Site footer",
+        "bounds": {
+          "x": 230,
+          "y": 800,
+          "width": 1661,
+          "height": 105
+        },
+        "layout": {
+          "mode": "ABSOLUTE",
+          "direction": "NONE",
+          "justify": "START",
+          "align": "START",
+          "gap": null,
+          "columns": null,
+          "padding": {
+            "top": 51,
+            "right": 114,
+            "bottom": 0,
+            "left": 120
+          }
+        },
+        "style": {
+          "background": "#000000",
+          "color": "#9398AA",
+          "border": null,
+          "radius": null,
+          "shadow": null,
+          "opacity": 1
+        },
+        "text": null,
+        "image": null,
+        "children": [
+          {
+            "id": "footer-primary-row",
+            "type": "FRAME",
+            "name": "Footer primary links",
+            "bounds": {
+              "x": 350,
+              "y": 851,
+              "width": 577,
+              "height": 25
+            },
+            "layout": {
+              "mode": "FLEX",
+              "direction": "ROW",
+              "justify": "START",
+              "align": "CENTER",
+              "gap": 10,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": null,
+            "children": [
+              {
+                "id": "footer-brand",
+                "type": "TEXT",
+                "name": "Footer brand label",
+                "bounds": {
+                  "x": 350,
+                  "y": 851,
+                  "width": 77,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "START",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#FFFFFF",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "CodePen",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 700,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-about",
+                "type": "BUTTON",
+                "name": "About",
+                "bounds": {
+                  "x": 446,
+                  "y": 851,
+                  "width": 52,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "About",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-changelog",
+                "type": "BUTTON",
+                "name": "Changelog",
+                "bounds": {
+                  "x": 508,
+                  "y": 851,
+                  "width": 87,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Changelog",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-pricing",
+                "type": "BUTTON",
+                "name": "Footer pricing",
+                "bounds": {
+                  "x": 605,
+                  "y": 851,
+                  "width": 58,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Pricing",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-blog",
+                "type": "BUTTON",
+                "name": "Blog",
+                "bounds": {
+                  "x": 673,
+                  "y": 851,
+                  "width": 38,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Blog",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-docs",
+                "type": "BUTTON",
+                "name": "Docs",
+                "bounds": {
+                  "x": 721,
+                  "y": 851,
+                  "width": 40,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Docs",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-support",
+                "type": "BUTTON",
+                "name": "Support",
+                "bounds": {
+                  "x": 771,
+                  "y": 851,
+                  "width": 66,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Support",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              },
+              {
+                "id": "footer-advertise",
+                "type": "BUTTON",
+                "name": "Advertise",
+                "bounds": {
+                  "x": 847,
+                  "y": 851,
+                  "width": 80,
+                  "height": 25
+                },
+                "layout": {
+                  "mode": "NONE",
+                  "direction": "NONE",
+                  "justify": "START",
+                  "align": "CENTER",
+                  "gap": null,
+                  "columns": null,
+                  "padding": {
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "left": 0
+                  }
+                },
+                "style": {
+                  "background": null,
+                  "color": "#A5A8B8",
+                  "border": null,
+                  "radius": null,
+                  "shadow": null,
+                  "opacity": 1
+                },
+                "text": {
+                  "content": "Advertise",
+                  "fontFamily": "Lato",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeight": 25,
+                  "letterSpacing": null,
+                  "textAlign": "START"
+                },
+                "image": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "footer-secondary-row",
+            "type": "TEXT",
+            "name": "Partially visible secondary footer row",
+            "bounds": {
+              "x": 350,
+              "y": 889,
+              "width": 373,
+              "height": 16
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": "#A5A8B8",
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": {
+              "content": "For   Teams  Privacy  Embeds  Asset Hosting",
+              "fontFamily": "Lato",
+              "fontSize": 20,
+              "fontWeight": 400,
+              "lineHeight": 25,
+              "letterSpacing": null,
+              "textAlign": "START"
+            },
+            "image": null,
+            "children": []
+          },
+          {
+            "id": "footer-logo",
+            "type": "IMAGE",
+            "name": "Footer CodePen wordmark",
+            "bounds": {
+              "x": 1596,
+              "y": 870,
+              "width": 181,
+              "height": 33
+            },
+            "layout": {
+              "mode": "NONE",
+              "direction": "NONE",
+              "justify": "START",
+              "align": "START",
+              "gap": null,
+              "columns": null,
+              "padding": {
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            "style": {
+              "background": null,
+              "color": null,
+              "border": null,
+              "radius": null,
+              "shadow": null,
+              "opacity": 1
+            },
+            "text": null,
+            "image": {
+              "description": "White CODEPEN wordmark with geometric outlined cube symbol.",
+              "fit": "CONTAIN"
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    "Font family and exact font metrics are visually estimated.",
+    "The secondary footer row is clipped by the bottom edge of the screenshot.",
+    "The account prompt uses white introductory text and a cyan “Sign up now!” link; its single text node cannot express mixed inline colors.",
+    "A small sidebar-collapse glyph overlaps the left edge of the search area and is omitted as a minor visual fragment.",
+    "The editor button's multicolor border and the PRO badge's mixed typography are described visually because the schema has no gradient or inline text-run styling."
+  ]
+}

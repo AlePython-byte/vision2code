@@ -82,7 +82,8 @@ export function createAnalysisModel(analyzeScreenshot: AnalyzeScreenshot, option
       update({ ...state, status: "ANALYZING", result: null, error: null, errorRequestId: null, context: captured });
       options.onReplaced?.();
       try {
-        const result = await analyzeScreenshot(screenshot, controller.signal);
+        // The mode captured at start travels with the request; later dial changes do not affect it.
+        const result = await analyzeScreenshot(screenshot, controller.signal, { fidelity: captured.fidelity });
         if (active !== controller || controller.signal.aborted) return;
         update({ ...state, status: "SUCCESS", result });
       } catch (error) {

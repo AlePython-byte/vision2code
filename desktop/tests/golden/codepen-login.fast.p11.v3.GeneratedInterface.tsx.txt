@@ -1,0 +1,64 @@
+export default function GeneratedInterface() {
+  return (
+    <div data-node-id={"root"} className={"box-border min-w-0 relative w-full [max-width:1891px] [aspect-ratio:1891/905] [padding:0px_0px_0px_0px] [background-color:#191A22] [opacity:1]"}>
+      <div data-node-id={"sidebar"} className={"box-border min-w-0 absolute [left:0%] [top:0%] [width:12.1629%] [height:100%] flex flex-col justify-start items-start [gap:27px] [padding:27px_22px_445px_28px] [background-color:#1E1F26] [opacity:1]"}>
+        <div role="img" aria-label={"White CodePen wordmark with outlined geometric cube."} data-node-id={"brand"} className={"box-border min-w-0 relative w-full [max-width:180px] [min-height:36px] [max-height:36px] overflow-hidden [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <span className="block border border-dashed border-current p-2 text-xs">{"Imagen sin recurso"}</span>
+        </div>
+        <button type="button" data-node-id={"try-editor"} className={"box-border min-w-0 relative w-full [max-width:180px] [min-height:52px] [padding:0px_0px_0px_0px] [background-color:#191A22] [color:#FFFFFF] [border:3px_solid_#76DAFF] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:24px] [text-align:center] [font-family:'Arial']"}>
+          {"Try Our Editor"}
+        </button>
+        <div data-node-id={"navigation"} className={"box-border min-w-0 relative w-full [max-width:180px] [min-height:291px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:49px] [text-align:start] [font-family:'Arial']"}>
+          {"Search Pens\nChallenges\nSpark\n\nPricing\nCodePen PRO"}
+        </div>
+      </div>
+      <div data-node-id={"topbar"} className={"box-border min-w-0 absolute [left:12.1629%] [top:0%] [width:87.8371%] [height:9.9448%] flex flex-row flex-nowrap justify-between items-center [gap:1142px] [padding:15px_15px_18px_17px] [background-color:#000000] [opacity:1]"}>
+        <div data-node-id={"search"} className={"box-border min-w-0 relative [flex:0_1_376px] [min-height:57px] [padding:0px_0px_0px_0px] [background-color:#252830] [color:#B7BBC8] [border-radius:12px] [opacity:1] whitespace-pre-wrap break-words [font-size:20px] [font-weight:400] [line-height:28px] [text-align:start] [font-family:'Arial']"}>
+          <input type="text" readOnly aria-label={"Campo de texto"} value={"Search CodePen..."} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+        </div>
+        <button type="button" data-node-id={"header-signup"} className={"box-border min-w-0 relative [flex:0_1_111px] [min-height:57px] [padding:0px_0px_0px_0px] [background-color:#47CF73] [color:#000000] [border-radius:3px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:26px] [text-align:center] [font-family:'Arial']"}>
+          {"Sign Up"}
+        </button>
+      </div>
+      <div data-node-id={"login"} className={"box-border min-w-0 absolute [left:31.0418%] [top:22.8729%] [width:50.3966%] [height:62.4309%] flex flex-col justify-start items-start [gap:14px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+        <div data-node-id={"heading"} className={"box-border min-w-0 relative [width:253px] [max-width:100%] [min-height:96px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:80px] [font-weight:700] [line-height:96px] [letter-spacing:-2px] [text-align:start] [font-family:'Arial']"}>
+          {"Log In"}
+        </div>
+        <div data-node-id={"methods"} className={"box-border min-w-0 relative w-full [max-width:953px] [min-height:378px] flex flex-row flex-nowrap justify-start items-start [gap:60px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+          <div data-node-id={"social"} className={"box-border min-w-0 relative [flex:0_1_393px] [min-height:186px] flex flex-col justify-start items-stretch [gap:14px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <button type="button" data-node-id={"google"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:52px] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:26px] [text-align:center] [font-family:'Arial']"}>
+              {"Log In with Google"}
+            </button>
+            <button type="button" data-node-id={"github"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:52px] [padding:0px_0px_0px_0px] [background-color:#444857] [color:#FFFFFF] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:26px] [text-align:center] [font-family:'Arial']"}>
+              {"Log In with GitHub"}
+            </button>
+            <button type="button" data-node-id={"facebook"} className={"box-border min-w-0 relative w-full [max-width:393px] [min-height:54px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:400] [line-height:26px] [text-align:start] [font-family:'Arial']"}>
+              {"Log In with Facebook"}
+            </button>
+          </div>
+          <div data-node-id={"or"} className={"box-border min-w-0 relative [flex:0_1_1px] [min-height:378px] [padding:0px_0px_0px_0px] [background-color:#B7BBC8] [color:#FFFFFF] [opacity:1] whitespace-pre-wrap break-words [font-size:16px] [font-weight:400] [line-height:22px] [text-align:center] [font-family:'Arial']"}>
+            <hr className="m-0 w-full border-0 border-t border-current" />
+            {"OR"}
+          </div>
+          <div data-node-id={"credentials"} className={"box-border min-w-0 relative [flex:0_1_439px] [min-height:346px] flex flex-col justify-start items-stretch [gap:22px] [padding:0px_0px_0px_0px] [opacity:1]"}>
+            <div data-node-id={"email"} className={"box-border min-w-0 relative w-full [max-width:439px] [min-height:95px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [border-radius:3px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Arial']"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={"Username or Email"} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <div data-node-id={"password"} className={"box-border min-w-0 relative w-full [max-width:439px] [min-height:91px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [border-radius:3px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:26px] [text-align:start] [font-family:'Arial']"}>
+              <input type="text" readOnly aria-label={"Campo de texto"} value={"Password"} className="block w-full bg-transparent text-inherit [font:inherit] whitespace-pre-wrap" />
+            </div>
+            <button type="button" data-node-id={"submit"} className={"box-border min-w-0 relative w-full [max-width:439px] [min-height:60px] [padding:0px_0px_0px_0px] [background-color:#47CF73] [color:#000000] [border-radius:6px] [opacity:1] whitespace-pre-wrap break-words [font-size:18px] [font-weight:700] [line-height:26px] [text-align:center] [font-family:'Arial']"}>
+              {"Log In"}
+            </button>
+            <button type="button" data-node-id={"forgot"} className={"box-border min-w-0 relative w-full [max-width:439px] [min-height:34px] [padding:0px_0px_0px_0px] [color:#76DAFF] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:26px] [text-align:center] [font-family:'Arial']"}>
+              {"Forgot Password?"}
+            </button>
+          </div>
+        </div>
+        <div data-node-id={"signup-prompt"} className={"box-border min-w-0 relative [width:320px] [max-width:100%] [min-height:25px] [margin-top:38px] [margin-left:346px] [padding:0px_0px_0px_0px] [color:#FFFFFF] [opacity:1] whitespace-pre [font-size:18px] [font-weight:400] [line-height:25px] [text-align:center] [font-family:'Arial']"}>
+          {"Need an account? Sign up now!"}
+        </div>
+      </div>
+    </div>
+  );
+}

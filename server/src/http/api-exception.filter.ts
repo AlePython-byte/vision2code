@@ -18,6 +18,15 @@ const errorMessages: Record<ApiErrorCode, string> = {
   AI_UNAVAILABLE: "El servicio de análisis no está disponible temporalmente.",
   AI_OUTPUT_INVALID: "No se pudo interpretar correctamente la interfaz.",
   UNAUTHORIZED: "No autorizado. Se requiere un token de acceso válido.",
+  AI_OUTPUT_TRUNCATED: "El análisis se interrumpió antes de terminar. Prueba con el modo Rápido o con una captura más simple.",
+  AI_SETTINGS_UNSUPPORTED: "El servicio de análisis no admite la configuración de este modo. Prueba con otro modo.",
+};
+
+const providerFailures: Record<ProviderFailureError["kind"], { status: number; code: ApiErrorCode }> = {
+  RATE_LIMITED: { status: 429, code: "AI_RATE_LIMITED" },
+  UNAVAILABLE: { status: 503, code: "AI_UNAVAILABLE" },
+  TRUNCATED: { status: 502, code: "AI_OUTPUT_TRUNCATED" },
+  UNSUPPORTED_SETTINGS: { status: 502, code: "AI_SETTINGS_UNSUPPORTED" },
 };
 
 @Catch()
@@ -39,10 +48,7 @@ export class ApiExceptionFilter implements ExceptionFilter<unknown> {
           : "INVALID_REQUEST";
     if (exception instanceof ApiHttpException) code = exception.code;
     else if (exception instanceof InvalidAnalysisOutputError) { status = 502; code = "AI_OUTPUT_INVALID"; }
-    else if (exception instanceof ProviderFailureError) {
-      status = exception.kind === "RATE_LIMITED" ? 429 : 503;
-      code = exception.kind === "RATE_LIMITED" ? "AI_RATE_LIMITED" : "AI_UNAVAILABLE";
-    }
+    else if (exception instanceof ProviderFailureError) ({ status, code } = providerFailures[exception.kind]);
     const body: ApiErrorResponse = { error: { code, message: errorMessages[code], requestId } };
 
     // Log correlation metadata only; request bodies and exception messages may contain sensitive data.

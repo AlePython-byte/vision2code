@@ -47,7 +47,8 @@ test("diagnostics identify token-limited incomplete responses using safe metadat
     ...payload(secret, "incomplete"),
     incomplete_details: { reason: "max_output_tokens", privateDetail: secret },
     output_parsed: { privateContent: secret },
-  }).analyze(input), InvalidAnalysisOutputError);
+    // A response cut at the output budget is now its own, clear failure (not a generic invalid output).
+  }).analyze(input), (error: unknown) => error instanceof ProviderFailureError && error.kind === "TRUNCATED");
   const response = entries.find((entry) => entry.event === "provider_response");
   assert.deepEqual(response?.incompleteDetails, { reason: "max_output_tokens" });
   assert.equal(response?.status, "incomplete");
