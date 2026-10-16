@@ -20,6 +20,7 @@ const errorMessages: Record<ApiErrorCode, string> = {
   UNAUTHORIZED: "No autorizado. Se requiere un token de acceso válido.",
   AI_OUTPUT_TRUNCATED: "El análisis se interrumpió antes de terminar. Prueba con el modo Rápido o con una captura más simple.",
   AI_SETTINGS_UNSUPPORTED: "El servicio de análisis no admite la configuración de este modo. Prueba con otro modo.",
+  ANALYSIS_QUOTA_EXCEEDED: "Has alcanzado tu límite de análisis por ahora. Inténtalo de nuevo más tarde.",
 };
 
 const providerFailures: Record<ProviderFailureError["kind"], { status: number; code: ApiErrorCode }> = {
@@ -49,12 +50,15 @@ export class ApiExceptionFilter implements ExceptionFilter<unknown> {
     if (exception instanceof ApiHttpException) code = exception.code;
     else if (exception instanceof InvalidAnalysisOutputError) { status = 502; code = "AI_OUTPUT_INVALID"; }
     else if (exception instanceof ProviderFailureError) ({ status, code } = providerFailures[exception.kind]);
-    const body: ApiErrorResponse = { error: { code, message: errorMessages[code], requestId } };
+    const retryAfterSeconds = exception instanceof ApiHttpException ? exception.retryAfterSeconds : undefined;
+    const body: ApiErrorResponse = { error: { code, message: errorMessages[code], requestId,
+      ...(retryAfterSeconds === undefined ? {} : { retryAfterSeconds }) } };
 
     // Log correlation metadata only; request bodies and exception messages may contain sensitive data.
     if (status >= 500) this.logger.error(`Request ${requestId} failed with HTTP ${status}.`);
     if (response.headersSent) return;
     response.setHeader("X-Request-Id", requestId);
+    if (retryAfterSeconds !== undefined) response.setHeader("Retry-After", String(retryAfterSeconds));
     response.status(status).json(body);
   }
 }

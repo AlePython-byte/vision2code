@@ -9,9 +9,11 @@ import { InvalidAnalysisOutputError } from "./invalid-analysis-output.error.js";
 export class AnalyzeInterfaceUseCase {
   constructor(private readonly provider: AIProvider) {}
 
-  async execute(input: AnalysisImageInput, signal?: AbortSignal): Promise<UISchema> {
+  /** `beforeProvider` runs after validation and right before the paid call; throwing there skips the provider. */
+  async execute(input: AnalysisImageInput, signal?: AbortSignal, beforeProvider?: (input: AnalysisImageInput) => void): Promise<UISchema> {
     signal?.throwIfAborted();
     const validatedInput = AnalysisImageInputSchema.parse(input);
+    beforeProvider?.(validatedInput);
     const output = await this.provider.analyze(validatedInput, signal);
     signal?.throwIfAborted();
     const result = UISchemaSchema.safeParse(output);

@@ -22,3 +22,13 @@ test("request IDs are bounded, printable correlation identifiers", () => {
     assert.equal(RequestIdSchema.safeParse(value).success, false);
   }
 });
+
+test("the analysis quota error carries the wait in seconds; nothing else is added", () => {
+  const error = { code: "ANALYSIS_QUOTA_EXCEEDED", message: "Has alcanzado tu límite de análisis.", requestId: "test-123" };
+  assert.equal(ApiErrorResponseSchema.safeParse({ error }).success, true, "retryAfterSeconds is optional");
+  assert.equal(ApiErrorResponseSchema.safeParse({ error: { ...error, retryAfterSeconds: 120 } }).success, true);
+  for (const retryAfterSeconds of [0, -1, 1.5, 86_401, "120", null]) {
+    assert.equal(ApiErrorResponseSchema.safeParse({ error: { ...error, retryAfterSeconds } }).success, false, String(retryAfterSeconds));
+  }
+  assert.equal(ApiErrorResponseSchema.safeParse({ error: { ...error, retryAfterSeconds: 60, remainingUnits: 3 } }).success, false, "no other quota detail leaks");
+});

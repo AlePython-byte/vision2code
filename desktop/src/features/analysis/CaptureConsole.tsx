@@ -111,7 +111,12 @@ export function CaptureConsole({
               {analyzing && t("analysisBusy")}
               {state.status === "SUCCESS" && t("analysisSuccess")}
             </p>
-            {state.status === "ERROR" && <p role="alert" className="input-error">{message(state.error ?? "")}</p>}
+            {state.status === "ERROR" && <p role="alert" className="input-error">{typeof state.errorRetryAfterSeconds === "number"
+              // Our own analysis limit: say how long to wait. Retrying stays a manual action.
+              ? t("analysisQuotaWait", { wait: state.errorRetryAfterSeconds < 60
+                ? t("waitSeconds", { value: state.errorRetryAfterSeconds })
+                : t("waitMinutes", { value: Math.ceil(state.errorRetryAfterSeconds / 60) }) })
+              : message(state.error ?? "")}</p>}
             {state.result && <>
               <button type="button" className="action-button primary-action"
                 disabled={profile.outputStack !== "REACT_TAILWIND" || screenshot.status === "VALIDATING" || state.screenshot !== screenshot.screenshot}
