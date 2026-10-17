@@ -15,6 +15,7 @@
     "test:rust": "cargo test --manifest-path desktop/src-tauri/Cargo.toml",
     "report:fidelity": "npm run build --workspace @vision2code/contracts && node --experimental-strip-types scripts/report-fidelity.mts",
     "measure:layout": "npm run build --workspace @vision2code/contracts && node --experimental-strip-types scripts/measure-layout.mts",
+    "report:contrast": "node --experimental-strip-types scripts/report-contrast.mts",
     "check:dist-dev-only": "node --experimental-strip-types scripts/check-dev-tools-not-in-dist.mts",
     "verify:export-scaffold": "npm run build --workspace @vision2code/contracts && node --experimental-strip-types scripts/verify-export-scaffold.mts",
     "server:dev": "npm run dev --workspace @vision2code/server",
