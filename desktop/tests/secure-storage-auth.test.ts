@@ -1204,3 +1204,30 @@ test("40. no secrets logged across all storage and auth operations", async () =>
 });
 
 
+
+test("41. outside Vite's dev server (no import.meta.env.DEV) the Stronghold storage writes nothing to the console", async () => {
+  const logged: string[] = [];
+  const capture = (...args: unknown[]) => { logged.push(args.map(String).join(" ")); };
+  const original = { log: console.log, info: console.info, warn: console.warn, error: console.error };
+  Object.assign(console, { log: capture, info: capture, warn: capture, error: capture });
+  try {
+    const sim = createSimulatedStrongholdBackend();
+    const storage = new TauriStrongholdAuthStorage({
+      strongholdBackend: sim.backend as any,
+      vaultPathProvider: async () => "C:/app/vault.hold",
+      vaultKeyProvider: async () => "a".repeat(64),
+    });
+    await storage.setItem("sb-session", "value");
+    await storage.getItem("sb-session");
+    await storage.removeItem("sb-session");
+    const failing = new TauriStrongholdAuthStorage({
+      strongholdBackend: { load: async () => { throw new Error("C:/secret/path/vault.hold"); } } as any,
+      vaultPathProvider: async () => "C:/app/vault.hold",
+      vaultKeyProvider: async () => "a".repeat(64),
+    });
+    await failing.getItem("sb-session");
+  } finally {
+    Object.assign(console, original);
+  }
+  assert.deepEqual(logged, []);
+});

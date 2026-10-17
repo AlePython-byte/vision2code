@@ -11,15 +11,9 @@ export function isTauriEnvironment(): boolean {
   );
 }
 
+// Only Vite's dev server: a packaged build (or a webview without `process`) never logs.
 function isDebug(): boolean {
-  try {
-    return Boolean(
-      (typeof import.meta !== "undefined" && import.meta.env?.DEV) ||
-      (typeof globalThis !== "undefined" && (globalThis as any).process?.env?.NODE_ENV !== "production")
-    );
-  } catch {
-    return false;
-  }
+  return import.meta.env?.DEV === true;
 }
 
 function debugLog(...args: unknown[]): void {
@@ -205,7 +199,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   }
 
   async getItem(key: string): Promise<string | null> {
-    debugLog(`[Stronghold] getItem called: ${key}`);
+    debugLog("[Stronghold] getItem called");
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
@@ -229,7 +223,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   }
 
   async setItem(key: string, value: string): Promise<void> {
-    debugLog(`[Stronghold] setItem called: ${key}`);
+    debugLog("[Stronghold] setItem called");
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
@@ -248,7 +242,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   }
 
   async removeItem(key: string): Promise<void> {
-    debugLog(`[Stronghold] removeItem called: ${key}`);
+    debugLog("[Stronghold] removeItem called");
     await this.ensureInitialized();
 
     if (!this.storeInstance) {
