@@ -8,12 +8,14 @@
  * Query: ?screen=shell|login   (default shell; "login" renders the real Login with an unconfigured
  *        auth model, the Register tab is one click away)
  *        &analysis=success|pending|error  &theme=light|dark  &lang=es|en
- *        &email=<address shown in the rail>
+ *        &email=<address shown in the rail>  &project=1 (preload a generated project for the Code view)
  */
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import uiSchema from "../../../packages/contracts/tests/fixtures/simple-interface.json";
+import { UISchemaSchema } from "@vision2code/contracts";
 import { createAuthModel, createUnconfiguredAuthProvider } from "../features/auth/index";
+import { generateReactProject } from "../features/generation/generateReactProject";
 import { Login } from "../features/login/Login";
 import { LibraryDialog } from "../features/projects/LibraryDialog";
 import { ApplicationShell } from "../features/workspace/ApplicationShell";
@@ -64,6 +66,13 @@ const services = createWorkspaceServices({
   transport,
 });
 void services.projectsModel.loadProjects();
+// ?project=1 preloads a generated project so the Code workspace can be inspected.
+if (params.get("project") === "1") {
+  const project = generateReactProject(UISchemaSchema.parse(uiSchema));
+  services.editorModel.setProject(project);
+  services.previewModel.setProject(project);
+  void services.previewModel.render();
+}
 
 const authModel = createAuthModel(createUnconfiguredAuthProvider());
 
