@@ -16,5 +16,5 @@
     "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": { "zod": "^4.0.0" },
-  "devDependencies": { "typescript": "~6.0.3" }
+  "devDependencies": { "typescript": "~7.0.2" }
 }
