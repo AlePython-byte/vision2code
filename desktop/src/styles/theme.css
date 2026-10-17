@@ -90,13 +90,11 @@
   .status-dot.green { background: var(--color-green); }
   .workflow-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 12px; margin: 0; list-style: none; background: var(--color-surface); border: 1px solid var(--color-highlight); border-radius: 20px; box-shadow: var(--shadow-raised); }
   .workflow-strip li { display: flex; align-items: center; gap: 9px; padding: 8px 10px; font-size: 11px; color: var(--color-muted); border-radius: 12px; border: 1px solid transparent; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast); }
-  .workflow-strip small { display: inline-block; font-size: 8px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .05em; background: var(--color-tint); border: 1px solid var(--color-line); border-radius: 4px; padding: 1px 5px; color: var(--color-muted); margin-left: 5px; font-weight: 500; }
   .workflow-number { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; font: 10px var(--font-mono); border-radius: 10px; background: var(--color-tint); color: var(--color-muted); box-shadow: var(--shadow-inset); border: 1px solid var(--color-line); transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast); }
   .workflow-strip [data-current="true"] { color: var(--color-accent); font-weight: 600; background: var(--color-tint); box-shadow: var(--shadow-inset); border-color: var(--color-line); }
   .workflow-strip [data-current="true"] .workflow-number { background: var(--color-primary); color: white; box-shadow: 0 0 10px #7662f566; border-color: var(--color-primary); }
   .workflow-strip [data-completed="true"] { color: var(--color-ink); font-weight: 500; }
   .workflow-strip [data-completed="true"] .workflow-number { background: var(--color-green); color: white; box-shadow: 0 2px 6px #247b5659; border-color: var(--color-green); }
-  .workflow-strip [data-future="true"] { opacity: .65; }
   :root[data-theme="dark"] .workflow-strip { border-color: var(--color-line); }
   :root[data-theme="dark"] .workflow-strip [data-current="true"] { background: var(--color-tint); box-shadow: var(--shadow-inset), inset 0 0 10px #7662f526; }
   :root[data-theme="dark"] .workflow-strip [data-completed="true"] .workflow-number { background: #2ea171; border-color: #2ea171; box-shadow: 0 2px 8px #2ea17166; }
@@ -137,19 +135,27 @@
   :root[data-theme="dark"] .primary-action:active:not(:disabled) { background: linear-gradient(180deg, #5942db 0%, #4a34c7 100%); box-shadow: var(--shadow-btn-primary-active); }
   .input-help { color: var(--color-muted); font-size: 11px; line-height: 1.6; }
   .screenshot-preview { min-width: 0; }
-  .screenshot-image-area { display: flex; min-width: 0; min-height: 220px; align-items: center; justify-content: center; padding: 20px; }
-  .screenshot-image-area img { display: block; width: auto; height: auto; max-height: 360px; max-width: 100%; object-fit: contain; border-radius: 8px; }
-  .screenshot-metadata { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 20px 20px; font-size: 11px; }
-  .screenshot-metadata > div { min-width: 0; }
-  .screenshot-metadata dt { margin-bottom: 3px; color: var(--color-muted); font: 9px var(--font-mono); text-transform: uppercase; }
-  .screenshot-metadata dd { overflow-wrap: anywhere; }
-  .screenshot-filename { grid-column: 1 / -1; }
+  /* The image fills whatever height the area gets and keeps its proportions (object-fit: contain). */
+  .screenshot-image-area { position: relative; min-width: 0; min-height: 220px; }
+  .screenshot-image-area img { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: contain; }
+  .screenshot-metadata { display: flex; align-items: baseline; gap: 10px; padding: 0 20px 12px; color: var(--color-muted); font: 11px var(--font-mono); white-space: nowrap; }
+  .screenshot-metadata > div { flex-shrink: 0; }
+  .screenshot-metadata > div + div dd::before { content: "·"; margin-right: 10px; color: var(--color-line); }
+  .screenshot-filename { flex: 0 1 auto; min-width: 0; }
+  .screenshot-filename dd { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ink); font-family: var(--font-sans); font-size: 12px; font-weight: 500; }
   .screenshot-feedback { display: grid; gap: 8px; margin-top: 18px; color: var(--color-muted); font-size: 12px; }
   .input-error { color: var(--color-error); font-size: 12px; line-height: 1.6; }
   .profile-panel { display: flex; flex-direction: column; gap: 16px; }
-  .output-stack-control { display: grid; gap: 6px; }
-  .output-stack-control select { width: 100%; min-width: 0; background: var(--color-tint); color: var(--color-ink); border: 1px solid var(--color-line); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; box-shadow: var(--shadow-inset); transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
-  .output-stack-control select:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-inset), 0 0 0 2px #7662f53d; }
+  .profile-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  /* Read-only: React + Tailwind CSS is the only output generated today. */
+  .profile-stack { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 9px 14px; background: var(--color-tint); box-shadow: var(--shadow-inset); border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; }
+  /* Actions and the status line always sit together at the bottom of the panel. */
+  .profile-footer { display: grid; gap: 10px; flex-shrink: 0; padding-top: 14px; border-top: 1px solid var(--color-line); }
+  .profile-footer .primary-action { flex: 1 1 auto; }
+  .ghost-button { background: transparent; box-shadow: none; color: var(--color-muted); }
+  .ghost-button:hover:not(:disabled) { background: var(--color-tint); color: var(--color-ink); box-shadow: none; }
+  .ghost-button:active:not(:disabled) { box-shadow: var(--shadow-inset); }
+  .action-spinner { animation: toast-spin 900ms linear infinite; }
   /* Compact capture link to the Project Vault. */
   .project-target { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-tint); min-width: 0; }
   .text-button { appearance: none; border: 0; background: none; padding: 0; color: var(--color-primary); font-weight: 600; text-decoration: underline; cursor: pointer; }
@@ -193,10 +199,6 @@
   @media (prefers-reduced-motion: reduce) {
     .toast-capsule, .toast-spin { animation: none !important; }
   }
-  .profile-fields { display: grid; gap: 12px; }
-  .profile-fields > div { background: var(--color-tint); box-shadow: var(--shadow-inset); border-radius: var(--radius-sm); padding: 11px 14px; }
-  .profile-fields dt { font: 9px var(--font-mono); color: var(--color-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: .04em; }
-  .profile-fields dd { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 500; }
   .fidelity-card { display: flex; align-items: center; gap: 16px; background: var(--color-tint); box-shadow: var(--shadow-inset); border: 1px solid var(--color-line); border-radius: 18px; padding: 16px; }
   .fidelity-dial { position: relative; display: grid; place-items: center; width: 58px; height: 58px; flex-shrink: 0; padding: 0; background: var(--color-tint); border: 10px solid var(--color-surface); border-radius: 50%; box-shadow: var(--shadow-control), var(--shadow-inset); cursor: pointer; transition: transform var(--motion-fast); }
   .fidelity-dial:hover:not(:disabled) { transform: scale(1.03); }
@@ -221,11 +223,7 @@
   .fidelity-segment:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   .fidelity-segment:disabled { opacity: 0.6; cursor: not-allowed; }
   .fidelity-description { margin: 0; font-size: 11px; line-height: 1.4; color: var(--color-muted); min-height: 15px; }
-  .instructions-field { display: grid; gap: 6px; }
-  .instructions-field textarea { resize: none; width: 100%; background: var(--color-tint); padding: 12px; border-radius: var(--radius-sm); box-shadow: var(--shadow-inset); border: 1px solid var(--color-line); font-size: 11px; color: var(--color-ink); box-sizing: border-box; transition: border-color var(--motion-fast), box-shadow var(--motion-fast); }
-  .instructions-field textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-inset), 0 0 0 2px #7662f53d; }
-  .instructions-field textarea::placeholder { color: var(--color-muted); opacity: 1; }
-  .analysis-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .analysis-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .analysis-feedback { padding: 12px; border-radius: 12px; background: var(--color-tint); font-size: 12px; }
   .analysis-feedback[data-state="SUCCESS"] { color: var(--color-green); border-left: 3px solid var(--color-green); }
   .analysis-feedback[data-state="ANALYZING"] { border-left: 3px solid var(--color-cyan); }
@@ -462,16 +460,6 @@
     width: 26px;
     height: 26px;
   }
-  .screenshot-metadata {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .profile-fields {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 6px;
-  }
-  .profile-fields > div {
-    padding: 6px 8px;
-  }
   .setting-options-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 10px;
@@ -513,18 +501,12 @@
   .upload-mark { width: clamp(64px, 9vh, 84px); height: clamp(64px, 9vh, 84px); margin-bottom: 6px; border-radius: 24px; }
   .upload-mark svg { width: clamp(30px, 4.4vh, 40px); height: clamp(30px, 4.4vh, 40px); }
   .screenshot-controls { gap: 8px; padding: 0 16px 14px; }
-  .screenshot-image-area { min-height: 160px; padding: 12px; }
-  .screenshot-image-area img { max-height: clamp(180px, 34vh, 360px); }
-  .screenshot-metadata { padding: 0 16px 12px; gap: 8px; }
+  .screenshot-metadata { padding: 0 16px 10px; }
   .profile-panel { gap: clamp(8px, 1.3vh, 12px); }
+  .profile-body { gap: clamp(8px, 1.3vh, 12px); }
+  .profile-footer { padding-top: clamp(8px, 1.3vh, 12px); gap: 8px; }
   .profile-panel .panel-heading h2 { margin: 0; }
-  .profile-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .profile-fields > div { padding: 8px 10px; }
-  .profile-fields dt { margin-bottom: 4px; }
-  .profile-fields dd { font-size: 12px; gap: 6px; }
-  .output-stack-control select { padding: 9px 12px; }
   .fidelity-card { padding: 10px 14px; gap: 14px; }
-  .instructions-field textarea { padding: 8px 10px; }
   .analysis-feedback { padding: 8px 12px; }
   .input-help { line-height: 1.45; margin: 0; }
   .app-footer { padding: 8px 6px 0; }
@@ -548,8 +530,23 @@
 @media (max-width: 760px) and (min-width: 561px) {
   .navigation { padding-inline: 7px; }
 }
-@media (max-width: 1050px) and (min-width: 851px) {
-  .profile-fields { grid-template-columns: minmax(0, 1fr); }
+/* Capture fills the window: header and stepper on top, two columns that take the rest. Nothing here
+   makes the page scroll; the profile body scrolls on its own and the footer with the actions stays visible. */
+.capture-view[hidden] { display: none; }
+@media (min-width: 851px) {
+  .capture-view:not([hidden]) { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+  .capture-workspace { flex: 1 1 0; min-height: 0; }
+  .capture-workspace .capture-grid { flex: 1 1 0; min-height: 0; grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .capture-grid > .raised-panel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .screenshot-input .frame-header { flex-shrink: 0; }
+  .screenshot-input .screenshot-drop-area { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; overflow: hidden; }
+  .screenshot-input .screenshot-preview { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+  .screenshot-input .screenshot-image-area { flex: 1 1 0; min-height: 96px; }
+  .screenshot-input .empty-workspace { flex: 1 1 0; min-height: 0; }
+  .screenshot-input .screenshot-controls, .screenshot-input .screenshot-feedback { flex-shrink: 0; }
+  .screenshot-input .screenshot-feedback { margin-top: 10px; }
+  /* Room for focus rings: an overflow container would otherwise clip them. */
+  .profile-body { flex: 1 1 0; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 4px 6px; margin: -4px -6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   :where(:root) { --motion-fast: 0ms; }
@@ -558,6 +555,7 @@
     animation-duration: 0.01ms !important;
   }
   .fidelity-dial-rotor { transition: none !important; }
+  .action-spinner { animation: none !important; }
   .upload-mark, .upload-mark svg, .empty-workspace, .screenshot-drop-area, .action-button, .navigation-item, .brand-mark, .setting-card, .file-explorer button {
     transition: none !important;
     transform: none !important;

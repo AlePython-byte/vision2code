@@ -11,11 +11,12 @@ export function ScreenshotPreview({ screenshot }: { screenshot: Screenshot }) {
         <img src={screenshot.url} alt={t("selectedScreenshot", { name: screenshot.name })} draggable={false} />
       </div>
       <figcaption>
+        {/* One compact row; the terms stay for screen readers. */}
         <dl className="screenshot-metadata">
-          <div className="screenshot-filename"><dt>{t("file")}</dt><dd>{screenshot.name}</dd></div>
-          <div><dt>{t("dimensions")}</dt><dd>{screenshot.width} × {screenshot.height} {t("pixels")}</dd></div>
-          <div><dt>{t("size")}</dt><dd>{formatFileSize(screenshot.size, i18n.language)}</dd></div>
-          <div><dt>{t("format")}</dt><dd>{screenshot.format}</dd></div>
+          <div className="screenshot-filename"><dt className="sr-only">{t("file")}</dt><dd title={screenshot.name}>{screenshot.name}</dd></div>
+          <div><dt className="sr-only">{t("dimensions")}</dt><dd>{screenshot.width} × {screenshot.height} {t("pixels")}</dd></div>
+          <div><dt className="sr-only">{t("size")}</dt><dd>{formatFileSize(screenshot.size, i18n.language)}</dd></div>
+          <div><dt className="sr-only">{t("format")}</dt><dd>{screenshot.format}</dd></div>
         </dl>
       </figcaption>
     </figure>

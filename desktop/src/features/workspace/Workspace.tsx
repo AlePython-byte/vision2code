@@ -31,10 +31,9 @@ export function Workspace({
     ),
   });
   return (
-    <main id="workspace" className="workspace" tabIndex={-1}>
+    <main id="workspace" className="workspace capture-workspace" tabIndex={-1}>
       <div className="workspace-heading">
         <div>
-          <p className="eyebrow">{t("captureEyebrow")}</p>
           <h1>{t("captureTitle")}</h1>
           <p className="workspace-intro">{t("captureIntro")}</p>
         </div>

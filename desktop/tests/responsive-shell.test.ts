@@ -87,7 +87,7 @@ test("authenticated services land in the Project Vault and mark Projects current
   assert.match(html, /id="project-vault"/);
   assert.match(html, /href="#project-vault"/);
   assert.match(html, /aria-current="page"[^>]*aria-label="Proyectos"/);
-  assert.match(html, /<div hidden=""><div id="workspace"/);
+  assert.match(html, /<div class="capture-view" hidden=""><div id="workspace"/);
 });
 
 test("rail email exposes its full value and compact navigation hides it without a layout-shifting active border", () => {
