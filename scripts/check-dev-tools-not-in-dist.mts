@@ -1,13 +1,14 @@
 /**
- * Fails when the development-only schema inspector leaked into the production bundle.
- * Run after `npm run build`:  npm run check:dist-dev-only
+ * Fails when development-only tooling (the schema inspector, the capture harness) leaked into the
+ * production bundle. Run after `npm run build`:  npm run check:dist-dev-only
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dist = new URL("../desktop/dist/", import.meta.url);
-const markers = ["Schema inspector (development only)", "Containers without layout", "Text clamp risk", "Row candidates", "UISchema JSON (read-only)", "schema-inspector"];
+const markers = ["Schema inspector (development only)", "Containers without layout", "Text clamp risk", "Row candidates", "UISchema JSON (read-only)", "schema-inspector",
+  "V2C capture harness", "capture-harness", "harness.invalid", "harness-token"];
 
 function* files(directory: string): Generator<string> {
   for (const name of readdirSync(directory)) {
@@ -27,5 +28,5 @@ for (const path of files(root)) {
   const content = readFileSync(path, "utf8");
   for (const marker of markers) if (content.includes(marker)) leaks.push(`${marker}  <-  ${path}`);
 }
-if (leaks.length > 0) { console.error(`Dev-only inspector found in the production bundle:\n${leaks.join("\n")}`); process.exit(1); }
-console.log(`OK: none of ${markers.length} inspector markers appear in ${scanned} files of desktop/dist.`);
+if (leaks.length > 0) { console.error(`Development-only tooling found in the production bundle:\n${leaks.join("\n")}`); process.exit(1); }
+console.log(`OK: none of ${markers.length} development-only markers appear in ${scanned} files of desktop/dist.`);
