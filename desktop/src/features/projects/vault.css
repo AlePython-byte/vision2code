@@ -54,7 +54,7 @@
   .vault-dialog { width: min(440px, 100%); padding: 28px; }
   .vault-dialog h2 { margin: 0; font-size: 24px; }
   .vault-dialog form { display: grid; gap: 10px; margin-top: 24px; }
-  .vault-dialog input { width: 100%; min-width: 0; box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-tint); color: var(--color-ink); box-shadow: var(--shadow-inset); font-family: var(--font-sans); }
+  .vault-dialog input { width: 100%; min-width: 0; box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--color-field-border); border-radius: var(--radius-sm); background: var(--color-field); color: var(--color-ink); box-shadow: var(--shadow-inset); font-family: var(--font-sans); }
   .vault-dialog input[aria-invalid="true"] { border-color: var(--color-error); }
   .vault-dialog .vault-counter { justify-self: end; margin: 0; color: var(--color-muted); font: 10px var(--font-mono); }
   .vault-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }

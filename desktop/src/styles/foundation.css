@@ -17,6 +17,9 @@
   --color-error: #a73245;
   --color-warning: #80560b;
   --color-highlight: #ffffffb3;
+  /* Form fields (WCAG 1.4.11): border 3:1 against the card and the fill; checked by npm run report:contrast. */
+  --color-field: #d5dde8;
+  --color-field-border: #5f6f84;
   --shadow-raised: 8px 8px 20px #adb8c54d, -6px -6px 16px #ffffffc9;
   --shadow-inset: inset 3px 3px 8px #b8c2cf66, inset -3px -3px 7px #ffffffb3;
   --shadow-control: 4px 5px 10px #acb7c452, -3px -3px 8px #ffffffc9;
@@ -46,6 +49,8 @@
   --color-warning: #edc777;
   --color-cyan: #7bcfe5;
   --color-highlight: #53617666;
+  --color-field: #141b26;
+  --color-field-border: #8b9db4;
   --shadow-raised: 8px 8px 20px #080d1666, -4px -4px 12px #35415155;
   --shadow-inset: inset 3px 3px 8px #070d1666, inset -2px -2px 6px #36415455;
   --shadow-control: 4px 5px 10px #080d1655, -2px -2px 8px #3a465555;
@@ -79,32 +84,36 @@
   .status-dot { background: var(--color-primary); }
   .shell-preferences { display: flex; justify-content: flex-end; padding: 4px 12px; }
   .preference-controls { display: flex; flex-wrap: wrap; gap: 14px; }
-  .preference-controls label { display: grid; gap: 5px; font-size: 11px; color: var(--color-muted); }
-  .preference-controls label > span { display: flex; align-items: center; gap: 6px; }
-  .preference-controls select { min-width: 110px; padding: 8px 12px; color: var(--color-ink); background: var(--color-surface); border: 1px solid var(--color-control-border); border-radius: 12px; }
+  .preference-field { display: grid; gap: 5px; }
+  .preference-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-muted); }
+  .preference-segmented { grid-template-columns: repeat(2, auto); }
+  .preference-segment { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 64px; padding: 6px 12px; font-size: 12px; }
+  .preference-label svg, .preference-segment svg { width: 14px; height: 14px; }
   .upload-mark svg { width: 40px; height: 40px; }
-  .login-shell { min-height: 100dvh; padding: clamp(20px, 4vw, 54px); max-width: 1500px; margin: auto; }
+  /* The story column is top-aligned and independent of the card, so switching tabs never moves it. */
+  .login-shell { box-sizing: border-box; display: flex; flex-direction: column; min-height: 100dvh; padding: clamp(14px, 2.6vh, 40px) clamp(20px, 4vw, 54px); max-width: 1500px; margin: auto; }
   .login-topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
   .login-brand { font-family: var(--font-display); display: flex; gap: 18px; align-items: center; font-size: 20px; font-weight: 600; letter-spacing: -.04em; }
-  .login-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr); gap: clamp(32px, 7vw, 100px); align-items: center; padding: 64px 0 24px; }
-  .login-story h1 { font-size: clamp(34px, 4.3vw, 62px); max-width: 640px; line-height: 1.1; margin: 18px 0 26px; }
+  .login-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr); gap: clamp(32px, 7vw, 100px); align-items: start; padding: clamp(12px, 3vh, 40px) 0 0; }
+  .login-story { padding-top: clamp(0px, 8vh, 88px); }
+  .login-story h1 { font-size: clamp(34px, 4.3vw, 62px); max-width: 640px; line-height: 1.1; margin: clamp(8px, 2vh, 18px) 0 clamp(12px, 2.4vh, 26px); }
   .login-manifesto { color: var(--color-accent); font-size: 20px; margin-bottom: 12px; }
   .login-story .workspace-intro { max-width: 480px; line-height: 1.8; }
-  .login-instrument { display: flex; align-items: center; gap: 14px; padding: 36px 24px; margin: 38px 0; border-radius: 26px; background: var(--color-tint); box-shadow: var(--shadow-inset); }
+  .login-instrument { display: flex; align-items: center; gap: 14px; padding: clamp(18px, 3.4vh, 36px) 24px; margin: clamp(18px, 3.6vh, 38px) 0; border-radius: 26px; background: var(--color-tint); box-shadow: var(--shadow-inset); }
   .login-instrument svg { width: 52px; height: 52px; padding: 12px; box-sizing: content-box; color: var(--color-accent); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-control); }
   .login-instrument span { flex: 1; height: 1px; background: var(--color-line); }
-  .login-panel { padding: 32px; border-top: 3px solid var(--color-primary); }
-  .login-panel h2 { font-size: 28px; margin: 8px 0 18px; }
-  .login-notice { color: var(--color-muted); font-size: 12px; line-height: 1.7; margin-bottom: 24px; }
-  .login-panel form { display: grid; gap: 12px; }
-  .login-panel label { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 6px; }
-  .login-panel input { width: 100%; min-width: 0; background: var(--color-tint); box-shadow: var(--shadow-inset); color: var(--color-ink); padding: 13px 14px; border: 1px solid var(--color-control-border); border-radius: 12px; }
+  .login-panel { padding: clamp(18px, 3.2vh, 32px) clamp(20px, 2.4vw, 32px); border-top: 3px solid var(--color-primary); }
+  .login-panel h2 { font-size: clamp(22px, 3.4vh, 28px); margin: 6px 0 clamp(8px, 1.8vh, 18px); }
+  .login-notice { color: var(--color-muted); font-size: 12px; line-height: 1.6; margin-bottom: clamp(10px, 2vh, 24px); }
+  .login-panel form { display: grid; gap: clamp(6px, 1.2vh, 12px); }
+  .login-panel label { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: clamp(0px, .6vh, 6px); }
+  .login-panel input { width: 100%; min-width: 0; background: var(--color-field); box-shadow: var(--shadow-inset); color: var(--color-ink); padding: clamp(10px, 1.6vh, 13px) 14px; border: 1px solid var(--color-field-border); border-radius: 12px; }
   .password-field { position: relative; }
   .password-field input { padding-right: 50px; }
   .password-field button { position: absolute; right: 5px; top: 5px; bottom: 5px; width: 40px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--color-accent); cursor: pointer; }
   .demo-entry { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-line); }
   .demo-entry .action-button { width: 100%; margin-top: 10px; }
-  .auth-mode-nav { display: flex; gap: 6px; padding: 4px; background: var(--color-tint); border-radius: 14px; box-shadow: var(--shadow-inset); margin-bottom: 20px; }
+  .auth-mode-nav { display: flex; gap: 6px; padding: 4px; background: var(--color-tint); border-radius: 14px; box-shadow: var(--shadow-inset); margin-bottom: clamp(10px, 1.8vh, 20px); }
   .auth-mode-btn { flex: 1; padding: 10px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--color-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; text-align: center; }
   .auth-mode-btn.active, .auth-mode-btn[aria-selected="true"] { background: var(--color-surface); color: var(--color-ink); box-shadow: var(--shadow-control); border: 1px solid var(--color-highlight); }
   .auth-mode-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
@@ -120,8 +129,6 @@
   .auth-spinner { width: 28px; height: 28px; border: 3px solid var(--color-line); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .login-panel input[aria-invalid="true"] { border-color: var(--color-error); }
-  .login-panel .secondary-switch { background: transparent; border: 0; color: var(--color-accent); font-size: 12px; padding: 8px; cursor: pointer; text-decoration: underline; margin-top: 4px; }
-  .login-panel .secondary-switch:hover { color: var(--color-primary-hover); }
 }
 @media (max-width: 800px) {
   .login-grid { grid-template-columns: minmax(0, 1fr); padding-top: 32px; }

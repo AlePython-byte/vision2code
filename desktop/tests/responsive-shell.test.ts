@@ -101,18 +101,18 @@ test("rail email exposes its full value and compact navigation hides it without 
   const html = renderToStaticMarkup(React.createElement(ApplicationShell, {
     onLogin() {}, user: { id: "u-rail", email, emailVerified: true },
   }));
-  const emailElement = html.match(/<span class="navigation-note-email"([^>]*)>/)?.[1];
+  const emailElement = html.match(/<span class="account-email"([^>]*)>/)?.[1];
   assert.ok(emailElement, "The address has its own styled element");
   assert.match(emailElement, /title="long\.designer@example\.com"/);
   assert.doesNotMatch(emailElement, /style=|max-width/);
-  assert.match(html, /class="navigation-note-email"[^>]*>long\.designer@example\.com<\/span>/);
+  assert.match(html, /class="account-email"[^>]*>long\.designer@example\.com<\/span>/);
 
   const themeCss = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
   const foundationCss = readFileSync(new URL("../src/styles/foundation.css", import.meta.url), "utf8");
   const compactStart = themeCss.indexOf("@media (max-width: 760px) and (min-width: 561px)");
   const compactRules = themeCss.slice(compactStart, themeCss.indexOf("@media (max-width: 560px)", compactStart));
-  assert.match(compactRules, /\.navigation-note-email\s*\{\s*display:\s*none;/);
-  assert.match(themeCss, /\.navigation-note-email\s*\{[^}]*-webkit-line-clamp:\s*3;[^}]*overflow-wrap:\s*anywhere;/);
+  assert.match(compactRules, /\.account-email,\s*\.account-version\s*\{\s*display:\s*none;/);
+  assert.match(themeCss, /\.account-email\s*\{[^}]*white-space:\s*nowrap;[^}]*text-overflow:\s*ellipsis;/);
   for (const css of [themeCss, foundationCss]) {
     for (const rule of css.matchAll(/\.navigation-item\[aria-current\][^{]*\{([^}]*)\}/g)) {
       assert.doesNotMatch(rule[1] ?? "", /border-left(?:-width|-color)?\s*:/);

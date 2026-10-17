@@ -329,15 +329,6 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
                     ? t("signIn")
                     : t("register")}
                 </button>
-
-                <button
-                  type="button"
-                  className="secondary-switch"
-                  onClick={() => switchMode(!isRegisterMode ? "REGISTER" : "SIGN_IN")}
-                  disabled={isAuthenticating}
-                >
-                  {!isRegisterMode ? t("createAccount") : t("signIn")}
-                </button>
               </form>
             </>
           )}

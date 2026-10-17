@@ -212,7 +212,7 @@ test("settings screen controls switch theme and language immediately and support
 test("application shell provides Settings navigation and removes redundant shell-preferences", () => {
   let activeView = "capture";
   const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
-    react: { ...React, useEffect: () => {}, useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
+    react: { ...React, useEffect: () => {}, useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(), useState: (initial: any) => typeof initial === "function" ? [initial(), () => {}] : [activeView, (v: string) => { activeView = v; }] },
     "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
     "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
     "../settings/SettingsScreen": { SettingsScreen: () => React.createElement("main", { id: "settings-workspace" }) },
