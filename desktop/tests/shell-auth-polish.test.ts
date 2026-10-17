@@ -176,15 +176,47 @@ test("the duplicate Create account / Sign in link under the button is gone; the 
   assert.equal((html.match(/role="tab"/g) ?? []).length, 2);
 });
 
-test("the story column is top-aligned, so switching tabs cannot move it, and the login fits a 1280x720 window", () => {
+test("the card keeps the tallest tab's height (the Sign in tab reserves the Register field), so the composition can be centred", async () => {
+  await i18n.changeLanguage("es");
+  preferences.set({ theme: "light", language: "es" });
+  const controls = load("preferences/PreferenceControls.tsx");
+  const signIn = renderToStaticMarkup(React.createElement(load("login/Login.tsx", { "../preferences/PreferenceControls": controls }).Login, { onDemo() {} }));
+  const register = renderToStaticMarkup(React.createElement(load("login/Login.tsx", {
+    "../preferences/PreferenceControls": controls,
+    react: { ...React, useState: (initial: unknown) => [initial === "SIGN_IN" ? "REGISTER" : initial, () => {}] },
+  }).Login, { onDemo() {} }));
+
+  // Sign in: an invisible, inert, out-of-the-accessibility-tree copy of the Register field; no id, so no duplicate.
+  const reserve = /<div class="auth-field-reserve" aria-hidden="true" inert="">(.*?)<\/div><\/div>/.exec(signIn)?.[1] ?? "";
+  assert.ok(reserve, "Sign in renders the reserved field");
+  assert.match(reserve, /<input type="password" tabindex="-1" autoComplete="off" disabled=""/i);
+  assert.doesNotMatch(reserve, /id="|for="/);
+  assert.doesNotMatch(signIn, /login-confirm-password/, "the real confirm field exists only in Register");
+  // Register: the real field, no reserve.
+  assert.doesNotMatch(register, /auth-field-reserve/);
+  assert.match(register, /<label for="login-confirm-password">/);
+  // Same height-driving structure in both: label + password-field + input.
+  const shape = (html: string) => [...html.matchAll(/<(label|input|div class="password-field")/g)].map((match) => match[1]);
+  const confirm = /<label for="login-confirm-password">.*?<\/label><div class="password-field">.*?<\/div>/.exec(register)?.[0] ?? "";
+  assert.deepEqual(shape(reserve), shape(confirm));
+
   const css = readFileSync(new URL("../src/styles/foundation.css", import.meta.url), "utf8");
-  assert.match(css, /\.login-grid \{[^}]*align-items: start;/);
-  assert.doesNotMatch(css, /\.login-grid \{[^}]*align-items: center;/);
-  assert.match(css, /\.login-story \{ padding-top: clamp\(/);
+  assert.match(css, /\.auth-field-reserve \{ display: contents; visibility: hidden; \}/);
+  // Centred composition: the grid fills the shell, is capped and centred horizontally, and centres vertically.
+  const grid = /\.login-grid \{([^}]*)\}/.exec(css)?.[1] ?? "";
+  assert.match(grid, /align-items: center;/);
+  assert.match(grid, /align-content: center;/);
+  assert.match(grid, /max-width: \d+px;/);
+  assert.match(grid, /margin-inline: auto;/);
+  assert.doesNotMatch(grid, /align-items: start/);
   const shell = /\.login-shell \{([^}]*)\}/.exec(css)?.[1] ?? "";
   assert.match(shell, /min-height: 100dvh;/);
   assert.match(shell, /box-sizing: border-box;/);
-  assert.doesNotMatch(css, /\.login-grid \{[^}]*padding: 64px 0 24px;/);
+  assert.doesNotMatch(css, /\.login-story \{ padding-top: clamp\(/, "the story is no longer pushed down by a top offset");
+  // Short windows: anchor to the top and let the page scroll.
+  assert.match(css, /@media \(max-height: 700px\) \{\s*\.login-grid \{ align-items: start; align-content: start;/);
+  // Both tabs always carry a 1px border (transparent when inactive), so the tab bar never changes height while switching.
+  assert.match(css, /\.auth-mode-btn \{[^}]*border: 1px solid transparent;/);
 });
 
 test("form fields keep 3:1 between their border and the card and the fill, in both themes (WCAG 1.4.11)", () => {

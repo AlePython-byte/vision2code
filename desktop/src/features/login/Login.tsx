@@ -316,6 +316,20 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
                   </>
                 )}
 
+                {mode !== "REGISTER" && (
+                  /* Reserves the height of the Register tab's extra field, so the card (and everything centred around
+                     it) is the same height in both tabs. Invisible, inert and out of the accessibility tree. */
+                  <div className="auth-field-reserve" aria-hidden="true" inert>
+                    <label>
+                      <LockKeyhole aria-hidden="true" />
+                      {t("confirmPassword")}
+                    </label>
+                    <div className="password-field">
+                      <input type="password" tabIndex={-1} autoComplete="off" disabled />
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   className="action-button primary-action"
