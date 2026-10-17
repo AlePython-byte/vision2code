@@ -364,7 +364,9 @@ test("export code never imports AI, analysis, the generator, auth, or a toast im
 
 test("the webview gets no filesystem or dialog permission; only the validated command writes", () => {
   const capability = JSON.parse(read("../src-tauri/capabilities/default.json")) as { permissions: string[] };
-  assert.deepEqual(capability.permissions.filter((permission) => !permission.startsWith("stronghold:")), [], "no fs:, dialog: or other new permission");
+  // Besides Stronghold, only the app's own commands (app manifest ACL); never fs:, dialog: or another plugin.
+  assert.deepEqual(capability.permissions.filter((permission) => !permission.startsWith("stronghold:")),
+    ["allow-get-vault-key", "allow-get-vault-path", "allow-export-project"], "no fs:, dialog: or other new permission");
   const config = read("../src-tauri/tauri.conf.json");
   assert.doesNotMatch(config, /"fs"|"scope"|assetProtocol/);
   const lib = read("../src-tauri/src/lib.rs");
