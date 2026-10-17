@@ -149,7 +149,8 @@ test("responsive breakpoints are defined for desktop, compact, and narrow layout
 
   // Tier 1 & 2: Compact desktop / tablet (< 850px)
   assert.ok(themeCss.includes("@media (max-width: 850px)"));
-  assert.ok(themeCss.includes("repeat(3, minmax(0, 1fr))"), "Workflow wraps to 3 columns on compact tablet");
+  assert.ok(!themeCss.includes("repeat(3, minmax(0, 1fr))") && !themeCss.includes("repeat(2, minmax(0, 1fr))"), "The stepper no longer wraps into uneven rows");
+  assert.match(themeCss, /@media \(max-width: 850px\) \{[\s\S]*?\.workflow-strip \{ display: flex; justify-content: space-between;/, "Workflow stays on one row on compact tablet");
 
   // Compact left rail icon-only transition (561px - 760px) prevents cramped/clipped labels
   assert.ok(themeCss.includes("@media (max-width: 760px) and (min-width: 561px)"));
