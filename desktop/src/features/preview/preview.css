@@ -1,5 +1,5 @@
 @layer components {
-  .editor-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(12px, 1.6vw, 20px); align-items: stretch; }
+  .editor-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(12px, 1.6vw, 20px); align-items: start; }
   .editor-split .editor-grid { grid-template-columns: minmax(0, 1fr); min-width: 0; }
   .editor-split .file-explorer ul { display: flex; flex-wrap: wrap; }
   .editor-split .file-explorer li { max-width: 100%; }
@@ -30,7 +30,7 @@
 
   /* Stage: host-themed neutral well. The generated interface inside keeps its own independent colors. */
   .preview-stage-shell { position: relative; flex: 1; display: flex; min-height: clamp(280px, 50vh, 560px); background: var(--color-tint); border: 1px solid var(--color-line); border-radius: 16px; box-shadow: var(--shadow-inset); overflow: hidden; }
-  .preview-stage { flex: 1; min-width: 0; display: flex; padding: 16px; overflow: auto; scrollbar-width: thin; }
+  .preview-stage { flex: 1; min-width: 0; display: flex; padding: 16px; overflow: auto; }
   .preview-stage > * { margin: auto; }
   .preview-device-wrapper { position: relative; flex-shrink: 0; border-radius: 8px; background: #ffffff; overflow: hidden; box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14), 0 12px 28px -8px rgba(15, 23, 42, 0.28); transition: width 120ms ease-out, height 120ms ease-out; }
   .preview-device-canvas { position: absolute; top: 0; left: 0; transform-origin: top left; background: #ffffff; transition: transform 120ms ease-out; }

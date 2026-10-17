@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { preferences } from "../preferences/preferences";
 import { useLabels } from "../preferences/useLabels";
 import "monaco-editor/nls/lang/es.js";
@@ -36,14 +36,21 @@ export default function CodeEditor({ path, content, language, onChange }: {
 }) {
   const { t } = useLabels();
   const { theme } = useSyncExternalStore(preferences.subscribe, preferences.getSnapshot);
+  // The editor is as tall as its content, so the page is the only vertical scroller (no scroll nested inside scroll).
+  const [height, setHeight] = useState(360);
   return <div className="monaco-container">
-    <Editor defaultPath={"inmemory://vision2code/" + path.split("/").map(encodeURIComponent).join("/")} height="60vh" theme={theme === "dark" ? "vs-dark" : "light"} language={language} value={content}
+    <Editor defaultPath={"inmemory://vision2code/" + path.split("/").map(encodeURIComponent).join("/")} height={height} theme={theme === "dark" ? "vs-dark" : "light"} language={language} value={content}
       loading={<p role="status">{t("editorLoading")}</p>}
       keepCurrentModel={false} saveViewState={false}
+      onMount={(editor) => {
+        const fit = () => setHeight(Math.max(240, Math.ceil(editor.getContentHeight())));
+        fit();
+        editor.onDidContentSizeChange(fit);
+      }}
       onChange={(value) => { if (value !== undefined) onChange(value); }}
       options={{ minimap: { enabled: false }, lineNumbers: "on", wordWrap: "on",
         automaticLayout: true, fontSize: 13, fontFamily: '"IBM Plex Mono", monospace',
-        scrollBeyondLastLine: false, padding: { top: 14, bottom: 14 },
+        scrollBeyondLastLine: false, padding: { top: 14, bottom: 14 }, scrollbar: { alwaysConsumeMouseWheel: false },
         ariaLabel: t("editorAria"), tabSize: 2,
         links: false, accessibilitySupport: "auto", unicodeHighlight: { ambiguousCharacters: false } }} />
   </div>;

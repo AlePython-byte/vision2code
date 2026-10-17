@@ -20,6 +20,12 @@
   /* Form fields (WCAG 1.4.11): border 3:1 against the card and the fill; checked by npm run report:contrast. */
   --color-field: #d5dde8;
   --color-field-border: #5f6f84;
+  /* Scrollbar thumb keeps 3:1 against its track; disabled primary keeps a readable label. Both checked by npm run report:contrast. */
+  --color-scrollbar-track: #dde4ed;
+  --color-scrollbar-thumb: #6d7d94;
+  --color-scrollbar-thumb-hover: #566579;
+  --color-disabled-bg: #d6d1f4;
+  --color-disabled-fg: #40368f;
   --shadow-raised: 8px 8px 20px #adb8c54d, -6px -6px 16px #ffffffc9;
   --shadow-inset: inset 3px 3px 8px #b8c2cf66, inset -3px -3px 7px #ffffffb3;
   --shadow-control: 4px 5px 10px #acb7c452, -3px -3px 8px #ffffffc9;
@@ -51,6 +57,11 @@
   --color-highlight: #53617666;
   --color-field: #141b26;
   --color-field-border: #8b9db4;
+  --color-scrollbar-track: #1a222f;
+  --color-scrollbar-thumb: #74869f;
+  --color-scrollbar-thumb-hover: #9bacc2;
+  --color-disabled-bg: #3a3568;
+  --color-disabled-fg: #e1dcff;
   --shadow-raised: 8px 8px 20px #080d1666, -4px -4px 12px #35415155;
   --shadow-inset: inset 3px 3px 8px #070d1666, inset -2px -2px 6px #36415455;
   --shadow-control: 4px 5px 10px #080d1655, -2px -2px 8px #3a465555;
@@ -59,6 +70,19 @@
   --shadow-btn-primary: inset 0 1px 1px #ffffff33, 0 4px 16px #7662f559;
   --shadow-btn-primary-hover: inset 0 1px 1px #ffffff4d, 0 6px 20px #7662f573;
   --shadow-btn-primary-active: inset 0 2px 6px #00000059, 0 1px 4px #7662f54d;
+}
+/* Scrollbars: ONE style for every scroll container of the app (page, shell, dialogs, panels): thin, no arrow buttons,
+   rounded thumb. It uses the ::-webkit-scrollbar family (WebView2 / Chromium / WebKit) on purpose: the standard
+   scrollbar-width / scrollbar-color properties cannot remove the arrow buttons and, once set, make Chromium ignore these
+   pseudo-elements, so they are only the fallback for engines without them. Monaco draws its own scrollbars and is left alone. */
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar { width: 12px; height: 12px; background: var(--color-scrollbar-track); }
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-track { background: var(--color-scrollbar-track); }
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-thumb { background: var(--color-scrollbar-thumb); border: 3px solid var(--color-scrollbar-track); border-radius: 999px; background-clip: padding-box; }
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-thumb:hover, *:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-thumb:active { background: var(--color-scrollbar-thumb-hover); background-clip: padding-box; }
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+*:not(.monaco-editor, .monaco-editor *)::-webkit-scrollbar-corner { background: var(--color-scrollbar-track); }
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track); }
 }
 @layer foundation {
   .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-color: var(--color-highlight); }
@@ -70,6 +94,8 @@
   .primary-action { background: var(--color-primary-action); color: #fff; }
   .primary-action:hover:not(:disabled) { background: var(--color-primary-hover); }
   .action-button:disabled { opacity: .55; }
+  /* Disabled primary: clearly inactive (flat, no glow) yet legible; opacity would wash the white label out to ~2:1. */
+  .primary-action:disabled { opacity: 1; background: var(--color-disabled-bg); color: var(--color-disabled-fg); border-color: var(--color-line); box-shadow: none; text-shadow: none; }
   .navigation-item[aria-current], .file-explorer button[aria-current] { background: var(--color-primary-subtle); color: var(--color-accent); box-shadow: var(--shadow-inset); }
   .workflow-strip [data-current="true"] .workflow-number { background: var(--color-primary); color: #fff; }
   .raised-panel { border-color: var(--color-highlight); }

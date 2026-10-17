@@ -87,6 +87,31 @@ export function ScreenshotInput({
     };
   }, [setDragging]);
 
+  // Empty: the select button belongs to the centred block. With an image: Replace / Remove sit under the preview.
+  const actions = (
+    <div className="screenshot-actions">
+      <button
+        className="action-button"
+        type="button"
+        aria-describedby="screenshot-help"
+        onClick={handleBrowseClick}
+      >
+        <ImagePlus aria-hidden="true" />{screenshot ? t("replaceScreenshot") : t("selectImage")}
+      </button>
+      {(screenshot || status === "VALIDATING") && (
+        <button
+          className="action-button secondary-button"
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            removeScreenshot();
+          }}
+        >
+          <Trash2 aria-hidden="true" />{screenshot ? t("removeScreenshot") : t("cancelSelection")}
+        </button>
+      )}
+    </div>
+  );
   return (
     <section className="raised-panel screenshot-input" aria-labelledby="screenshot-title">
       <header className="frame-header">
@@ -139,6 +164,7 @@ export function ScreenshotInput({
             </button>
             <h3>{t("dropTitle")}</h3>
             <p className="empty-description">{t("dropHelp")}</p>
+            {actions}
           </div>
         )}
         <div className="screenshot-controls">
@@ -154,33 +180,13 @@ export function ScreenshotInput({
               void selectFiles(files);
             }}
           />
-          <div className="screenshot-actions">
-            <button
-              className="action-button"
-              type="button"
-              aria-describedby="screenshot-help"
-              onClick={handleBrowseClick}
-            >
-              <ImagePlus aria-hidden="true" />{screenshot ? t("replaceScreenshot") : t("selectImage")}
-            </button>
-            {(screenshot || status === "VALIDATING") && (
-              <button
-                className="action-button secondary-button"
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removeScreenshot();
-                }}
-              >
-                <Trash2 aria-hidden="true" />{screenshot ? t("removeScreenshot") : t("cancelSelection")}
-              </button>
-            )}
-          </div>
+          {screenshot && actions}
           <p id="screenshot-help" className="input-help">{t("screenshotHelp", { size: MAX_SCREENSHOT_SIZE_LABEL })}</p>
         </div>
       </div>
       <div className="screenshot-feedback">
-        <p role="status" aria-live="polite" aria-atomic="true">{t(statusLabels[status])}</p>
+        {/* The badge and the footer already show the state; this live region only announces it to screen readers. */}
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{t(statusLabels[status])}</p>
         {error && <p role="alert" className="input-error">{message(error)}{screenshot ? t("keepScreenshot") : ""}</p>}
       </div>
     </section>

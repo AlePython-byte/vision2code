@@ -147,7 +147,9 @@
   .screenshot-metadata > div + div dd::before { content: "·"; margin-right: 10px; color: var(--color-line); }
   .screenshot-filename { flex: 0 1 auto; min-width: 0; }
   .screenshot-filename dd { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ink); font-family: var(--font-sans); font-size: 12px; font-weight: 500; }
-  .screenshot-feedback { display: grid; gap: 8px; margin-top: 18px; color: var(--color-muted); font-size: 12px; }
+  .screenshot-feedback { display: grid; gap: 8px; color: var(--color-muted); font-size: 12px; }
+  .screenshot-feedback .input-error { margin: 10px 0 0; }
+  .empty-workspace .screenshot-actions { margin-top: 12px; }
   .input-error { color: var(--color-error); font-size: 12px; line-height: 1.6; }
   .profile-panel { display: flex; flex-direction: column; gap: 16px; }
   .profile-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -286,8 +288,15 @@
   .navigation-item { padding: 8px 2px; }
   .navigation-item small { font-size: 9px; }
   .capture-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .workflow-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 8px; border-radius: 16px; }
-  .workflow-strip li { padding: 6px 8px; font-size: 10.5px; gap: 6px; }
+  /* One row of five numbered steps; only the current step shows its label (the others stay in the accessibility tree). */
+  .workflow-strip { display: flex; justify-content: space-between; gap: 4px; padding: 8px; border-radius: 16px; }
+  .workflow-strip li { position: relative; flex: 0 0 auto; padding: 6px 8px; font-size: 10.5px; gap: 6px; }
+  .workflow-strip li:not([data-current="true"]) > span:last-child { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* Single column: the actions and the status stay glued to the bottom edge of the window while the page scrolls. The panel
+     is dissolved (display: contents) so the sticky footer's containing block is the whole grid, not just its own panel. */
+  .profile-panel { display: contents; }
+  .profile-body { background: var(--color-surface); border: 1px solid var(--color-highlight); border-radius: 22px; box-shadow: var(--shadow-raised); padding: 16px 18px; }
+  .profile-footer { position: sticky; bottom: 0; z-index: 5; background: var(--color-surface); border: 1px solid var(--color-highlight); border-radius: 22px; box-shadow: var(--shadow-raised); padding: 12px 14px; }
   .workflow-number { width: 24px; height: 24px; font-size: 9.5px; }
   .empty-workspace { min-height: 220px; }
 }
@@ -425,10 +434,13 @@
     font-size: 12px;
   }
   .workflow-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    padding: 8px;
+    gap: 2px;
+    padding: 6px;
     border-radius: 14px;
+  }
+  .profile-body, .profile-footer {
+    border-radius: 16px;
+    padding: 12px 14px;
   }
   .workflow-strip li {
     font-size: 10px;
@@ -479,17 +491,14 @@
   .navigation-item {
     padding: 6px;
   }
-  .workflow-strip {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 /* Desktop viewport fit: shell is bound to the window, content column scrolls internally. */
 @media (min-width: 561px) {
   .application-shell { height: 100dvh; min-height: 0; gap: clamp(14px, 1.6vw, 24px); padding: clamp(10px, 1.5vh, 16px) clamp(12px, 1.4vw, 20px); box-sizing: border-box; overflow: hidden; }
-  .navigation { min-height: 0; gap: clamp(12px, 2.4vh, 28px); padding: 14px 8px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+  .navigation { min-height: 0; gap: clamp(12px, 2.4vh, 28px); padding: 14px 8px; overflow-y: auto; overflow-x: hidden; }
   .navigation-links { gap: clamp(6px, 1.2vh, 14px); }
   .navigation-item { padding: clamp(8px, 1.1vh, 11px) 4px; }
-  .shell-content { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; scrollbar-width: thin; padding: 6px 10px 4px 6px; }
+  .shell-content { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; padding: 6px 10px 4px 6px; }
   .workspace { gap: clamp(10px, 1.7vh, 16px); padding: 4px 4px 8px; }
   .workspace-heading { gap: 10px; }
   h1 { font-size: clamp(22px, 2.4vw, 28px); margin: 0; line-height: 1.2; }
@@ -548,9 +557,8 @@
   .screenshot-input .screenshot-image-area { flex: 1 1 0; min-height: 96px; }
   .screenshot-input .empty-workspace { flex: 1 1 0; min-height: 0; }
   .screenshot-input .screenshot-controls, .screenshot-input .screenshot-feedback { flex-shrink: 0; }
-  .screenshot-input .screenshot-feedback { margin-top: 10px; }
   /* Room for focus rings: an overflow container would otherwise clip them. */
-  .profile-body { flex: 1 1 0; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 4px 6px; margin: -4px -6px; }
+  .profile-body { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 4px 6px; margin: -4px -6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   :where(:root) { --motion-fast: 0ms; }
