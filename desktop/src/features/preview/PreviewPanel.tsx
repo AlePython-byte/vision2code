@@ -10,7 +10,14 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
 import { useLabels } from "../preferences/useLabels";
-import { PREVIEW_PLACEHOLDER_DOCUMENT, PREVIEW_SANDBOX } from "./previewDocument";
+import {
+  createPreviewHandshake,
+  PREVIEW_HOST_SOURCE,
+  PREVIEW_PLACEHOLDER_DOCUMENT,
+  PREVIEW_SANDBOX,
+  previewFrameUrl,
+  type PreviewFrameStatus,
+} from "./previewDocument";
 import { projectFromEditorState } from "./previewInput";
 import {
   calculatePresentationScale,
@@ -96,6 +103,62 @@ function SegmentedRadioGroup<T extends string>({ label, value, options, onChange
   );
 }
 
+/**
+ * The sandboxed frame. Inside Tauri it loads the app's own preview origin (its CSP travels as a header, so the generated
+ * scripts are not judged by the app's CSP) and hands the document over with postMessage once the frame says "ready";
+ * in a plain browser it uses srcdoc. Either way it reports whether the document's scripts actually started.
+ */
+function PreviewFrame({ html, attempt, title, onStatus }: {
+  html: string;
+  attempt: number;
+  title: string;
+  onStatus: (status: PreviewFrameStatus) => void;
+}) {
+  const ref = useRef<HTMLIFrameElement>(null);
+  const [frameUrl] = useState(() => previewFrameUrl(typeof window === "undefined" ? undefined : window));
+  const revision = useRef({ html: "", count: 0 });
+  if (revision.current.html !== html) revision.current = { html, count: revision.current.count + 1 };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handshake = createPreviewHandshake({
+      frameWindow: () => ref.current?.contentWindow ?? null,
+      deliver: frameUrl
+        ? () => ref.current?.contentWindow?.postMessage({ source: PREVIEW_HOST_SOURCE, type: "render", html }, "*")
+        : undefined,
+      onStatus,
+    });
+    const listen = (event: MessageEvent) => handshake.receive(event);
+    window.addEventListener("message", listen);
+    return () => {
+      window.removeEventListener("message", listen);
+      handshake.dispose();
+    };
+  }, [html, attempt, frameUrl, onStatus]);
+  // A new key per document or retry gives a fresh frame (and a fresh, single-use bootstrap).
+  const key = `${attempt}-${revision.current.count}`;
+  return frameUrl
+    ? <iframe key={key} ref={ref} className="preview-frame" title={title} sandbox={PREVIEW_SANDBOX} referrerPolicy="no-referrer" src={frameUrl} tabIndex={0} />
+    : <iframe key={key} ref={ref} className="preview-frame" title={title} sandbox={PREVIEW_SANDBOX} referrerPolicy="no-referrer" srcDoc={html} tabIndex={0} />;
+}
+
+/** Shown instead of an empty canvas marked "Active" when the frame never reports that its scripts started. */
+export function PreviewNotStarted({ onRetry }: { onRetry: () => void }) {
+  const { t } = useLabels();
+  return (
+    <div className="preview-card preview-error-card preview-not-started" role="alert">
+      <TriangleAlert aria-hidden="true" />
+      <div className="preview-error-body">
+        <h3>{t("previewNotStartedTitle")}</h3>
+        <p>{t("previewNotStartedBody")}</p>
+        <small className="preview-error-code">ERR_PREVIEW_NOT_STARTED</small>
+      </div>
+      <button type="button" className="action-button" onClick={onRetry}>
+        <RotateCw aria-hidden="true" />{t("previewRetry")}
+      </button>
+    </div>
+  );
+}
+
 export function PreviewPanel({ model, editorModel, presentation: controlledPresentation, onRefresh }: PreviewPanelProps) {
   const { t } = useLabels();
   const state = useSyncExternalStore(model.subscribe, model.getSnapshot, model.getSnapshot);
@@ -107,6 +170,8 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
   const [lastGoodHtml, setLastGoodHtml] = useState<string | null>(null);
+  const [frameStatus, setFrameStatus] = useState<PreviewFrameStatus>("LOADING");
+  const [attempt, setAttempt] = useState(0);
 
   // Retain the last successful document so a transient compile error never blanks the canvas.
   useEffect(() => {
@@ -157,6 +222,7 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
   const presetConfig = PREVIEW_VIEWPORT_PRESETS[presState.preset] ?? PREVIEW_VIEWPORT_PRESETS.desktop;
   const showFrame = (state.status === "SUCCESS" && state.documentHtml) || (lastGoodHtml !== null && (busy || state.status === "ERROR"));
   const activeDocument = state.status === "SUCCESS" && state.documentHtml ? state.documentHtml : (lastGoodHtml ?? PREVIEW_PLACEHOLDER_DOCUMENT);
+  const frameFailed = Boolean(showFrame) && frameStatus === "FAILED";
   const refreshLabel = state.status === "ERROR" ? t("previewRetry") : state.status === "READY" ? t("previewRender") : t("previewRefresh");
   const errorReason = state.error === "NO_ENTRY" ? t("previewErrorNoEntry") : t("previewErrorEngine");
   const errorCode = state.error === "NO_ENTRY" ? "ERR_MISSING_ENTRY" : "ERR_COMPILATION_FAILED";
@@ -173,7 +239,7 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
   }));
 
   return (
-    <section className="preview-panel raised-panel" aria-label={t("previewRegion")} data-status={state.status}>
+    <section className="preview-panel raised-panel" aria-label={t("previewRegion")} data-status={frameFailed ? "ERROR" : state.status} data-frame={frameStatus}>
       <header className="preview-header">
         <div className="preview-heading">
           <p className="eyebrow">{t("previewEyebrow")}</p>
@@ -188,7 +254,7 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
           ) : (
             <>
               <span className="preview-status-dot" aria-hidden="true" />
-              <span>{t(`previewStatus${state.status}`)}</span>
+              <span>{t(`previewStatus${frameFailed ? "ERROR" : state.status}`)}</span>
             </>
           )}
         </span>
@@ -220,17 +286,12 @@ export function PreviewPanel({ model, editorModel, presentation: controlledPrese
                   transform: `scale(${scaleResult.scale})`,
                 }}
               >
-                <iframe
-                  className="preview-frame"
-                  title={t("previewFrameTitle")}
-                  sandbox={PREVIEW_SANDBOX}
-                  referrerPolicy="no-referrer"
-                  srcDoc={activeDocument}
-                  tabIndex={0}
-                />
+                <PreviewFrame html={activeDocument} attempt={attempt} title={t("previewFrameTitle")} onStatus={setFrameStatus} />
               </div>
             </div>
           )}
+
+          {frameFailed && <PreviewNotStarted onRetry={() => setAttempt((value) => value + 1)} />}
 
           {state.status === "EMPTY" && (
             <div className="preview-card preview-card-quiet"><MonitorPlay aria-hidden="true" /><p>{t("previewEmpty")}</p></div>

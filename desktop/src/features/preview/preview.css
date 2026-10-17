@@ -37,6 +37,8 @@
   .preview-frame { display: block; width: 100%; height: 100%; border: 0; background: #ffffff; }
 
   .preview-card { position: relative; display: grid; justify-items: center; gap: 8px; max-width: 360px; padding: 16px 18px; text-align: center; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 14px; box-shadow: var(--shadow-control); }
+  /* Over the (empty) canvas when the frame never reported that its scripts started. */
+  .preview-stage-shell .preview-not-started { position: absolute; top: 50%; left: 50%; z-index: 3; width: min(360px, calc(100% - 32px)); transform: translate(-50%, -50%); }
   .preview-card-quiet { background: transparent; border-style: dashed; box-shadow: none; }
   .preview-card svg { width: 28px; height: 28px; stroke-width: 1.8; color: var(--color-accent); }
   .preview-card p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-muted); }

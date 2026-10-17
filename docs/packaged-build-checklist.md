@@ -102,7 +102,7 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 - [ ] Analizar en **Equilibrado**. **Esperado:** lo mismo, con "hasta 3 minutos".
 - [ ] Analizar en **Preciso**. **Esperado:** lo mismo, con "hasta 5 minutos".
 - [ ] Analizar con el backend apagado. **Esperado:** "No se pudo conectar con el servicio de análisis…" y botón **Reintentar análisis**, sin cerrar la sesión.
-- [ ] **Generar y abrir código**. **Esperado:** se abre Código con el editor, los archivos y la vista previa en vivo. ⚠️ **Fallo conocido:** en el build actual la vista previa queda en blanco aunque marque "Activa" (apartado 7).
+- [ ] **Generar y abrir código**. **Esperado:** se abre Código con el editor, los archivos y la vista previa en vivo con la interfaz generada dibujada. Si alguna vez no arranca, el panel muestra "La vista previa no pudo iniciarse" con **Reintentar**, nunca un lienzo vacío marcado como "Activa".
 - [ ] Con un proyecto seleccionado antes de analizar. **Esperado:** aviso "Guardado en la nube."; la generación aparece en **Biblioteca** y en el historial.
 
 ### Exportar
@@ -119,18 +119,26 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 - [ ] Reinstalar y abrir. **Esperado:** entra con la sesión anterior, y tema e idioma se conservan.
 - [ ] Desinstalar marcando "eliminar datos de la aplicación" y reinstalar. **Esperado:** pantalla de acceso con valores por defecto; el login funciona porque se crea una bóveda nueva con la misma clave del Administrador de credenciales.
 
-## 7. Problemas conocidos del build verificado
+## 7. Vista previa en la app empaquetada
+
+Corregido el 2026-10-17 (rama `fix/preview-csp-isolation`). Antes, el iframe `srcdoc` heredaba el CSP de la app y su script no se ejecutaba. Ahora, dentro de Tauri, el iframe carga el origen propio de la vista previa, servido por Rust en `http://v2cpreview.localhost/` con su propio CSP, y recibe el documento por `postMessage`. El CSP de la app solo ganó `frame-src` para ese origen y `data:` en `img-src`.
+
+Verificado sobre el `desktop.exe` release y en `tauri dev`:
+- **Renderizado:** un proyecto real se dibuja (43 elementos y texto visible).
+- **Aislamiento:** el código de la vista previa no puede leer el DOM del padre, `localStorage` ni las cookies; no puede navegar la ventana principal; y no llega a la red, ni a la API local, ni a la IPC de Tauri.
+
+Después de cualquier cambio en el CSP, la vista previa o los comandos nativos, repite en el build empaquetado el paso "Generar y abrir código" (regla 8 de `docs/engineering-rules.md`): `tauri dev` no aplica el CSP.
+
+## 8. Problemas conocidos del build verificado
 
 | Severidad | Problema | Detalle |
 | --- | --- | --- |
-| **Bloquea demo** | La vista previa en vivo no ejecuta el código generado en la app empaquetada | El iframe `srcdoc` de la vista previa hereda el CSP de la app: `script-src 'self' 'sha256-…'`, sin `'unsafe-inline'`. Verificado en el ejecutable release: el script inline queda bloqueado, y en un navegador sin CSP el mismo iframe se ejecuta. Además no hay aviso: el panel dice "Activa" con el lienzo vacío. Pendiente para la tarea 012D. |
 | Importante | Instaladores sin firmar | Aviso de SmartScreen y editor desconocido. |
 | Importante | La API apunta a `localhost:3000` y el servidor solo escucha en `127.0.0.1` | El backend debe ejecutarse en la misma máquina que la app. |
-| Importante | La sesión puede dejar de guardarse sin aviso | Si falla el Administrador de credenciales o la bóveda no se puede abrir, la app pasa a memoria sin decir nada. Hay que iniciar sesión en cada arranque (apartado 8). |
-| Menor | Iconos decorativos de Monaco bloqueados | `img-src` no permite `data:`; Monaco usa algunos SVG en línea para decoraciones. |
+| Importante | La sesión puede dejar de guardarse sin aviso | Si falla el Administrador de credenciales o la bóveda no se puede abrir, la app pasa a memoria sin decir nada. Hay que iniciar sesión en cada arranque (apartado 9). |
 | Menor | Se puede depurar el WebView2 de la versión instalada | Con la variable `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=<n>` se adjunta un depurador. Solo afecta a la propia máquina. |
 
-## 8. Sesión: dónde vive y qué puede fallar
+## 9. Sesión: dónde vive y qué puede fallar
 
 - **La clave:** el comando nativo `get_vault_key` lee la entrada `vision2code` / `vault_master_key` del Administrador de credenciales de Windows. Si no existe, la genera (256 bits aleatorios) y la guarda.
 - **La bóveda:** `vault.hold` en `%LOCALAPPDATA%\com.vision2code.desktop\` (Stronghold con Argon2 y `salt.txt`). Solo guarda la sesión de Supabase: los proyectos y generaciones están en el servidor, y los borradores del editor nunca se guardan.
@@ -138,7 +146,7 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 - **Cómo se llega a eso:** el caso típico es borrar la entrada del Administrador de credenciales y conservar `vault.hold`. Se resuelve borrando `vault.hold`; la app crea una nueva.
 - **Pérdida de datos al reinstalar o actualizar:** como mucho se pierde la sesión, nunca proyectos ni generaciones. Hay que tener en cuenta que el identificador `com.vision2code.desktop` y la entrada del keyring son los mismos que usa `npm run desktop:dev`, así que el modo desarrollo y la app instalada comparten sesión y datos locales.
 
-## 9. Sin servidor o sin red
+## 10. Sin servidor o sin red
 
 | Situación | Qué ve el usuario | Qué funciona |
 | --- | --- | --- |
