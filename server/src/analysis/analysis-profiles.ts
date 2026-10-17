@@ -26,7 +26,7 @@ export interface AnalysisProfile {
 export const DEFAULT_ANALYSIS_PROFILES: Readonly<Record<AnalysisFidelity, AnalysisProfile>> = Object.freeze({
   fast: Object.freeze({ nodes: Object.freeze({ min: 10, max: 20 }), imageDetail: "low", reasoningEffort: "low", maxOutputTokens: 6_000 }),
   balanced: Object.freeze({ nodes: Object.freeze({ min: 20, max: 35 }), imageDetail: "auto", reasoningEffort: "low", maxOutputTokens: 10_000 }),
-  precise: Object.freeze({ nodes: Object.freeze({ min: 30, max: 50 }), imageDetail: "high", reasoningEffort: "medium", maxOutputTokens: 16_000 }),
+  precise: Object.freeze({ nodes: Object.freeze({ min: 30, max: 50 }), imageDetail: "high", reasoningEffort: "medium", maxOutputTokens: 14_000 }),
 });
 
 /** Hard caps in code: environment values beyond them are clamped, never honored. */

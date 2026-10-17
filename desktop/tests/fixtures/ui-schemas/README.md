@@ -53,7 +53,7 @@ documented tile accounting (low detail about 85 tokens, high detail for a 1890 x
 | --- | --- | --- | --- |
 | fast | about 1,300 | about 3,000-5,000 | 6,000 |
 | balanced | about 2,500-2,700 | about 4,500-8,000 | 10,000 |
-| precise | about 2,700 | about 8,000-14,500 | 16,000 |
+| precise | about 2,700 | about 8,000-14,000 | 14,000 |
 
 Cost of one analysis = input tokens x the model's input price + output tokens x its output price
 (prices per token from the provider's current price list for the configured `OPENAI_MODEL`). The

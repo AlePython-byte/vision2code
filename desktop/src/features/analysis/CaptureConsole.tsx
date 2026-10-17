@@ -108,7 +108,11 @@ export function CaptureConsole({
             <p role="status" aria-live="polite" aria-atomic="true">
               {state.status === "IDLE" && t("analysisIdle")}
               {state.status === "READY" && t("analysisReady")}
-              {analyzing && t("analysisBusy")}
+              {analyzing && state.context?.fidelity && t(
+                state.context.fidelity === "fast" ? "analysisBusyFast" :
+                state.context.fidelity === "balanced" ? "analysisBusyBalanced" :
+                "analysisBusyPrecise"
+              )}
               {state.status === "SUCCESS" && t("analysisSuccess")}
             </p>
             {state.status === "ERROR" && <p role="alert" className="input-error">{typeof state.errorRetryAfterSeconds === "number"

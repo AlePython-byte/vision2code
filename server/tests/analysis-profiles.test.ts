@@ -29,7 +29,7 @@ test("default profiles: fast < balanced < precise in budget, detail and reasonin
   assert.deepEqual(DEFAULT_ANALYSIS_PROFILES, {
     fast: { nodes: { min: 10, max: 20 }, imageDetail: "low", reasoningEffort: "low", maxOutputTokens: 6_000 },
     balanced: { nodes: { min: 20, max: 35 }, imageDetail: "auto", reasoningEffort: "low", maxOutputTokens: 10_000 },
-    precise: { nodes: { min: 30, max: 50 }, imageDetail: "high", reasoningEffort: "medium", maxOutputTokens: 16_000 },
+    precise: { nodes: { min: 30, max: 50 }, imageDetail: "high", reasoningEffort: "medium", maxOutputTokens: 14_000 },
   });
   const p = DEFAULT_ANALYSIS_PROFILES;
   assert.ok(p.fast.maxOutputTokens < p.balanced.maxOutputTokens && p.balanced.maxOutputTokens < p.precise.maxOutputTokens);

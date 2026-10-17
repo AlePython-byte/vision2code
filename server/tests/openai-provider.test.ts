@@ -41,7 +41,7 @@ test("provider configuration requires a key and uses the documented configurable
   assert.equal(readOpenAIConfiguration({ OPENAI_API_KEY: "test-only", OPENAI_MODEL: "configured-model" }).model, "configured-model");
   assert.throws(() => readOpenAIConfiguration({ OPENAI_API_KEY: "test-only", OPENAI_MODEL: " " }), /OPENAI_MODEL/);
   assert.throws(() => new OpenAIProvider({ apiKey: "", model: DEFAULT_OPENAI_MODEL }), /OPENAI_API_KEY/);
-  assert.equal(ANALYSIS_TIMEOUT_MS, 120_000);
+  assert.equal(ANALYSIS_TIMEOUT_MS, 180_000, "the balanced deadline");
   // The output budget is per fidelity mode now; the default (balanced) one.
   assert.equal(DEFAULT_ANALYSIS_PROFILES.balanced.maxOutputTokens, 10_000);
 });

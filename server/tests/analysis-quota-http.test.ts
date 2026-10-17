@@ -38,7 +38,7 @@ describe("per-user analysis quota over HTTP (no live AI)", () => {
   const tokens: Record<"a1" | "a2" | "b", string> = { a1: "", a2: "", b: "" };
 
   const reset = (configuration: Partial<AnalysisQuotaConfiguration> = {}) => {
-    quota = new AnalysisQuota({ unitsPerHour: 20, maxConcurrent: 2, maxTrackedUsers: 100, ...configuration }, DEFAULT_ANALYSIS_PROFILES, () => now);
+    quota = new AnalysisQuota({ unitsPerHour: 19, maxConcurrent: 2, maxTrackedUsers: 100, ...configuration }, DEFAULT_ANALYSIS_PROFILES, () => now);
   };
 
   before(async () => {
@@ -130,7 +130,7 @@ describe("per-user analysis quota over HTTP (no live AI)", () => {
   });
 
   it("weights per mode: precise spends the budget before fast does", async () => {
-    // 20 units: three fast analyses (6 each), or one precise (16).
+    // 20 units: three fast analyses (6 each), or one precise (14, leaving 5).
     for (let index = 0; index < 3; index++) assert.equal(await status(form("fast")), 200);
     assert.equal(await status(form("fast")), 429);
     reset();
@@ -146,7 +146,7 @@ describe("per-user analysis quota over HTTP (no live AI)", () => {
   });
 
   it("requests rejected before the provider are never charged", async () => {
-    reset({ unitsPerHour: 20 });
+    reset({ unitsPerHour: 19 });
     for (const body of [form("turbo"), form("PRECISE"), form("precise", png, "image/gif"), form("precise", new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]))]) {
       assert.ok([400, 415].includes(await status(body)));
     }

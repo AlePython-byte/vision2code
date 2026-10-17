@@ -9,7 +9,7 @@ import type { AnalysisProfile } from "./analysis-profiles.js";
  * - The key is the verified JWT `sub` (AuthenticatedUser.id), never a client value or the IP.
  * - Budget: cost units over a sliding window of one hour. One unit is 1,000 tokens of the mode's
  *   output cap (`maxOutputTokens`, which bounds visible and reasoning tokens), rounded up, so the
- *   weights follow the profiles (fast 6, balanced 10, precise 16 by default) and their env overrides.
+ *   weights follow the profiles (fast 6, balanced 10, precise 14 by default) and their env overrides.
  * - Concurrency: at most `maxConcurrent` analyses in flight per user.
  * - Charging: a slot is taken before the upload is read and always released when the response closes
  *   (success, error, timeout, cancellation, client disconnect). Units are charged only right before
@@ -34,7 +34,7 @@ export interface AnalysisQuotaConfiguration {
   readonly maxTrackedUsers: number;
 }
 
-/** Defaults: 160 units = 10 precise, 16 balanced or 26 fast analyses per user and hour (default profiles). */
+/** Defaults: 160 units = 11 precise, 16 balanced or 26 fast analyses per user and hour (default profiles). */
 export const DEFAULT_ANALYSIS_QUOTA: AnalysisQuotaConfiguration = Object.freeze({ unitsPerHour: 160, maxConcurrent: 2, maxTrackedUsers: 10_000 });
 
 /** Hard caps in code: environment values beyond them are clamped, never honored. */
