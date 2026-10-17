@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # One lockfile at the root serves the three workspaces; each workspace manifest is listed so none is skipped.
+  - package-ecosystem: npm
+    directories:
+      - "/"
+      - "/desktop"
+      - "/server"
+      - "/packages/contracts"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    # Frozen by docs/engineering-rules.md §5.2 ("Do not upgrade Prisma or Monaco").
+    # Security alerts are not affected by these version ignores.
+    ignore:
+      - dependency-name: "prisma"
+      - dependency-name: "@prisma/client"
+      - dependency-name: "monaco-editor"
+      - dependency-name: "@monaco-editor/react"
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: cargo
+    directory: "/desktop/src-tauri"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      cargo-minor-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]

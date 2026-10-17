@@ -1,5 +1,7 @@
 # Vision2Code
 
+[![CI](https://github.com/AlePython-byte/vision2code/actions/workflows/ci.yml/badge.svg)](https://github.com/AlePython-byte/vision2code/actions/workflows/ci.yml)
+
 A desktop workspace for translating interface screenshots into frontend code. Users sign in with Supabase Auth, pick or create a Project, and send a validated screenshot to an independent NestJS backend that analyzes it through OpenAI and returns validated UISchema v1. A deterministic React + Tailwind generator feeds a Monaco workspace with a sandboxed live preview. Each successful generation is saved under the selected Project through the backend (PostgreSQL via Prisma) and can be restored later from the Project Vault.
 
 Architecture rules and working conventions live in [docs/engineering-rules.md](docs/engineering-rules.md); this README is the narrative reference.
@@ -18,8 +20,11 @@ Run commands from the repository root:
 
 ```sh
 npm install
+npx prisma generate --schema server/prisma/schema.prisma
 npm run desktop:dev
 ```
+
+`npm install` does not generate the Prisma client, and the server does not compile without it, so run the second command once on a fresh clone and again after changing `server/prisma/schema.prisma`. It needs no database.
 
 For the browser-only shell, run `npm run dev` and open `http://localhost:1420`. Vite is configured with `strictPort` because Tauri expects port 1420: if it reports `Port 1420 is already in use`, a previous `tauri dev` or `npm run dev` session is still running. Inspect the owner before closing anything (`Get-NetTCPConnection -LocalPort 1420` then `Get-Process -Id <pid>`), and close the whole earlier session instead of changing the port.
 On Windows PowerShell systems that restrict scripts, use `npm.cmd` instead of `npm`.
@@ -268,7 +273,7 @@ The Capture Console composes screenshot selection with a small feature boundary 
 
 The primary action is labeled “Activar generador” (the Spanish product label for “Engage generator”), with an explanation that this stage only analyzes. It is disabled without a validated image, during image validation, and during analysis. An active request preserves the preview and cannot be submitted twice. Failures allow manual retry with the same image. Cancelling, replacing/removing an image, or unmounting aborts work; obsolete responses cannot replace newer state. There are no automatic retries or invented progress percentages. The client transport deadline is the mode's server deadline plus 30 s (120 s fast, 150 s balanced, 210 s precise).
 
-The profile preserves the existing React/Tailwind versus HTML/CSS selection. The Visual Fidelity selector provides an interactive animated three-state dial (Fast at -35°, Balanced at 0°, Precise at +35°) with tactile segmented buttons defaulting to Balanced. The selected fidelity is sent with the analysis (`fidelity` field) and changes what the server asks the model for; the dial's help text says that precise takes longer and costs more. The output-stack selection is still local. React/Tailwind generation opens the code workspace after success. The library entry is disabled, and export and HTML/CSS generation remain unavailable. The code workspace hosts the sandboxed Live Preview described below.
+The profile preserves the existing React/Tailwind versus HTML/CSS selection. The Visual Fidelity selector provides an interactive animated three-state dial (Fast at -35°, Balanced at 0°, Precise at +35°) with tactile segmented buttons defaulting to Balanced. The selected fidelity is sent with the analysis (`fidelity` field) and changes what the server asks the model for; the dial's help text says that precise takes longer and costs more. The output-stack selection is still local. React/Tailwind generation opens the code workspace after success. The rail's Library entry opens the Library dialog once the workspace is mounted (it is only a disabled placeholder when no library is wired), export lives in the code workspace, and HTML/CSS generation remains unavailable. The code workspace hosts the sandboxed Live Preview described below.
 
 Copy `desktop/.env.example` to an ignored `desktop/.env` only when overriding the default `VITE_API_BASE_URL=http://localhost:3000/api/v1`. Vite embeds `VITE_` values in public client code: never place provider secrets there. Start the backend separately with `npm.cmd run server:dev`, then the desktop with `npm.cmd run desktop:dev` (or browser mode with `npm.cmd run dev`). Real analysis consumes provider usage. A custom API origin must also be explicitly allowed by packaged Tauri `connect-src`; a custom frontend origin must be allowed by backend CORS. Restart/rebuild after environment or CSP changes.
 
@@ -324,7 +329,7 @@ Measure a change in two ways. `npm run report:fidelity` lists, for each fixture 
 
 Visual snapshots live in `desktop/tests/golden/` (`*.v3.*` frozen, `*.v4.*` current, both for every fixture); a missing golden file fails the test, and after reviewing an intended change they are created or refreshed deliberately with `UPDATE_GOLDEN=1 node --experimental-strip-types --test desktop/tests/generator-v4.test.ts desktop/tests/generator-v3.test.ts`.
 
-Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation, export, and component inference are not implemented. The generator itself never persists anything: saving generations is done by the generation session model, outside the generator.
+Current limitations: one primary component, approximate responsive geometry, no font scaling for absolute layouts, no inferred breakpoints or interactions, no asset reconstruction, and no separate design-token stylesheet. Node-level values drive styles. HTML/CSS generation and component inference are not implemented (exporting the working copy is done by the exporter, not the generator). The generator itself never persists anything: saving generations is done by the generation session model, outside the generator.
 
 Generation tests cover every current node type, layouts, styles, hostile and multiline strings, deterministic output, an assembled dashboard fixture, full generated TypeScript checking, Tailwind compilation, and the validated analysis boundary. Run them separately with `node --experimental-strip-types --test desktop/tests/generation.test.ts` from the repository root. They use fixture transports and make no real backend, OpenAI, or external network calls.
 
@@ -463,7 +468,7 @@ Monaco follows the app theme immediately using its light/vs-dark themes without 
 
 Automated preferences tests cover defaults, switching, persistence, corrupt/unavailable storage, complete bilingual keys, retained messages, login rendering, password visibility, accessible controls, and unchanged editor drafts. Existing screenshot, analysis, generation, and editor suites remain in place. A local Edge smoke check with intercepted analysis tested Login, actual password toggling, both themes/languages, persisted reload preferences, capture -> generation -> Monaco, copying, resets, and file/screen switches. No real analysis/OpenAI calls or external application requests were made.
 
-Not implemented: OAuth providers, password reset, screenshot storage, export, HTML/CSS generation, and the library. Editor drafts are lost on application reload; only generated artifacts are saved. Packaged WebView verification remains manual.
+Not implemented: OAuth providers, password reset, screenshot storage, and HTML/CSS generation. The Library dialog and the working-copy export are implemented. Editor drafts are lost on application reload; only generated artifacts are saved. Packaged WebView verification remains manual.
 
 ## Manual verification
 
@@ -494,3 +499,7 @@ An isolated headless browser check exercised the Capture Console with intercepte
 - [NestJS exception filters](https://docs.nestjs.com/exception-filters)
 - [Node environment file support](https://nodejs.org/api/cli.html#--env-filefile)
 - [Zod recursive object inference](https://zod.dev/api#recursive-objects)
+
+## License
+
+Released under the [MIT License](LICENSE).
