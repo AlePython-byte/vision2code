@@ -111,7 +111,7 @@ export function ApplicationShell({
             if (kind === "RENAME") services.projectManager.requestRename(projectId, trigger);
             else services.projectManager.requestDelete(projectId, trigger);
           }} />}
-        <div hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
+        <div className="capture-view" hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
         {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} actions={codeActions} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
         {view === "settings" && <SettingsScreen />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
