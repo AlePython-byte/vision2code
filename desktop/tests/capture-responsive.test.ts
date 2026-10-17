@@ -156,7 +156,7 @@ test("the empty drop zone groups icon, title, description and button; the note s
   assert.match(failed, /<p role="alert" class="input-error">/, "errors stay visible");
   const css = theme;
   assert.match(css, /\.empty-workspace \{[^}]*align-items: center;[^}]*justify-content: center;/);
-  assert.match(mediaBlock(css, "(min-width: 851px)"), /\.screenshot-input \.empty-workspace \{ flex: 1 1 0;/, "the empty zone fills the panel, pushing the note to the bottom edge");
+  assert.match(mediaBlock(css, "(min-width: 851px)"), /\.screenshot-input \.empty-workspace \{ flex: 0 1 clamp\(230px, 34vh, 340px\);/, "the empty zone is a compact, bounded block; the note follows it");
 });
 
 test("the disabled primary action stays legible: label at 3:1 or more against its fill in both themes", () => {
@@ -181,4 +181,20 @@ test("the code editor is as tall as its content so the page is the only vertical
   assert.match(source, /onDidContentSizeChange\(fit\)/);
   assert.match(source, /alwaysConsumeMouseWheel: false/);
   assert.match(read("../src/features/preview/preview.css"), /\.editor-split \{[^}]*align-items: start;/, "the preview does not stretch to the editor's height");
+});
+
+test("the reference image is the compact side of the row (a third) with a bounded preview; one column is untouched", () => {
+  const grid = theme.match(/\.capture-grid \{ display: grid; grid-template-columns: ([^;]*);/)?.[1] ?? "";
+  assert.equal(grid, "minmax(250px, 1fr) minmax(0, 2fr)", "1fr : 2fr leaves the reference panel about a third and the options two thirds");
+  assert.match(theme, /@media \(max-width: 1050px\) \{[\s\S]*?\.capture-grid \{ grid-template-columns: minmax\(240px, 1fr\) minmax\(0, 2fr\);/);
+  const wide = mediaBlock(theme, "(min-width: 851px)");
+  assert.match(wide, /\.screenshot-input \{ align-self: start; max-height: 100%; \}/, "as tall as its content, never taller than the row");
+  assert.match(wide, /\.screenshot-input \.screenshot-image-area \{ flex: 0 1 clamp\(170px, 34vh, 360px\); min-height: 96px; \}/, "bounded preview height");
+  assert.match(theme, /\.screenshot-image-area img \{[^}]*object-fit: contain;/, "the preview keeps its proportions");
+  // Narrow panel: the name takes a line of its own and the facts share the next one; one column goes back to a single row.
+  assert.match(theme, /\.screenshot-filename \{ flex: 1 1 100%;/);
+  const narrow = mediaBlock(theme, "(max-width: 850px)");
+  assert.match(narrow, /\.capture-grid \{ grid-template-columns: minmax\(0, 1fr\);/);
+  assert.match(narrow, /\.profile-footer \{[^}]*position: sticky;[^}]*bottom: 0;/, "the sticky footer of the one-column mode is intact");
+  assert.match(narrow, /\.screenshot-metadata \{ flex-wrap: nowrap; \}/);
 });

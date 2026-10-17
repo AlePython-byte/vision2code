@@ -116,12 +116,13 @@
   .preference-segment { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 64px; padding: 6px 12px; font-size: 12px; }
   .preference-label svg, .preference-segment svg { width: 14px; height: 14px; }
   .upload-mark svg { width: 40px; height: 40px; }
-  /* The story column is top-aligned and independent of the card, so switching tabs never moves it. */
+  /* The card keeps the height of the tallest tab (the Sign in tab reserves the Register field), so nothing moves when
+     switching tabs and the whole composition can be centred; short windows anchor it to the top and scroll. */
   .login-shell { box-sizing: border-box; display: flex; flex-direction: column; min-height: 100dvh; padding: clamp(14px, 2.6vh, 40px) clamp(20px, 4vw, 54px); max-width: 1500px; margin: auto; }
   .login-topbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
   .login-brand { font-family: var(--font-display); display: flex; gap: 18px; align-items: center; font-size: 20px; font-weight: 600; letter-spacing: -.04em; }
-  .login-grid { flex: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr); gap: clamp(32px, 7vw, 100px); align-items: start; padding: clamp(12px, 3vh, 40px) 0 0; }
-  .login-story { padding-top: clamp(0px, 8vh, 88px); }
+  .login-grid { flex: 1; display: grid; width: 100%; max-width: 1180px; margin-inline: auto; grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr); gap: clamp(32px, 7vw, 100px); align-items: center; align-content: center; padding: 0 0 60px; /* offsets the top bar so the composition is centred in the window */ }
+  .auth-field-reserve { display: contents; visibility: hidden; }
   .login-story h1 { font-size: clamp(34px, 4.3vw, 62px); max-width: 640px; line-height: 1.1; margin: clamp(8px, 2vh, 18px) 0 clamp(12px, 2.4vh, 26px); }
   .login-manifesto { color: var(--color-accent); font-size: 20px; margin-bottom: 12px; }
   .login-story .workspace-intro { max-width: 480px; line-height: 1.8; }
@@ -140,7 +141,7 @@
   .demo-entry { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-line); }
   .demo-entry .action-button { width: 100%; margin-top: 10px; }
   .auth-mode-nav { display: flex; gap: 6px; padding: 4px; background: var(--color-tint); border-radius: 14px; box-shadow: var(--shadow-inset); margin-bottom: clamp(10px, 1.8vh, 20px); }
-  .auth-mode-btn { flex: 1; padding: 10px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--color-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; text-align: center; }
+  .auth-mode-btn { flex: 1; padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--color-muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; text-align: center; }
   .auth-mode-btn.active, .auth-mode-btn[aria-selected="true"] { background: var(--color-surface); color: var(--color-ink); box-shadow: var(--shadow-control); border: 1px solid var(--color-highlight); }
   .auth-mode-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   .auth-error-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(167, 50, 69, 0.08); border: 1px solid var(--color-error); color: var(--color-error); font-size: 12px; line-height: 1.5; margin-bottom: 16px; }
@@ -156,8 +157,11 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .login-panel input[aria-invalid="true"] { border-color: var(--color-error); }
 }
+@media (max-height: 700px) {
+  .login-grid { align-items: start; align-content: start; padding: 16px 0 0; }
+}
 @media (max-width: 800px) {
-  .login-grid { grid-template-columns: minmax(0, 1fr); padding-top: 32px; }
+  .login-grid { grid-template-columns: minmax(0, 1fr); padding: 32px 0 0; }
   .login-story h1 { max-width: 580px; }
   .login-instrument { display: none; }
   .login-story > .eyebrow:last-child { margin-top: 20px; }
