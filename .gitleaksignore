@@ -1,0 +1,7 @@
+# Reviewed false positives: obviously fake values inside test fixtures. Each line is one exact finding
+# (commit:file:rule:line); anything new in the history or in other lines is still reported.
+# "sb-publishable-key-123" and "secret-service-role-key-do-not-leak" (supabase-auth.test.ts)
+d45b64773faee7c63ae1b9998b62988dde7e9b90:desktop/tests/supabase-auth.test.ts:generic-api-key:332
+d45b64773faee7c63ae1b9998b62988dde7e9b90:desktop/tests/supabase-auth.test.ts:generic-api-key:339
+# sequential hex string standing in for the vault master key (secure-storage-auth.test.ts)
+bb041091173c719cad3bfa491a9b21f8fcc78b0b:desktop/tests/secure-storage-auth.test.ts:generic-api-key:582
