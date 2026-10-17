@@ -4,6 +4,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 mod export;
+mod preview;
 
 const KEYRING_SERVICE: &str = "vision2code";
 const KEYRING_USER: &str = "vault_master_key";
@@ -89,6 +90,8 @@ async fn export_project(
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        // The live preview's own origin, with its own CSP (see preview.rs).
+        .register_uri_scheme_protocol(preview::SCHEME, |_ctx, request| preview::respond(&request))
         .setup(|app| {
             let salt_path = app
                 .path()
