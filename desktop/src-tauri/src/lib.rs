@@ -108,6 +108,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = "uses the real OS credential store (absent on headless CI); run locally with `cargo test -- --ignored`"]
     fn test_keyring_retrieval_and_stability() {
         let key1 = get_or_create_vault_master_key().expect("first key retrieval should succeed");
         assert_eq!(key1.len(), 64, "256-bit key hex should be 64 characters");

@@ -10,6 +10,9 @@
     "stronghold:allow-get-store-record",
     "stronghold:allow-save-store-record",
     "stronghold:allow-remove-store-record",
-    "stronghold:allow-save"
+    "stronghold:allow-save",
+    "allow-get-vault-key",
+    "allow-get-vault-path",
+    "allow-export-project"
   ]
 }
