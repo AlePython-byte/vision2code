@@ -102,7 +102,8 @@
   :root[data-theme="dark"] .workflow-strip { border-color: var(--color-line); }
   :root[data-theme="dark"] .workflow-strip [data-current="true"] { background: var(--color-tint); box-shadow: var(--shadow-inset), inset 0 0 10px #7662f526; }
   :root[data-theme="dark"] .workflow-strip [data-completed="true"] .workflow-number { background: #2ea171; border-color: #2ea171; box-shadow: 0 2px 8px #2ea17166; }
-  .capture-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
+  /* The reference image is the compact side (about a third of the row); the options column takes the rest. */
+  .capture-grid { display: grid; grid-template-columns: minmax(250px, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; }
   .raised-panel { min-width: 0; padding: 22px; background: var(--color-surface); border: 1px solid var(--color-highlight); border-radius: var(--radius-panel); box-shadow: var(--shadow-raised); }
   .frame-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
   .panel-badge { padding: 5px 9px; border-radius: 8px; background: var(--color-tint); color: var(--color-muted); font: 9px var(--font-mono); text-transform: uppercase; }
@@ -142,10 +143,12 @@
   /* The image fills whatever height the area gets and keeps its proportions (object-fit: contain). */
   .screenshot-image-area { position: relative; min-width: 0; min-height: 220px; }
   .screenshot-image-area img { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: contain; }
-  .screenshot-metadata { display: flex; align-items: baseline; gap: 10px; padding: 0 20px 12px; color: var(--color-muted); font: 11px var(--font-mono); white-space: nowrap; }
+  /* Narrow reference panel: the name takes its own line, the three facts share the next one. */
+  .screenshot-metadata { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 0 14px 12px; color: var(--color-muted); font: 10px var(--font-mono); white-space: nowrap; }
   .screenshot-metadata > div { flex-shrink: 0; }
-  .screenshot-metadata > div + div dd::before { content: "·"; margin-right: 10px; color: var(--color-line); }
-  .screenshot-filename { flex: 0 1 auto; min-width: 0; }
+  .screenshot-metadata > div + div dd::before { content: "·"; margin-right: 8px; color: var(--color-line); }
+  .screenshot-metadata > .screenshot-filename + div dd::before { content: none; }
+  .screenshot-filename { flex: 1 1 100%; min-width: 0; }
   .screenshot-filename dd { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ink); font-family: var(--font-sans); font-size: 12px; font-weight: 500; }
   .screenshot-feedback { display: grid; gap: 8px; color: var(--color-muted); font-size: 12px; }
   .screenshot-feedback .input-error { margin: 10px 0 0; }
@@ -274,7 +277,7 @@
 @media (max-width: 1050px) {
   .application-shell { gap: 18px; grid-template-columns: 76px minmax(0, 1fr); padding: 16px; }
   .workspace { padding: 12px 4px; }
-  .capture-grid { grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr); gap: 18px; }
+  .capture-grid { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 18px; }
   .raised-panel { padding: 18px; }
   .workflow-strip { gap: 3px; }
   .workflow-strip li { gap: 5px; padding: 4px; font-size: 10px; }
@@ -291,6 +294,9 @@
   /* One row of five numbered steps; only the current step shows its label (the others stay in the accessibility tree). */
   .workflow-strip { display: flex; justify-content: space-between; gap: 4px; padding: 8px; border-radius: 16px; }
   .workflow-strip li { position: relative; flex: 0 0 auto; padding: 6px 8px; font-size: 10.5px; gap: 6px; }
+  .screenshot-metadata { flex-wrap: nowrap; }
+  .screenshot-filename { flex: 0 1 auto; }
+  .screenshot-metadata > .screenshot-filename + div dd::before { content: "·"; }
   .workflow-strip li:not([data-current="true"]) > span:last-child { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* Single column: the actions and the status stay glued to the bottom edge of the window while the page scrolls. The panel
      is dissolved (display: contents) so the sticky footer's containing block is the whole grid, not just its own panel. */
@@ -514,7 +520,7 @@
   .upload-mark { width: clamp(64px, 9vh, 84px); height: clamp(64px, 9vh, 84px); margin-bottom: 6px; border-radius: 24px; }
   .upload-mark svg { width: clamp(30px, 4.4vh, 40px); height: clamp(30px, 4.4vh, 40px); }
   .screenshot-controls { gap: 8px; padding: 0 16px 14px; }
-  .screenshot-metadata { padding: 0 16px 10px; }
+  .screenshot-metadata { padding: 0 14px 10px; }
   .profile-panel { gap: clamp(8px, 1.3vh, 12px); }
   .profile-body { gap: clamp(8px, 1.3vh, 12px); }
   .profile-footer { padding-top: clamp(8px, 1.3vh, 12px); gap: 8px; }
@@ -552,10 +558,13 @@
   .capture-workspace .capture-grid { flex: 1 1 0; min-height: 0; grid-template-rows: minmax(0, 1fr); align-items: stretch; }
   .capture-grid > .raised-panel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .screenshot-input .frame-header { flex-shrink: 0; }
-  .screenshot-input .screenshot-drop-area { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; overflow: hidden; }
-  .screenshot-input .screenshot-preview { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
-  .screenshot-input .screenshot-image-area { flex: 1 1 0; min-height: 96px; }
-  .screenshot-input .empty-workspace { flex: 1 1 0; min-height: 0; }
+  /* Compact reference panel: as tall as its content (never taller than the row); the preview and the drop zone have a bounded
+     height instead of filling the column, and give back space first when the window is short. */
+  .screenshot-input { align-self: start; max-height: 100%; }
+  .screenshot-input .screenshot-drop-area { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; overflow: hidden; }
+  .screenshot-input .screenshot-preview { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; }
+  .screenshot-input .screenshot-image-area { flex: 0 1 clamp(170px, 34vh, 360px); min-height: 96px; }
+  .screenshot-input .empty-workspace { flex: 0 1 clamp(230px, 34vh, 340px); min-height: 0; }
   .screenshot-input .screenshot-controls, .screenshot-input .screenshot-feedback { flex-shrink: 0; }
   /* Room for focus rings: an overflow container would otherwise clip them. */
   .profile-body { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 4px 6px; margin: -4px -6px; }
