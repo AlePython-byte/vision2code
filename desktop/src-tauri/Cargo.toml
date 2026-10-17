@@ -21,7 +21,7 @@ tauri = { version = "2", features = [] }
 tauri-plugin-stronghold = "2"
 # Native folder picker, used only from Rust (no dialog permission is granted to the webview).
 tauri-plugin-dialog = "2"
-getrandom = "0.2"
+getrandom = "0.4"
 keyring = "4"
 serde = { version = "1", features = ["derive"] }
 
