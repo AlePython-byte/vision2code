@@ -55,6 +55,6 @@ test("the client's own deadline keeps its separate message", async (context) => 
   }));
   const pending = client(screenshot(), new AbortController().signal, { fidelity: "fast" });
   const settled = assert.rejects(pending, (error: unknown) => error instanceof AnalysisClientError && error.code === null && /tardó demasiado/.test(error.message));
-  context.mock.timers.tick(120_000);
+  context.mock.timers.tick(150_000); // fast: 120 s server deadline + 30 s
   await settled;
 });

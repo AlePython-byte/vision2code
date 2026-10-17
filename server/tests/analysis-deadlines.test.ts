@@ -6,10 +6,10 @@ import { ConfigurationError } from "../src/configuration-error.js";
 
 test("deadlines default to the contract's and can only be shortened, never beyond it or below the floor", () => {
   assert.deepEqual(readAnalysisDeadlines({}), ANALYSIS_SERVER_TIMEOUT_MS);
-  assert.deepEqual(DEFAULT_ANALYSIS_DEADLINES, { fast: 90_000, balanced: 120_000, precise: 180_000 });
+  assert.deepEqual(DEFAULT_ANALYSIS_DEADLINES, { fast: 120_000, balanced: 180_000, precise: 300_000 });
   assert.deepEqual(readAnalysisDeadlines({ ANALYSIS_PRECISE_TIMEOUT_SECONDS: "20", ANALYSIS_FAST_TIMEOUT_SECONDS: " 60 " }),
-    { fast: 60_000, balanced: 120_000, precise: 20_000 });
-  assert.equal(readAnalysisDeadlines({ ANALYSIS_PRECISE_TIMEOUT_SECONDS: "99999" }).precise, 180_000, "the client waits the contract's deadline + 30 s: never longer");
+    { fast: 60_000, balanced: 180_000, precise: 20_000 });
+  assert.equal(readAnalysisDeadlines({ ANALYSIS_PRECISE_TIMEOUT_SECONDS: "99999" }).precise, 300_000, "the client waits the contract's deadline + 30 s: never longer");
   assert.equal(readAnalysisDeadlines({ ANALYSIS_BALANCED_TIMEOUT_SECONDS: "0" }).balanced, MIN_ANALYSIS_DEADLINE_SECONDS * 1000);
 });
 

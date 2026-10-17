@@ -121,3 +121,21 @@ test("the console tells how long to wait, in Spanish and English, and keeps Retr
     await i18n.changeLanguage("es");
   }
 });
+
+test("each fidelity mode shows its own timing in the loading state (ES/EN)", async () => {
+  const analyzing = (fidelity: "fast" | "balanced" | "precise" | null) => ({ status: "ANALYZING", screenshot: null, result: null, error: null, errorRequestId: null,
+    context: fidelity === null ? null : { targetProjectId: null, fidelity } });
+  try {
+    await i18n.changeLanguage("es");
+    assert.match(captureConsole(analyzing("fast")), /Puede tardar hasta 2 minutos\./);
+    assert.match(captureConsole(analyzing("balanced")), /Puede tardar hasta 3 minutos\./);
+    assert.match(captureConsole(analyzing("precise")), /Preciso puede tardar hasta 5 minutos\./);
+    assert.doesNotMatch(captureConsole({ ...analyzing("precise"), status: "READY" }), /minutos/, "not once the analysis has ended");
+    await i18n.changeLanguage("en");
+    assert.match(captureConsole(analyzing("fast")), /can take up to 2 minutes\./);
+    assert.match(captureConsole(analyzing("balanced")), /can take up to 3 minutes\./);
+    assert.match(captureConsole(analyzing("precise")), /Precise can take up to 5 minutes\./);
+  } finally {
+    await i18n.changeLanguage("es");
+  }
+});

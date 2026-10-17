@@ -13,12 +13,12 @@ test("fidelity is exactly fast, balanced or precise, lowercase, defaulting to ba
 });
 
 test("per-mode deadlines: precise waits longest, and the client always outlasts the server", () => {
-  assert.deepEqual(ANALYSIS_SERVER_TIMEOUT_MS, { fast: 90_000, balanced: 120_000, precise: 180_000 });
+  assert.deepEqual(ANALYSIS_SERVER_TIMEOUT_MS, { fast: 120_000, balanced: 180_000, precise: 300_000 });
   assert.ok(Object.isFrozen(ANALYSIS_SERVER_TIMEOUT_MS));
   for (const mode of AnalysisFidelitySchema.options) {
     assert.equal(analysisClientTimeoutMs(mode), ANALYSIS_SERVER_TIMEOUT_MS[mode] + ANALYSIS_CLIENT_GRACE_MS);
   }
-  assert.equal(analysisClientTimeoutMs("balanced"), 150_000, "the deadline older clients already used");
+  assert.deepEqual([analysisClientTimeoutMs("fast"), analysisClientTimeoutMs("balanced"), analysisClientTimeoutMs("precise")], [150_000, 210_000, 330_000]);
 });
 
 test("the error contract names truncated output and unsupported mode settings", () => {

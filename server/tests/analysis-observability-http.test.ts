@@ -47,7 +47,7 @@ describe("analysis timeout and summary log over HTTP (no live AI)", () => {
         calls += 1; return analyze(input, signal, onUsage);
       } })
       .overrideProvider(SUPABASE_JWT_VERIFIER).useValue(verifier)
-      // A real timer decides, with deadlines of 150 ms instead of 90 to 180 s.
+      // A real timer decides, with deadlines of 150 ms instead of 120 to 300 s.
       .overrideProvider(ANALYSIS_DEADLINES).useValue({ fast: 150, balanced: 150, precise: 150 })
       .overrideProvider(ANALYSIS_QUOTA).useValue({ acquire: (user: string) => quota.acquire(user) })
       .compile();
@@ -60,7 +60,7 @@ describe("analysis timeout and summary log over HTTP (no live AI)", () => {
   after(async () => { await app?.close(); });
   beforeEach(() => {
     calls = 0; lines.length = 0; raw.length = 0;
-    quota = newQuota(20);
+    quota = newQuota(19);
     analyze = async () => fixture;
     mock.method(console, "info", (text: unknown) => {
       raw.push(String(text));
@@ -111,7 +111,7 @@ describe("analysis timeout and summary log over HTTP (no live AI)", () => {
     analyze = hang();
     assert.equal((await post(form("precise"))).status, 504);
     await slotFree();
-    // 16 of 20 units were charged for the timed-out analysis: a fast one (6) no longer fits.
+    // 14 of 19 units were charged for the timed-out analysis: a fast one (6) no longer fits.
     analyze = async () => fixture;
     const before = calls;
     const blocked = await post(form("fast"));

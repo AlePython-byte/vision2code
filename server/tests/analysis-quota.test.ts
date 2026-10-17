@@ -25,7 +25,7 @@ function run(quota: AnalysisQuota, user: string, fidelity: "fast" | "balanced" |
 describe("analysis quota", () => {
   it("weights follow each mode's output cap: 1 unit per 1,000 tokens, rounded up", () => {
     assert.deepEqual([analysisUnits(DEFAULT_ANALYSIS_PROFILES.fast), analysisUnits(DEFAULT_ANALYSIS_PROFILES.balanced),
-      analysisUnits(DEFAULT_ANALYSIS_PROFILES.precise)], [6, 10, 16]);
+      analysisUnits(DEFAULT_ANALYSIS_PROFILES.precise)], [6, 10, 14]);
     assert.equal(analysisUnits({ maxOutputTokens: 6_001 }), 7);
     const overridden = readAnalysisProfiles({ ANALYSIS_PRECISE_MAX_OUTPUT_TOKENS: "20000" });
     assert.equal(new AnalysisQuota(DEFAULT_ANALYSIS_QUOTA, overridden).unitsFor("precise"), 20, "an env override of the cap moves the weight with it");
@@ -69,16 +69,16 @@ describe("analysis quota", () => {
       while (run(quota, "a", fidelity) === null) done++;
       return done;
     };
-    assert.deepEqual([count("precise"), count("fast")], [10, 26]);
+    assert.deepEqual([count("precise"), count("fast")], [11, 26]);
   });
 
   it("users are isolated: A's spending never limits B", () => {
-    const { quota } = setup({ unitsPerHour: 20 });
+    const { quota } = setup({ unitsPerHour: 19 });
     assert.equal(run(quota, "a", "precise"), null);
     assert.equal(run(quota, "a", "precise")?.reason, "BUDGET");
     assert.equal(run(quota, "b", "precise"), null);
     const busyA = quota.acquire("a");
-    assert.ok(!isLease(busyA) && busyA.reason === "BUDGET", "A has 4 units left, below the cheapest mode: rejected before the upload");
+    assert.ok(!isLease(busyA) && busyA.reason === "BUDGET", "A has 5 units left, below the cheapest mode: rejected before the upload");
   });
 
   it("concurrency: at most N in flight per user; a slot comes back on release, and only once", () => {
