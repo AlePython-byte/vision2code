@@ -1,9 +1,9 @@
 import { useSyncExternalStore, useState } from "react";
-import { Sun, Moon, Languages, Palette, HardDrive, Laptop, RotateCcw, Check } from "lucide-react";
+import { Sun, Moon, Languages, Palette, HardDrive, Laptop, RotateCcw, Check, TriangleAlert } from "lucide-react";
 import { preferences, type Theme, type Language } from "../preferences/preferences";
 import { useLabels } from "../preferences/useLabels";
 
-export function SettingsScreen() {
+export function SettingsScreen({ sessionNotSaved = false }: { sessionNotSaved?: boolean } = {}) {
   const { t } = useLabels();
   const state = useSyncExternalStore(preferences.subscribe, preferences.getSnapshot, preferences.getSnapshot);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -36,6 +36,16 @@ export function SettingsScreen() {
           {t("settingsBadge")}
         </span>
       </header>
+
+      {sessionNotSaved && (
+        <div className="session-notice" role="status">
+          <TriangleAlert aria-hidden="true" />
+          <div>
+            <p className="session-notice-title">{t("sessionNotSaved")}</p>
+            <p className="session-notice-help">{t("sessionNotSavedHelp")}</p>
+          </div>
+        </div>
+      )}
 
       <div className="settings-grid">
         <section className="raised-panel settings-section" aria-labelledby="appearance-title">

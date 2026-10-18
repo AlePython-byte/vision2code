@@ -87,6 +87,8 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   private initPromise: Promise<void> | null = null;
   private initError: Error | null = null;
   private saveQueue: Promise<void> = Promise.resolve();
+  private settled = false;
+  private readonly statusListeners = new Set<() => void>();
 
   constructor(options: StrongholdStorageOptions = {}) {
     this.clientName = options.clientName ?? "v2c-auth-client";
@@ -109,6 +111,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     }
 
     if (!isTauriEnvironment() && !this.customBackend) {
+      this.markSettled();
       return;
     }
 
@@ -174,11 +177,29 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
             this.initError.name ?? "Error"
           );
           debugLog("[AuthStorage] selected backend: memory");
+        } finally {
+          this.markSettled();
         }
       })();
     }
 
     await this.initPromise;
+  }
+
+  /** The choice between Stronghold and memory has been made (once); listeners may now read `isSessionEphemeral`. */
+  private markSettled(): void {
+    if (this.settled) return;
+    this.settled = true;
+    for (const listener of [...this.statusListeners]) listener();
+  }
+
+  isSessionEphemeral(): boolean {
+    return this.settled && this.getStorageStatus() === "MEMORY_FALLBACK";
+  }
+
+  subscribeStorageStatus(listener: () => void): () => void {
+    this.statusListeners.add(listener);
+    return () => { this.statusListeners.delete(listener); };
   }
 
   private async flushSave(): Promise<void> {

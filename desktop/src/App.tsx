@@ -15,6 +15,8 @@ import {
   createUnconfiguredAuthProvider,
   readSupabaseConfig,
   probeBackendAuth,
+  createSessionPersistenceStore,
+  getDefaultAuthStorage,
   type AuthModel,
 } from "./features/auth/index";
 import "./features/preferences/i18n";
@@ -33,6 +35,8 @@ function createDefaultAuthModel(): AuthModel {
 export default function App({ authModel }: { authModel?: AuthModel }) {
   const [model] = useState(() => authModel ?? createDefaultAuthModel());
   const authState = useSyncExternalStore(model.subscribe, model.getSnapshot);
+  // Whether the session survives closing the app (false in memory-only fallback): the shell shows a notice.
+  const [sessionPersistence] = useState(() => createSessionPersistenceStore(getDefaultAuthStorage()));
   // User-scoped projects, generation session, editor and preview; tokens stay inside the auth model.
   const [services] = useState(() => createWorkspaceServices({
     getAccessToken: model.getAccessToken,
@@ -82,6 +86,7 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
         <ApplicationShell
           key={authState.user?.id}
           user={authState.user}
+          sessionPersistence={sessionPersistence}
           services={services}
           codeContext={<CodeContext editor={services.editorModel} session={services.generationSession}
             projects={services.projectsModel} history={services.history} discardGuard={services.discardGuard}

@@ -1,4 +1,4 @@
-import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut } from "lucide-react";
+import { ScanLine, Code2, Folder, Library, Settings, LogIn, LogOut, TriangleAlert } from "lucide-react";
 import { useLabels } from "../preferences/useLabels";
 import { useState, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { Workspace } from "./Workspace";
@@ -31,6 +31,7 @@ export function ApplicationShell({
   codeActions,
   libraryNav,
   libraryDialog,
+  sessionPersistence,
 }: {
   onLogin: () => void;
   user?: AuthUser | null;
@@ -44,12 +45,15 @@ export function ApplicationShell({
   libraryNav?: ReactNode;
   /** Renders the library dialog host; receives the shell navigation it needs after picking a generation. */
   libraryDialog?: (navigation: { openCode: () => void }) => ReactNode;
+  /** True once the session is known to live in memory only (keyring or vault unavailable); built at the app boundary. */
+  sessionPersistence?: { subscribe: (listener: () => void) => () => void; getSnapshot: () => boolean } | undefined;
 }) {
   const { t } = useLabels();
   const [view, setView] = useState<"projects" | "capture" | "editor" | "settings">(services ? "projects" : "capture");
   // The library dialog is modal: while it is open only "Library" is current, never the page behind it.
   const readLibraryOpen = services?.library ? () => services.library.getSnapshot().open : closed;
   const libraryOpen = useSyncExternalStore(services?.library?.subscribe ?? never, readLibraryOpen, readLibraryOpen);
+  const sessionNotSaved = useSyncExternalStore(sessionPersistence?.subscribe ?? never, sessionPersistence?.getSnapshot ?? closed, sessionPersistence?.getSnapshot ?? closed);
   const current = (name: typeof view) => (view === name && !libraryOpen ? "page" : undefined);
   const [editorModel] = useState(() => services?.editorModel ?? createEditorModel());
   const [previewModel] = useState(() => services?.previewModel ?? createPreviewModel());
@@ -104,7 +108,15 @@ export function ApplicationShell({
         </button>
         {user?.email ? (
           <span className="navigation-note account" title={user.email}>
-            <span className="account-avatar" aria-hidden="true">{accountInitials(user.email)}</span>
+            <span className="account-avatar-wrap">
+              <span className="account-avatar" aria-hidden="true">{accountInitials(user.email)}</span>
+              {sessionNotSaved && (
+                <span className="account-session-badge" role="status" title={t("sessionNotSaved")}>
+                  <TriangleAlert aria-hidden="true" />
+                  <span className="sr-only">{t("sessionNotSaved")}</span>
+                </span>
+              )}
+            </span>
             {/* One line with an ellipsis; the full address is in the title. Compact rails keep only the avatar. */}
             <span className="account-email" title={user.email}>{user.email}</span>
             <span className="account-version">0.1.0</span>
@@ -124,7 +136,7 @@ export function ApplicationShell({
           }} />}
         <div className="capture-view" hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
         {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} actions={codeActions} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
-        {view === "settings" && <SettingsScreen />}
+        {view === "settings" && <SettingsScreen sessionNotSaved={sessionNotSaved} />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>
       {libraryDialog?.({ openCode: () => setView("editor") })}

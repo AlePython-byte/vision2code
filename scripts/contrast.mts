@@ -47,6 +47,14 @@ export const DISABLED_PAIRS: readonly ContrastPair[] = [
   { label: "disabled primary label / fill", foreground: "--color-disabled-fg", background: "--color-disabled-bg", minimum: 3 },
 ];
 
+/** The "session will not be saved" notice: icon and border (non-text, 3:1) and the sentences (4.5:1) on the surfaces they sit on. */
+export const SESSION_NOTICE_PAIRS: readonly ContrastPair[] = [
+  { label: "notice icon / rail badge surface", foreground: "--color-warning", background: "--color-surface", minimum: 3 },
+  { label: "notice icon / notice fill", foreground: "--color-warning", background: "--color-tint", minimum: 3 },
+  { label: "notice sentence / notice fill", foreground: "--color-ink", background: "--color-tint", minimum: 4.5 },
+  { label: "notice help line / notice fill", foreground: "--color-muted", background: "--color-tint", minimum: 4.5 },
+];
+
 /** Fill against card has no WCAG minimum; the bar is that it must be a visible step, not a rule. */
 export const FIELD_FILL_STEP = { foreground: "--color-field", background: "--color-surface" } as const;
 
