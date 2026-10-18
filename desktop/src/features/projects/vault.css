@@ -18,8 +18,9 @@
   .vault-results { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
   .vault-results .eyebrow { margin: 0; }
   .vault-results h2 { margin: 2px 0 0; font-size: 18px; }
-  .vault-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
-  .vault-card { --vault-accent: var(--color-primary); display: grid; align-content: start; min-width: 0; gap: 10px; padding: 16px; }
+  .vault-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
+  .vault-card { --vault-accent: var(--color-primary); display: grid; align-content: start; min-width: 0; gap: 10px; padding: 14px; transition: transform var(--motion-fast), box-shadow var(--motion-fast); }
+  .vault-card:hover:not([aria-hidden='true']) { transform: translateY(-2px); }
   .vault-card[data-accent="cyan"] { --vault-accent: var(--color-cyan); }
   .vault-card[data-accent="green"] { --vault-accent: var(--color-green); }
   .vault-card-top { display: flex; align-items: center; gap: 8px; }
@@ -27,17 +28,15 @@
   .vault-led { width: 8px; height: 8px; border-radius: 50%; box-shadow: var(--shadow-control); }
   .vault-led.active { background: var(--color-primary); }
   .vault-led.draft { background: var(--color-warning); }
-  .vault-thumbnail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 7px 72px; gap: 9px; padding: 12px; border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-tint); box-shadow: var(--shadow-inset); }
-  .vault-thumbnail::before { content: ""; grid-column: 1 / -1; width: 46%; background: var(--vault-accent); border-radius: 6px; }
-  .vault-thumbnail > span { border-radius: 9px; border: 1px solid var(--color-line); background: var(--color-surface); box-shadow: var(--shadow-inset); }
   .vault-card-open { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; width: 100%; border: 0; border-radius: 8px; padding: 3px 0; background: transparent; color: var(--color-ink); text-align: left; cursor: pointer; font-family: var(--font-display); font-size: 14px; font-weight: 600; }
   .vault-card-open span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .vault-card-open svg { flex: none; color: var(--color-accent); }
   .vault-card-open:hover span, .vault-latest:hover { text-decoration: underline; }
   .vault-card-open:active:not(:disabled), .vault-latest:active:not(:disabled) { background: var(--color-tint); box-shadow: var(--shadow-inset); transform: translateY(1px); }
   .vault-card-open:disabled, .vault-latest:disabled { opacity: .55; cursor: wait; }
-  .vault-card-footer { display: flex; justify-content: space-between; gap: 8px; color: var(--color-muted); font: 10px var(--font-mono); }
+  .vault-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--color-muted); font: 10px var(--font-mono); }
   .vault-card-footer time { white-space: nowrap; }
+  .vault-card-open:focus-visible, .vault-latest:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   .vault-latest { justify-self: start; display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: var(--color-accent); padding: 2px 0; font-family: var(--font-display); font-size: 11px; font-weight: 600; cursor: pointer; }
   .vault-message { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 220px; padding: 28px; background: var(--color-tint); border: 1px solid var(--color-line); border-radius: var(--radius-panel); box-shadow: var(--shadow-inset); text-align: center; }
   .vault-message h2, .vault-message p { margin: 0; }
@@ -48,7 +47,6 @@
   .vault-error > div { flex: 1; }
   .vault-error .status-dot { background: var(--color-error); }
   .vault-skeletons .vault-card { min-height: 200px; }
-  .vault-skeletons .vault-thumbnail > span, .vault-skeletons .vault-thumbnail::before { opacity: .45; animation: vault-pulse 1.6s ease-in-out infinite alternate; }
   @keyframes vault-pulse { to { opacity: .8; } }
   .vault-scrim { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--color-ink) 35%, transparent); }
   .vault-dialog { width: min(440px, 100%); padding: 28px; }
@@ -63,10 +61,8 @@
   .project-chip-name p { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .project-chip-name p:not(.eyebrow) { font-family: var(--font-sans); font-size: 13px; font-weight: 600; }
   .project-chip .action-button { flex-shrink: 0; }
-  @media (max-width: 1100px) { .vault-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .vault-toolbar { grid-template-columns: 1fr 1fr; } .vault-search { grid-column: 1 / -1; } .vault-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .vault-toolbar { grid-template-columns: 1fr 1fr; } .vault-search { grid-column: 1 / -1; } }
   @media (max-width: 480px) { .vault-toolbar { grid-template-columns: 1fr; } .vault-search { grid-column: auto; } .vault-heading .primary-action { align-self: stretch; } .vault-results { align-items: start; flex-direction: column; } .vault-error { flex-wrap: wrap; } }
-  @media (prefers-reduced-motion: reduce) { .vault-skeletons .vault-thumbnail > span, .vault-skeletons .vault-thumbnail::before { animation: none; } }
   /* TASK 009E: project identity, result chip and generation history in the Code view header. */
   .workspace-aside { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
   .code-context { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
@@ -114,7 +110,7 @@
   .history-error p { margin: 0; color: var(--color-error); font-size: 12px; }
   .history-bar { display: block; height: 46px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-tint); box-shadow: var(--shadow-inset); animation: vault-pulse 1.6s ease-in-out infinite alternate; }
   /* TASK 009E.1: project library dialog (reuses the history log-tape entries). */
-  .library-dialog { width: min(560px, 100%); max-height: min(80vh, 640px); overflow-y: auto; display: grid; gap: 14px; align-content: start; }
+  .library-dialog { width: min(880px, 100%); max-height: min(80vh, 640px); overflow-y: auto; display: grid; gap: 14px; align-content: start; }
   .library-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
   .library-header .eyebrow { margin: 0; }
   .library-close { padding: 8px; min-height: 36px; }
@@ -132,6 +128,58 @@
   .library-dialog .history-note, .library-dialog .history-error p { margin: 0; }
   .danger-action { background: var(--color-surface); color: var(--color-error); border-color: var(--color-error); }
   .danger-action:hover:not(:disabled) { background: var(--color-tint); }
+  /* TASK 016D: thumbnails drawn from the UISchema, fidelity chips and generation cards. Colours are design tokens only. */
+  .schema-thumb-slot { min-width: 0; }
+  .schema-thumb-frame { position: relative; display: block; width: 100%; aspect-ratio: 8 / 5; overflow: hidden; border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-tint); box-shadow: var(--shadow-inset); }
+  .schema-thumb-sm { width: 96px; }
+  .schema-thumb { display: block; width: 100%; height: 100%; }
+  .thumb-backdrop { fill: var(--color-tint); }
+  /* A light source stays light and a dark one dark in both themes (--thumb-* tokens, foundation.css). */
+  .thumb-page.thumb-tone-light { fill: var(--thumb-paper); }
+  .thumb-page.thumb-tone-deep { fill: var(--thumb-slate); }
+  .thumb-frame.thumb-tone-light { fill: var(--thumb-paper-raised); }
+  .thumb-frame.thumb-tone-deep { fill: var(--thumb-slate-raised); }
+  .thumb-frame.thumb-tone-outline { fill: none; stroke: var(--color-line); stroke-width: .8; }
+  .thumb-image { fill: color-mix(in srgb, var(--color-primary) 16%, var(--color-tint)); }
+  .thumb-image-mark { fill: none; stroke: var(--color-accent); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; opacity: .75; }
+  .thumb-icon { fill: var(--color-accent); opacity: .8; }
+  .thumb-button.thumb-tone-accent { fill: var(--color-primary); }
+  .thumb-button.thumb-tone-outline { fill: none; stroke: var(--color-accent); stroke-width: .8; }
+  .thumb-input { fill: var(--color-field); stroke: var(--color-field-border); stroke-width: .6; }
+  .thumb-divider { fill: var(--color-line); }
+  .thumb-text.thumb-tone-strong { fill: var(--thumb-on-paper); opacity: .8; }
+  .thumb-text.thumb-tone-muted { fill: var(--thumb-on-paper); opacity: .42; }
+  .thumb-text.thumb-on-dark.thumb-tone-strong { fill: var(--thumb-on-slate); opacity: .85; }
+  .thumb-text.thumb-on-dark.thumb-tone-muted { fill: var(--thumb-on-slate); opacity: .5; }
+  .thumb-text.thumb-tone-onaccent { fill: var(--color-surface); }
+  .schema-thumb-frame[data-state="empty"] .schema-thumb, .schema-thumb-frame[data-state="unavailable"] .schema-thumb { opacity: .4; }
+  .schema-thumb-frame[data-state="loading"] .schema-thumb { opacity: .5; animation: vault-pulse 1.6s ease-in-out infinite alternate; }
+  .schema-thumb-caption { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); max-width: calc(100% - 16px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 3px 10px; border: 1px solid var(--color-line); border-radius: 999px; background: var(--color-tint); color: var(--color-muted); font: 600 9px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+  .fidelity-chip { --chip-tone: var(--color-primary); display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border: 1px solid var(--color-line); border-radius: 999px; background: var(--color-surface); color: var(--color-ink); font: 600 9px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .fidelity-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--chip-tone); }
+  .fidelity-chip[data-mode="fast"] { --chip-tone: var(--color-cyan); }
+  .fidelity-chip[data-mode="precise"] { --chip-tone: var(--color-green); }
+  .vault-card-media, .library-card-media { position: relative; min-width: 0; }
+  .vault-card-media .fidelity-chip, .library-card-media .fidelity-chip { position: absolute; left: 8px; top: 8px; box-shadow: var(--shadow-control); }
+  .vault-skeleton-line { display: block; height: 10px; border-radius: 6px; background: var(--color-tint); box-shadow: var(--shadow-inset); animation: vault-pulse 1.6s ease-in-out infinite alternate; }
+  .vault-skeleton-line.short { width: 55%; }
+  .vault-empty .schema-thumb-frame { width: min(300px, 100%); }
+  .library-generations { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .library-card { position: relative; display: grid; align-content: start; gap: 8px; min-width: 0; padding: 10px; border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); box-shadow: var(--shadow-control); transition: background-color var(--motion-fast), box-shadow var(--motion-fast); }
+  .library-card:hover { background: var(--color-surface-hover); }
+  .library-card[data-current="true"] { border-color: var(--color-primary); background: var(--color-tint); box-shadow: var(--shadow-inset); }
+  .library-card:has(.library-card-open:disabled) { opacity: .6; }
+  /* The open button's ::after covers the whole card, so the thumbnail is part of its click target; the button itself stays static. */
+  .library-card-open { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--color-ink); text-align: left; cursor: pointer; font-family: var(--font-display); font-size: 13px; font-weight: 600; }
+  .library-card-open::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius-sm); }
+  .library-card-open:focus-visible { outline: none; }
+  .library-card-open:focus-visible::after { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .library-card-open:disabled { cursor: not-allowed; }
+  .library-card-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
+  .library-card-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; color: var(--color-muted); font: 11px var(--font-mono); }
+  .library-card-source { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-muted); font-size: 11px; }
+  .library-skeleton .library-card { pointer-events: none; }
+  /* END TASK 016D */
   /* TASK 009G: per-card rename/delete tools (siblings of the open button, never nested in it). */
   .vault-card-tools { display: inline-flex; gap: 4px; margin-left: auto; }
   .vault-card-tool { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--color-muted); cursor: pointer; transition: background-color 120ms var(--transition-timing), color 120ms var(--transition-timing), box-shadow 120ms var(--transition-timing); }
@@ -147,6 +195,9 @@
   .delete-dialog-copy strong { color: var(--color-error); }
   @media (prefers-reduced-motion: reduce) {
     .vault-card-tool { transition: none; }
+    .vault-card, .library-card { transition: none; }
+    .vault-card:hover:not([aria-hidden='true']) { transform: none; }
+    .schema-thumb-frame[data-state="loading"] .schema-thumb, .vault-skeleton-line { animation: none; }
   }
   @media (max-width: 560px) {
     .code-identity { max-width: none; flex: 1 1 100%; }

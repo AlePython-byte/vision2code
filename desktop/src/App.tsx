@@ -104,7 +104,7 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
             {SchemaInspector && <Suspense fallback={null}><SchemaInspector session={services.generationSession} /></Suspense>}
           </>}
           libraryNav={<LibraryNavButton library={services.library} />}
-          libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
+          libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel} thumbnails={services.thumbnails}
             session={services.generationSession} openCode={openCode}
             hasLocalEdits={() => services.editorModel.getSnapshot().drafts.size > 0}
             confirmDiscard={(trigger) => services.discardGuard.request(trigger)} />}

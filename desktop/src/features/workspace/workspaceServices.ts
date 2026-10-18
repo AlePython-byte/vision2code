@@ -11,6 +11,7 @@ import { createPreviewModel, type PreviewModel } from "../preview/previewModel.t
 import { createDiscardGuard, type DiscardGuard } from "../projects/discardGuard.ts";
 import { createGenerationHistoryModel, type GenerationHistoryModel } from "../projects/generationHistoryModel.ts";
 import { createLibraryModel, type LibraryModel } from "../projects/libraryModel.ts";
+import { createThumbnailModel, type ThumbnailModel } from "../projects/thumbnailModel.ts";
 import { createProjectManager, type ProjectManager } from "../projects/projectManageActions.ts";
 import { createProjectsClient } from "../projects/projectsClient.ts";
 import { createProjectsModel, type ProjectsModel } from "../projects/projectsModel.ts";
@@ -26,6 +27,8 @@ export interface WorkspaceServices {
   readonly history: GenerationHistoryModel;
   /** Cross-project library dialog: lazily loaded generation summaries per project. */
   readonly library: LibraryModel;
+  /** Thumbnails and fidelity chips of the Projects and Library cards (one generation detail each, cached, reset with the session). */
+  readonly thumbnails: ThumbnailModel;
   /** Rename/delete confirmations; a removed project detaches the result and clears history and library caches. */
   readonly projectManager: ProjectManager;
   /** Exports the editor's working copy through the single native command (no paths from the webview). */
@@ -77,6 +80,7 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
     client, session: generationSession, projects: projectsModel, onUnauthorized: options.onUnauthorized,
   });
   const library = createLibraryModel({ client, onUnauthorized: options.onUnauthorized });
+  const thumbnails = createThumbnailModel({ client, onUnauthorized: options.onUnauthorized });
   const discardGuard = createDiscardGuard();
   const toasts = createToastModel(options.toastScheduler);
   const generationToasts = bindGenerationToasts(generationSession, toasts, options.toastScheduler);
@@ -100,7 +104,7 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
     },
   });
   return {
-    editorModel, previewModel, projectsModel, generationSession, history, library, projectManager, exporter, discardGuard, toasts, loadProject, analyzeScreenshot,
+    editorModel, previewModel, projectsModel, generationSession, history, library, thumbnails, projectManager, exporter, discardGuard, toasts, loadProject, analyzeScreenshot,
     reset() {
       discardGuard.cancel();
       projectManager.reset();
@@ -109,6 +113,7 @@ export function createWorkspaceServices(options: WorkspaceServicesOptions): Work
       projectsModel.reset();
       history.reset();
       library.reset();
+      thumbnails.reset();
       editorModel.setProject(null);
       previewModel.clear();
       generationToasts.reset();

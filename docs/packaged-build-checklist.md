@@ -96,6 +96,16 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 - [ ] Abrir **Ajustes**. **Esperado:** una sección "Cuenta" con el mismo avatar (más pequeño) y una fila "Correo electrónico" con la dirección.
 - [ ] Cambiar el tema (claro/oscuro): los ojos del avatar se ven sobre su mancha en ambos.
 
+### Miniaturas en Proyectos y Biblioteca
+- [ ] Con proyectos que tienen generaciones, abrir **Proyectos**. **Esperado:** cada tarjeta muestra una miniatura dibujada con la estructura de su última generación (bloques, líneas de texto, imágenes, botones), con el chip de fidelidad (Rápido / Equilibrado / Preciso) encima; en unos segundos desaparece el estado de carga. Un proyecto sin generaciones muestra "Sin generaciones".
+- [ ] Cambiar entre tema claro y oscuro. **Esperado:** una captura clara se ve clara y una oscura se ve oscura en ambos temas; las líneas de texto se distinguen; no hay colores "sueltos" fuera de la paleta de la app.
+- [ ] Reducir la ventana al mínimo (720 × 540). **Esperado:** dos columnas, sin barra de desplazamiento horizontal, miniaturas con la misma proporción 8:5.
+- [ ] Con muchos proyectos, desplazarse por la lista. **Esperado:** las miniaturas van apareciendo al acercarse a cada tarjeta (no se descargan todas a la vez) y la app sigue fluida.
+- [ ] Apagar el backend y reabrir **Proyectos**. **Esperado:** las tarjetas muestran "Sin vista previa" y el aviso habitual de proyectos, sin avisos nuevos ni cierre de sesión.
+- [ ] Abrir **Biblioteca**, expandir un proyecto. **Esperado:** cada generación es una tarjeta con miniatura, "Generación NN", fecha relativa, chip de fidelidad y nombre del archivo; Tab llega a cada tarjeta con foco visible, Enter la abre (con la confirmación de ediciones sin guardar si hace falta) y toda la tarjeta, miniatura incluida, es clicable.
+- [ ] Cerrar sesión y entrar con otra cuenta. **Esperado:** no aparece ninguna miniatura de la cuenta anterior, ni siquiera un instante.
+- [ ] Con "reducir movimiento" activado en Windows, abrir **Proyectos**. **Esperado:** sin animación de pulso en las miniaturas y los esqueletos, y sin elevación al pasar el ratón por las tarjetas.
+
 ### Persistencia de sesión
 - [x] Cerrar la app con la sesión iniciada y volver a abrirla. **Esperado:** entra directamente, sin pedir credenciales.
 - [ ] **Cerrar sesión → cerrar → abrir.** Con la sesión iniciada, pulsar **Cerrar sesión** en la barra lateral. **Esperado:** aparece "Cerrando sesión…" (medido el 2026-10-17 en un build release desechable: unos 2 s con red, porque guardar la bóveda tarda ese tiempo; unos 4–5 s si Supabase no contesta) y después la pantalla de acceso sin ningún error. Cerrar la app con la X en cuanto se vea la pantalla de acceso, esperar a que no quede ningún `desktop.exe` y volver a abrirla. **Esperado:** "Restaurando sesión…" un momento y luego la **pantalla de acceso**, nunca el Archivo de proyectos. Si en lugar de eso aparece "Has cerrado sesión, pero no se pudo borrar la sesión guardada en este equipo…", la bóveda no se pudo reescribir: anotarlo y capturar el registro del apartado 10.

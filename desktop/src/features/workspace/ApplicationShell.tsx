@@ -121,7 +121,7 @@ export function ApplicationShell({
         )}
       </nav>
       <div className="shell-content">
-        {view === "projects" && services && <ProjectVault projects={services.projectsModel} session={services.generationSession}
+        {view === "projects" && services && <ProjectVault projects={services.projectsModel} session={services.generationSession} thumbnails={services.thumbnails}
           toasts={services.toasts} onCapture={() => setView("capture")} onEditor={() => setView("editor")}
           hasLocalEdits={() => editorModel.getSnapshot().drafts.size > 0}
           confirmDiscard={(trigger) => services.discardGuard.request(trigger)}

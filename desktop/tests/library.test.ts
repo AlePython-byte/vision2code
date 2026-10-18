@@ -65,7 +65,7 @@ function mount(language: Lang, w: World, openCode?: () => void) {
   const render = (): Node => { const element = d.render(props); return element ? element.type(element.props) : null; };
   return { d, render };
 }
-const entries = (tree: Node) => findAll(tree, (n) => n.type === "li" && n.props?.className === "history-entry").map((li) => findAll(li, (n) => n.type === "button")[0]);
+const entries = (tree: Node) => findAll(tree, (n) => n.type === "li" && n.props?.className === "library-card").map((li) => findAll(li, (n) => n.type === "button")[0]);
 const toggles = (tree: Node) => findAll(tree, (n) => n.props?.className === "library-project-toggle");
 
 // ---- Model ------------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ test("expanded project lists numbered generations with time, fidelity and file o
     assert.deepEqual(order, ["03", "02", "01"]);
     assert.equal(out.match(/aria-current="true"/g)?.length, 1);
     assert.ok(out.includes(labels.historyCurrent));
-    assert.match(out, /<span class="history-entry-fidelity">[^<]+<\/span><span class="history-source" title="very-long-source-name-that-must-truncate-with-ellipsis.png">/);
+    assert.match(out, /<span class="fidelity-chip" data-mode="fast"[^>]*>[^]*?<\/span><\/div>[^]*?<div class="library-card-meta"><time [^>]*>[^<]+<\/time><\/div><span class="library-card-source" title="very-long-source-name-that-must-truncate-with-ellipsis.png">/);
   }
   assert.match(dialogHtml("en", w), /5 minutes ago/);
   assert.match(dialogHtml("es", w), /hace 5 minutos/);
@@ -272,7 +272,7 @@ test("per-project states: loading skeleton, no generations, error with Retry, no
   await loading.projects.loadProjects();
   void loading.library.loadProject(projectA);
   loading.library.openDialog(projectA, null);
-  assert.match(dialogHtml("en", loading), /class="history-log history-skeleton" aria-label="Loading generations…"/);
+  assert.match(dialogHtml("en", loading), /class="library-generations library-skeleton" aria-label="Loading generations…"/);
 
   const none = world(async () => []);
   await none.projects.loadProjects();
@@ -311,7 +311,7 @@ test("a failed refresh over a cached list says the list is stale, not that there
     assert.ok(out.includes(escaped(labels.libraryStale)), language);
     assert.ok(!out.includes(escaped(labels.libraryError)), "not the empty-load message");
     assert.ok(out.includes(labels.historyRetry), "Retry stays available");
-    assert.equal((out.match(/class="history-entry"/g) ?? []).length, 2, "cached entries stay visible");
+    assert.equal((out.match(/class="library-card"/g) ?? []).length, 2, "cached entries stay visible");
   }
   assert.equal(es.libraryStale, "No se pudo actualizar. Mostrando lo último cargado.");
 });

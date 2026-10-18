@@ -9,8 +9,8 @@ import type { LibraryModel } from "./libraryModel";
 import { formatGenerationNumber, generationNumber, relativeTimeLabel } from "./historySelectors";
 import type { ProjectsModel } from "./projectsModel";
 import { handleVaultDialogKey } from "./vaultKeyboard";
-
-const fidelityKeys = { FAST: "fidelityFast", BALANCED: "fidelityBalanced", PRECISE: "fidelityPrecise" } as const;
+import { FidelityChip, SchemaThumbnail, ThumbnailSlot } from "./SchemaThumbnail";
+import type { ThumbnailModel } from "./thumbnailModel";
 
 interface SheetProps {
   library: LibraryModel;
@@ -22,9 +22,10 @@ interface SheetProps {
   now: () => Date;
   trigger: HTMLElement | null;
   initialProjectId: string | null;
+  thumbnails?: ThumbnailModel | undefined;
 }
 
-function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscard, openCode, now, trigger, initialProjectId }: SheetProps) {
+function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscard, openCode, now, trigger, initialProjectId, thumbnails }: SheetProps) {
   const { t } = useLabels();
   const language = i18n.language.startsWith("en") ? "en" : "es";
   const libraryState = useSyncExternalStore(library.subscribe, library.getSnapshot, library.getSnapshot);
@@ -96,8 +97,10 @@ function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscar
                 <span className="library-project-count">{t("vaultGenerationCount", { count })}</span>
               </button>
               {open && <div id={panelId} className="library-panel" role="region" aria-label={t("libraryRegion", { name: project.name })}>
-                {(!entry || (entry.status === "LOADING" && entry.items.length === 0)) && <ul className="history-log history-skeleton" aria-label={t("libraryLoading")}>
-                  {[0, 1].map((row) => <li key={row} className="history-entry" aria-hidden="true"><span className="history-led" /><span className="history-bar" /></li>)}
+                {(!entry || (entry.status === "LOADING" && entry.items.length === 0)) && <ul className="library-generations library-skeleton" aria-label={t("libraryLoading")}>
+                  {[0, 1, 2].map((row) => <li key={row} className="library-card" aria-hidden="true">
+                    <SchemaThumbnail state="loading" size="md" /><span className="vault-skeleton-line" /><span className="vault-skeleton-line short" />
+                  </li>)}
                 </ul>}
                 {entry?.status === "ERROR" && <div className="history-error" role="alert">
                   <p>{t(entry.items.length > 0 ? "libraryStale" : "libraryError")}</p>
@@ -106,26 +109,30 @@ function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscar
                   </button>
                 </div>}
                 {entry?.status === "READY" && entry.items.length === 0 && <p className="history-note">{t("libraryNoGenerations")}</p>}
-                {entry && entry.items.length > 0 && <ul className="history-log">
+                {entry && entry.items.length > 0 && <ul className="library-generations">
                   {entry.items.map((item, index) => {
                     const current = item.id === sessionState.generationId;
                     const source = item.sourceImageName ? toSourceImageName(item.sourceImageName) : null;
-                    return <li key={item.id} className="history-entry" data-current={current}>
-                      <button type="button" aria-current={current ? "true" : undefined} aria-busy={opening === item.id}
+                    return <li key={item.id} className="library-card" data-current={current}>
+                      <div className="library-card-media">
+                        <ThumbnailSlot thumbnails={thumbnails} projectId={project.id} generationId={item.id}
+                          emptyCaption={t("thumbNoGenerations")} unavailableCaption={t("thumbUnavailable")} />
+                        <FidelityChip mode={item.fidelityMode} />
+                      </div>
+                      {/* The button's ::after covers the whole card, so the thumbnail is part of the click target. */}
+                      <button type="button" className="library-card-open" aria-current={current ? "true" : undefined} aria-busy={opening === item.id}
                         disabled={opening !== null && opening !== item.id}
                         onClick={(event) => { void choose(project.id, item.id, event.currentTarget); }}>
-                        <span className="history-led" aria-hidden="true" />
-                        <span className="history-entry-main">
-                          <span className="history-entry-title">
-                            {t("historyGeneration", { number: formatGenerationNumber(generationNumber(entry.items, index)) })}
-                            {current && <span className="history-current-tag">{t("historyCurrent")}</span>}
-                          </span>
-                          <time dateTime={item.createdAt}>{relativeTimeLabel(item.createdAt, language, now())}</time>
-                          <span className="history-entry-fidelity">{t("historyFidelity", { value: t(fidelityKeys[item.fidelityMode]) })}</span>
-                          {source && <span className="history-source" title={source}>{source}</span>}
+                        <span className="library-card-title">
+                          {t("historyGeneration", { number: formatGenerationNumber(generationNumber(entry.items, index)) })}
+                          {current && <span className="history-current-tag">{t("historyCurrent")}</span>}
                         </span>
                         {opening === item.id && <span className="history-busy">{t("openingGeneration")}</span>}
                       </button>
+                      <div className="library-card-meta">
+                        <time dateTime={item.createdAt}>{relativeTimeLabel(item.createdAt, language, now())}</time>
+                      </div>
+                      {source && <span className="library-card-source" title={source}>{source}</span>}
                     </li>;
                   })}
                 </ul>}
@@ -139,7 +146,7 @@ function LibrarySheet({ library, projects, session, hasLocalEdits, confirmDiscar
 }
 
 /** Modal library of projects and their generations, reachable from any view; hosted once at app level. */
-export function LibraryDialog({ library, projects, session, hasLocalEdits, confirmDiscard, openCode, now = () => new Date() }: {
+export function LibraryDialog({ library, projects, session, hasLocalEdits, confirmDiscard, openCode, now = () => new Date(), thumbnails }: {
   library: LibraryModel;
   projects: ProjectsModel;
   session: GenerationSessionModel;
@@ -147,9 +154,10 @@ export function LibraryDialog({ library, projects, session, hasLocalEdits, confi
   confirmDiscard: (trigger: HTMLElement | null) => Promise<boolean>;
   openCode: () => void;
   now?: () => Date;
+  thumbnails?: ThumbnailModel | undefined;
 }) {
   const state = useSyncExternalStore(library.subscribe, library.getSnapshot, library.getSnapshot);
   if (!state.open) return null;
   return <LibrarySheet library={library} projects={projects} session={session} hasLocalEdits={hasLocalEdits}
-    confirmDiscard={confirmDiscard} openCode={openCode} now={now} trigger={state.trigger} initialProjectId={state.focusProjectId} />;
+    confirmDiscard={confirmDiscard} openCode={openCode} now={now} trigger={state.trigger} initialProjectId={state.focusProjectId} thumbnails={thumbnails} />;
 }

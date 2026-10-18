@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import type { GenerationDetail } from "@vision2code/contracts";
 import { generateReactProject } from "../src/features/generation/generateReactProject.ts";
@@ -40,6 +41,8 @@ function loadComponent(file: string, language: "es" | "en") {
       if (name.endsWith("/vaultActions")) return vaultActions;
       if (name.endsWith("/vaultKeyboard")) return vaultKeyboard;
       if (name.endsWith("/NewProjectDialog")) return { NewProjectDialog: () => null };
+      const local = requireLocalSource(file, name, require);
+      if (local) return local;
       return require(name);
     },
   });

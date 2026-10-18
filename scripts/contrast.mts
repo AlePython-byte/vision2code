@@ -62,6 +62,18 @@ export const AVATAR_PAIRS: readonly ContrastPair[] = Array.from({ length: AVATAR
   { label: `avatar ${index + 1} blob / background`, foreground: `--avatar-${index + 1}-blob`, background: `--avatar-${index + 1}-bg`, minimum: 1.5 },
 ]).flat();
 
+/** Project/Library thumbnails: the caption and the fidelity chip are text (4.5:1); the drawn lines and buttons are decorative shapes that keep 3:1 against the page they sit on. */
+export const THUMBNAIL_PAIRS: readonly ContrastPair[] = [
+  { label: "thumbnail caption / pill", foreground: "--color-muted", background: "--color-tint", minimum: 4.5 },
+  { label: "fidelity chip / its fill", foreground: "--color-ink", background: "--color-surface", minimum: 4.5 },
+  { label: "thumbnail ink / paper", foreground: "--thumb-on-paper", background: "--thumb-paper", minimum: 4.5 },
+  { label: "thumbnail ink / raised paper", foreground: "--thumb-on-paper", background: "--thumb-paper-raised", minimum: 4.5 },
+  { label: "thumbnail light ink / slate", foreground: "--thumb-on-slate", background: "--thumb-slate", minimum: 4.5 },
+  { label: "thumbnail light ink / raised slate", foreground: "--thumb-on-slate", background: "--thumb-slate-raised", minimum: 4.5 },
+  { label: "thumbnail button / paper", foreground: "--color-primary", background: "--thumb-paper", minimum: 3 },
+  { label: "thumbnail button label / button", foreground: "--color-surface", background: "--color-primary", minimum: 3 },
+];
+
 /** Fill against card has no WCAG minimum; the bar is that it must be a visible step, not a rule. */
 export const FIELD_FILL_STEP = { foreground: "--color-field", background: "--color-surface" } as const;
 
