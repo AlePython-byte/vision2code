@@ -6,6 +6,21 @@ import { getSupabaseClient, readSupabaseConfig, supabaseAuthStorageKey } from ".
 import type { AuthStorage } from "./authStorage.ts";
 import { getDefaultAuthStorage } from "./tauriStrongholdStorage.ts";
 
+const DISPLAY_NAME_MAX = 40;
+
+/** The name the user gave, from the two metadata keys Supabase clients commonly use; nothing else is read. */
+export function readDisplayName(user: User): string | undefined {
+  const metadata = user.user_metadata as Record<string, unknown> | undefined;
+  for (const key of ["full_name", "name"]) {
+    const value = metadata?.[key];
+    if (typeof value !== "string") continue;
+    // Control characters out, whitespace collapsed, capped by code points.
+    const clean = Array.from(value.replace(/[\p{Cc}\p{Cf}]/gu, " ").replace(/\s+/g, " ").trim()).slice(0, DISPLAY_NAME_MAX).join("").trim();
+    if (clean) return clean;
+  }
+  return undefined;
+}
+
 /**
  * Safely maps a Supabase User object into an immutable domain AuthUser.
  * Strictly avoids leaking Supabase metadata, tokens, app_metadata, etc.
@@ -24,10 +39,12 @@ export function mapSupabaseUser(user: User, fallbackEmail?: string): AuthUser {
     (user as any).confirmed_at
   );
 
+  const displayName = readDisplayName(user);
   return Object.freeze({
     id: user.id,
     email,
     emailVerified,
+    ...(displayName ? { displayName } : {}),
   });
 }
 

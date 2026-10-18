@@ -8,7 +8,8 @@
  * Query: ?screen=shell|login   (default shell; "login" renders the real Login with an unconfigured
  *        auth model, the Register tab is one click away)
  *        &analysis=success|pending|error  &theme=light|dark  &lang=es|en
- *        &email=<address shown in the rail>  &project=1 (preload a generated project for the Code view)
+ *        &email=<address, shown only as a tooltip and in Settings>  &uid=<user id: the avatar seed>  &name=<display name for the rail>
+ *        &project=1 (preload a generated project for the Code view)
  */
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
@@ -29,6 +30,8 @@ const params = new URLSearchParams(location.search);
 const analysis = params.get("analysis") ?? "success";
 const screen = params.get("screen") ?? "shell";
 const email = params.get("email") ?? "designer@example.com";
+const uid = params.get("uid") ?? "harness";
+const displayName = params.get("name") ?? undefined;
 preferences.set({ theme: params.get("theme") === "dark" ? "dark" : "light", language: params.get("lang") === "en" ? "en" : "es" });
 
 const ids = ["6f1c2d3e-4a5b-4c6d-8e7f-0a1b2c3d4e5f", "7a2d3e4f-5b6c-4d7e-9f80-1b2c3d4e5f60"];
@@ -86,7 +89,7 @@ function Harness() {
   if (!import.meta.env.DEV) return null;
   if (screen === "login") return <HarnessLogin />;
   return (
-    <ApplicationShell onLogin={() => {}} user={{ id: "harness", email, emailVerified: true }} services={services}
+    <ApplicationShell onLogin={() => {}} user={{ id: uid, email, emailVerified: true, ...(displayName ? { displayName } : {}) }} services={services}
       libraryNav={<LibraryNavButton library={services.library} />}
       libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
         session={services.generationSession} openCode={openCode} hasLocalEdits={() => false}

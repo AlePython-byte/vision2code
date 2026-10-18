@@ -50,6 +50,8 @@ export interface AuthUser {
   readonly id: string;
   readonly email: string;
   readonly emailVerified: boolean;
+  /** Name the user chose (Supabase `user_metadata.full_name` or `name`), cleaned and capped; absent when there is none. */
+  readonly displayName?: string | undefined;
 }
 
 /**
