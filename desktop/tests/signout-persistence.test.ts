@@ -1,4 +1,4 @@
-// "Salir" -> close -> reopen must show the login. Reproduces the reported bug with a simulated Stronghold disk: the
+// "Cerrar sesión" -> close -> reopen must show the login. Reproduces the reported bug with a simulated Stronghold disk: the
 // Supabase SDK (auth-js 2.117) only removes the stored session AFTER its POST /logout answers, while the UI already
 // showed the login; closing the app in between left the session in vault.hold and the next start restored it.
 import test from "node:test";
@@ -101,7 +101,7 @@ function waitForStatus(model: AuthModel, status: string): Promise<void> {
 
 const never = new Promise<void>(() => {});
 
-test("Salir, then closing before the server answers: the next start shows the login", async () => {
+test("Cerrar sesión, then closing before the server answers: the next start shows the login", async () => {
   const vault = simulatedVault();
   const first = vault.open();
   await first.setItem(KEY, sessionJson("old-access"));
@@ -143,7 +143,7 @@ test("a session write that lands after signOut (late refresh) never reaches the 
   await model.restoreSession();
   await model.signOut();
 
-  // e.g. a TOKEN_REFRESHED that was already in flight when the user pressed Salir.
+  // e.g. a TOKEN_REFRESHED that was already in flight when the user pressed Cerrar sesión.
   await storage.setItem(KEY, sessionJson("refreshed-access"));
 
   assert.equal(await storage.getItem(KEY), null);
@@ -166,7 +166,7 @@ test("if the vault cannot be written the session still leaves memory and the use
   assert.equal(await model.getAccessToken(), null);
 });
 
-test("a valid session is still restored on the next start, and signing in again after Salir is persisted", async () => {
+test("a valid session is still restored on the next start, and signing in again after Cerrar sesión is persisted", async () => {
   const vault = simulatedVault();
   const first = vault.open();
   const model = start(first);

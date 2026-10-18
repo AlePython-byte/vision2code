@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import { createInstance } from "i18next";
 import { createPreferences, preferences, PREFERENCES_KEY } from "../src/features/preferences/preferences.ts";
 import { es, en, messageKeys } from "../src/features/preferences/resources.ts";
@@ -85,6 +86,8 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
     if (name.includes("authProbe") || name.includes("/auth")) return {
       probeBackendAuth: async () => ({ ok: true, status: 200, isUnauthorized: false }),
     };
+    const local = requireLocalSource(file, name, require);
+    if (local) return local;
     return require(name);
   } });
   return exports;

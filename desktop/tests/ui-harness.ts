@@ -4,6 +4,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { toSourceImageName } from "../src/features/generation/generationArtifact.ts";
 import { i18n } from "../src/features/preferences/i18n.ts";
@@ -37,6 +38,8 @@ export function loadModule(file: string, language: Lang, react: unknown, globals
       if (name.endsWith("/useLabels")) return { useLabels: () => ({ t: i18n.getFixedT(language) }) };
       if (name.endsWith("/i18n")) return { i18n: { language } };
       for (const [suffix, value] of Object.entries(table)) if (name.endsWith(suffix)) return value;
+      const local = requireLocalSource(file, name, require);
+      if (local) return local;
       return require(name);
     },
   });
