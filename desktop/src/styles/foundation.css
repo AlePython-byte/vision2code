@@ -34,6 +34,15 @@
   --shadow-btn-primary: inset 0 1px 1px #ffffff59, 0 4px 14px #7662f540;
   --shadow-btn-primary-hover: inset 0 1px 1px #ffffff73, 0 6px 18px #7662f559;
   --shadow-btn-primary-active: inset 0 2px 6px #00000033, 0 1px 4px #7662f540;
+  /* Generated avatars (account/avatarSpec.ts): background, blob and eyes per palette; eyes keep 3:1 against the blob. */
+  --avatar-1-bg: #e2ddff; --avatar-1-blob: #8f7cf0; --avatar-1-eyes: #1d1a33;
+  --avatar-2-bg: #d9f1ea; --avatar-2-blob: #3fb592; --avatar-2-eyes: #0f2a22;
+  --avatar-3-bg: #ffe6d5; --avatar-3-blob: #f0894f; --avatar-3-eyes: #33180a;
+  --avatar-4-bg: #dcecff; --avatar-4-blob: #5b9cf0; --avatar-4-eyes: #0c2038;
+  --avatar-5-bg: #ffdce8; --avatar-5-blob: #ec6f9c; --avatar-5-eyes: #3a0f20;
+  --avatar-6-bg: #f5efc8; --avatar-6-blob: #d4b82e; --avatar-6-eyes: #2e2605;
+  --avatar-7-bg: #d3f1f6; --avatar-7-blob: #35b4cc; --avatar-7-eyes: #07262d;
+  --avatar-8-bg: #e7f2cf; --avatar-8-blob: #8cb83c; --avatar-8-eyes: #1f2b08;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -70,6 +79,15 @@
   --shadow-btn-primary: inset 0 1px 1px #ffffff33, 0 4px 16px #7662f559;
   --shadow-btn-primary-hover: inset 0 1px 1px #ffffff4d, 0 6px 20px #7662f573;
   --shadow-btn-primary-active: inset 0 2px 6px #00000059, 0 1px 4px #7662f54d;
+  /* Generated avatars (account/avatarSpec.ts): background, blob and eyes per palette; eyes keep 3:1 against the blob. */
+  --avatar-1-bg: #2a2550; --avatar-1-blob: #a595ff; --avatar-1-eyes: #14102e;
+  --avatar-2-bg: #14332b; --avatar-2-blob: #4fd1a8; --avatar-2-eyes: #08201a;
+  --avatar-3-bg: #3a2415; --avatar-3-blob: #ff9d63; --avatar-3-eyes: #2a1306;
+  --avatar-4-bg: #17283f; --avatar-4-blob: #6fb0ff; --avatar-4-eyes: #0a1a2e;
+  --avatar-5-bg: #3d1a2a; --avatar-5-blob: #ff86b1; --avatar-5-eyes: #2e0c1a;
+  --avatar-6-bg: #38330f; --avatar-6-blob: #ecd24a; --avatar-6-eyes: #241f04;
+  --avatar-7-bg: #12323a; --avatar-7-blob: #4cc9e0; --avatar-7-eyes: #05222a;
+  --avatar-8-bg: #2a3512; --avatar-8-blob: #a5d44e; --avatar-8-eyes: #17200a;
 }
 /* Scrollbars: ONE style for every scroll container of the app (page, shell, dialogs, panels): thin, no arrow buttons,
    rounded thumb. It uses the ::-webkit-scrollbar family (WebView2 / Chromium / WebKit) on purpose: the standard

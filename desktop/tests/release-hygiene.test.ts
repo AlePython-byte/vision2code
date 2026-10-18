@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { createSessionPersistenceStore, MemoryAuthStorage } from "../src/features/auth/authStorage.ts";
 import { TauriStrongholdAuthStorage } from "../src/features/auth/tauriStrongholdStorage.ts";
@@ -102,6 +103,8 @@ function load(file: string, overrides: Record<string, unknown> = {}) {
     if (name.endsWith("/previewSync")) return { syncEditorToPreview: () => ({ dispose() {}, flush: async () => {}, isPending: () => false }) };
     if (name.endsWith("/PreviewPanel")) return { PreviewPanel: () => null };
     if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
+    const local = requireLocalSource(file, name, require);
+    if (local) return local;
     return require(name);
   } });
   return exports;
@@ -130,9 +133,9 @@ test("the rail shows a subtle status badge only when the session will not be sav
   assert.equal(es.sessionNotSaved, "Tu sesión no se guardará al cerrar la app");
   assert.equal(en.sessionNotSaved, "Your session will not be saved when you close the app");
   await i18n.changeLanguage("es");
-  assert.match(shell(true), /<span class="account-avatar" aria-hidden="true">AN<\/span>/, "the avatar itself is unchanged");
+  assert.match(shell(true), /<svg class="generated-avatar generated-avatar-md avatar-palette-\d" viewBox="0 0 64 64" aria-hidden="true"/, "the generated avatar is still the badge's anchor");
   // The same value reaches Settings, and App builds the store from the default auth storage.
-  assert.match(read("../src/features/workspace/ApplicationShell.tsx"), /<SettingsScreen sessionNotSaved=\{sessionNotSaved\} \/>/);
+  assert.match(read("../src/features/workspace/ApplicationShell.tsx"), /<SettingsScreen sessionNotSaved=\{sessionNotSaved\} user=\{user \?\? null\} \/>/);
   assert.match(read("../src/App.tsx"), /createSessionPersistenceStore\(getDefaultAuthStorage\(\)\)/);
   assert.match(read("../src/App.tsx"), /sessionPersistence=\{sessionPersistence\}/);
 });

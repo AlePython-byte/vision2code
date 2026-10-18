@@ -76,7 +76,7 @@
   :root[data-theme="dark"] .navigation { border-color: var(--color-line); }
   :root[data-theme="dark"] .navigation-item[aria-current] { background: var(--color-tint); color: var(--color-accent); box-shadow: var(--shadow-inset), inset 0 0 12px #7662f52e, inset 3px 0 0 var(--color-primary); border-color: var(--color-line); }
   .navigation-note { margin-top: auto; align-self: stretch; min-width: 0; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; line-height: 1.8; text-align: center; }
-  /* Account block: round initials plus the address on ONE line (ellipsis; the full value is in the title). */
+  /* Account block: generated avatar plus a short label on ONE line (ellipsis). The address is only in the tooltip and in Settings. */
   .account { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .account-avatar-wrap { position: relative; display: inline-flex; }
   /* Subtle: a small warning badge on the avatar; the text lives in its title and a visually hidden label. */
@@ -87,8 +87,23 @@
   .session-notice p { margin: 0; }
   .session-notice-title { font-size: 13px; font-weight: 600; }
   .session-notice-help { margin-top: 2px; color: var(--color-muted); font-size: 12px; line-height: 1.5; }
-  .account-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; background: var(--color-primary-subtle); color: var(--color-accent); border: 1px solid var(--color-line); box-shadow: var(--shadow-control); font: 600 12px/1 var(--font-display); letter-spacing: .02em; }
-  .account-email { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  /* Generated avatar (account/GeneratedAvatar.tsx): colours come from the --avatar-<n>-* tokens of the active theme. */
+  .generated-avatar { display: block; flex-shrink: 0; border-radius: 50%; box-shadow: var(--shadow-control); }
+  .generated-avatar-md { width: 38px; height: 38px; }
+  .generated-avatar-sm { width: 28px; height: 28px; }
+  .generated-avatar .avatar-bg { fill: var(--avatar-bg); }
+  .generated-avatar .avatar-blob { fill: var(--avatar-blob); }
+  .generated-avatar .avatar-eyes-fill { fill: var(--avatar-eyes); }
+  .generated-avatar .avatar-eyes-line { stroke: var(--avatar-eyes); stroke-width: 2.6; stroke-linecap: round; }
+  .avatar-palette-1 { --avatar-bg: var(--avatar-1-bg); --avatar-blob: var(--avatar-1-blob); --avatar-eyes: var(--avatar-1-eyes); }
+  .avatar-palette-2 { --avatar-bg: var(--avatar-2-bg); --avatar-blob: var(--avatar-2-blob); --avatar-eyes: var(--avatar-2-eyes); }
+  .avatar-palette-3 { --avatar-bg: var(--avatar-3-bg); --avatar-blob: var(--avatar-3-blob); --avatar-eyes: var(--avatar-3-eyes); }
+  .avatar-palette-4 { --avatar-bg: var(--avatar-4-bg); --avatar-blob: var(--avatar-4-blob); --avatar-eyes: var(--avatar-4-eyes); }
+  .avatar-palette-5 { --avatar-bg: var(--avatar-5-bg); --avatar-blob: var(--avatar-5-blob); --avatar-eyes: var(--avatar-5-eyes); }
+  .avatar-palette-6 { --avatar-bg: var(--avatar-6-bg); --avatar-blob: var(--avatar-6-blob); --avatar-eyes: var(--avatar-6-eyes); }
+  .avatar-palette-7 { --avatar-bg: var(--avatar-7-bg); --avatar-blob: var(--avatar-7-blob); --avatar-eyes: var(--avatar-7-eyes); }
+  .avatar-palette-8 { --avatar-bg: var(--avatar-8-bg); --avatar-blob: var(--avatar-8-blob); --avatar-eyes: var(--avatar-8-eyes); }
+  .account-name { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .account-version { display: block; font-size: 9px; line-height: 1.2; opacity: .8; }
   .workspace { display: flex; flex-direction: column; gap: 24px; padding: 18px 12px 20px; min-width: 0; flex: 1; }
   .workspace-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
@@ -277,6 +292,7 @@
   .telemetry-item { background: var(--color-tint); border: 1px solid var(--color-line); box-shadow: var(--shadow-inset); border-radius: var(--radius-sm); padding: 12px 14px; }
   .telemetry-item dt { font: 9px var(--font-mono); color: var(--color-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
   .telemetry-item dd { margin: 0; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+  .account-email-value { overflow-wrap: anywhere; }
   .settings-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--color-line); flex-wrap: wrap; }
   .settings-feedback { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-green); font-family: var(--font-mono); }
   .app-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 12px 0; color: var(--color-muted); font: 9px var(--font-mono); }
@@ -343,7 +359,7 @@
   .navigation-item[aria-current] {
     border: 1.5px solid var(--color-primary);
   }
-  .account-email, .account-version {
+  .account-name, .account-version {
     display: none;
   }
   .navigation-note {

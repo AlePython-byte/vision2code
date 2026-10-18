@@ -12,16 +12,10 @@ import { syncEditorToPreview } from "../preview/previewSync";
 import type { GeneratedProject } from "../generation/generatedProject";
 import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
 import type { AuthUser } from "../auth/authTypes.ts";
+import { GeneratedAvatar } from "../account/GeneratedAvatar";
 import type { WorkspaceServices } from "./workspaceServices";
 const never = () => () => {};
 const closed = () => false;
-
-/** Up to two uppercase initials from the local part of an e-mail address. Pure and local: nothing is looked up. */
-export function accountInitials(email: string): string {
-  const words = (email.split("@")[0] ?? "").trim().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-  const letters = words.length > 1 ? [Array.from(words[0]!)[0], Array.from(words[1]!)[0]] : Array.from(words[0] ?? "").slice(0, 2);
-  return letters.join("").toLocaleUpperCase() || "?";
-}
 
 export function ApplicationShell({
   onLogin,
@@ -109,7 +103,8 @@ export function ApplicationShell({
         {user?.email ? (
           <span className="navigation-note account" title={user.email}>
             <span className="account-avatar-wrap">
-              <span className="account-avatar" aria-hidden="true">{accountInitials(user.email)}</span>
+              {/* Seeded with the user id, never the address. */}
+              <GeneratedAvatar seed={user.id} size="md" />
               {sessionNotSaved && (
                 <span className="account-session-badge" role="status" title={t("sessionNotSaved")}>
                   <TriangleAlert aria-hidden="true" />
@@ -117,8 +112,8 @@ export function ApplicationShell({
                 </span>
               )}
             </span>
-            {/* One line with an ellipsis; the full address is in the title. Compact rails keep only the avatar. */}
-            <span className="account-email" title={user.email}>{user.email}</span>
+            {/* One short label; the address lives in the tooltip and in Settings. Compact rails keep only the avatar. */}
+            <span className="account-name">{user.displayName ?? t("accountLabel")}</span>
             <span className="account-version">0.1.0</span>
           </span>
         ) : (
@@ -136,7 +131,7 @@ export function ApplicationShell({
           }} />}
         <div className="capture-view" hidden={view !== "capture"}><Workspace onGenerated={completeGeneration} projects={projects} analyzeScreenshot={services?.analyzeScreenshot} /></div>
         {view === "editor" && <main id="code-workspace" className="workspace" tabIndex={-1}><EditorWorkspace model={editorModel} aside={codeContext} actions={codeActions} preview={<PreviewPanel model={previewModel} editorModel={editorModel} />} /></main>}
-        {view === "settings" && <SettingsScreen sessionNotSaved={sessionNotSaved} />}
+        {view === "settings" && <SettingsScreen sessionNotSaved={sessionNotSaved} user={user ?? null} />}
         <footer className="app-footer"><span>{t("footer")}</span><span>{t("version")}</span></footer>
       </div>
       {libraryDialog?.({ openCode: () => setView("editor") })}

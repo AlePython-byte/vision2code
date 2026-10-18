@@ -201,7 +201,7 @@ export const es = {
   "authErrorPASSWORD_TOO_SHORT": "La contraseña debe tener al menos 8 caracteres.",
   "authErrorRATE_LIMITED": "Has realizado demasiados intentos. Espera unos minutos antes de volver a intentarlo.",
   "authErrorUNKNOWN": "Ocurrió un error inesperado al procesar la solicitud.",
-  "authErrorSIGN_OUT_NOT_PERSISTED": "Has cerrado sesión, pero no se pudo borrar la sesión guardada en este equipo. Si la app vuelve a abrirse con la sesión iniciada, pulsa Salir de nuevo.",
+  "authErrorSIGN_OUT_NOT_PERSISTED": "Has cerrado sesión, pero no se pudo borrar la sesión guardada en este equipo. Si la app vuelve a abrirse con la sesión iniciada, pulsa Cerrar sesión de nuevo.",
   "demoEntry": "Entrar a la demostración local",
   "demoLabel": "Modo de demostración · Sin autenticación",
   "loginScreen": "Ver pantalla de acceso",
@@ -234,6 +234,11 @@ export const es = {
   "telemetrySection": "Diagnóstico y calibración",
   "telemetryEyebrow": "03 // Telemetría de consola",
   "telemetryHelp": "Estado operativo del motor de preferencias y la persistencia local de la estación.",
+  "accountLabel": "Cuenta",
+  "accountSection": "Cuenta",
+  "accountEyebrow": "04 // Cuenta",
+  "accountHelp": "La sesión con la que has entrado. Tu avatar se genera a partir de tu cuenta y no cambia.",
+  "accountEmailLabel": "Correo electrónico",
   "activeThemeLabel": "Tema activo",
   "activeLanguageLabel": "Idioma activo",
   "persistenceLabel": "Persistencia",
@@ -417,7 +422,7 @@ export const es = {
   "libraryRegion": "Generaciones de {{name}}",
   "libraryOpenFor": "Abrir biblioteca: {{name}}",
   "navSettings": "Ajustes",
-  "navSignOut": "Salir"
+  "navSignOut": "Cerrar sesión"
 };
 export const en: Record<keyof typeof es, string> = {
   "skip": "Skip to workspace",
@@ -655,6 +660,11 @@ export const en: Record<keyof typeof es, string> = {
   "telemetrySection": "Diagnostics and calibration",
   "telemetryEyebrow": "03 // Console telemetry",
   "telemetryHelp": "Operational status of the preference engine and local workstation persistence.",
+  "accountLabel": "Account",
+  "accountSection": "Account",
+  "accountEyebrow": "04 // Account",
+  "accountHelp": "The session you signed in with. Your avatar is generated from your account and never changes.",
+  "accountEmailLabel": "Email",
   "activeThemeLabel": "Active theme",
   "activeLanguageLabel": "Active language",
   "persistenceLabel": "Persistence",

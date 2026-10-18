@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { i18n } from "../src/features/preferences/i18n.ts";
 
@@ -43,6 +44,8 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
           }),
         };
       }
+      const local = requireLocalSource(file, name, require);
+      if (local) return local;
       return require(name);
     },
   });
@@ -90,7 +93,7 @@ test("authenticated services land in the Project Vault and mark Projects current
   assert.match(html, /<div class="capture-view" hidden=""><div id="workspace"/);
 });
 
-test("rail email exposes its full value and compact navigation hides it without a layout-shifting active border", () => {
+test("the rail label is short, the address stays in the tooltip, and compact navigation hides the label without a layout-shifting active border", () => {
   const { ApplicationShell } = loadComponent("workspace/ApplicationShell.tsx", {
     "./Workspace": { Workspace: () => React.createElement("div", { id: "workspace" }) },
     "../editor/EditorWorkspace": { EditorWorkspace: () => React.createElement("div", { id: "code-workspace" }) },
@@ -101,18 +104,18 @@ test("rail email exposes its full value and compact navigation hides it without 
   const html = renderToStaticMarkup(React.createElement(ApplicationShell, {
     onLogin() {}, user: { id: "u-rail", email, emailVerified: true },
   }));
-  const emailElement = html.match(/<span class="account-email"([^>]*)>/)?.[1];
-  assert.ok(emailElement, "The address has its own styled element");
-  assert.match(emailElement, /title="long\.designer@example\.com"/);
-  assert.doesNotMatch(emailElement, /style=|max-width/);
-  assert.match(html, /class="account-email"[^>]*>long\.designer@example\.com<\/span>/);
+  const nameElement = html.match(/<span class="account-name"([^>]*)>/)?.[1];
+  assert.notEqual(nameElement, undefined, "The short label has its own styled element");
+  assert.doesNotMatch(nameElement ?? "", /style=|max-width/);
+  assert.match(html, /class="account-name"[^>]*>Cuenta<\/span>/);
+  assert.match(html, /class="navigation-note account" title="long\.designer@example\.com"/, "the full address is the tooltip of the account block");
 
   const themeCss = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
   const foundationCss = readFileSync(new URL("../src/styles/foundation.css", import.meta.url), "utf8");
   const compactStart = themeCss.indexOf("@media (max-width: 760px) and (min-width: 561px)");
   const compactRules = themeCss.slice(compactStart, themeCss.indexOf("@media (max-width: 560px)", compactStart));
-  assert.match(compactRules, /\.account-email,\s*\.account-version\s*\{\s*display:\s*none;/);
-  assert.match(themeCss, /\.account-email\s*\{[^}]*white-space:\s*nowrap;[^}]*text-overflow:\s*ellipsis;/);
+  assert.match(compactRules, /\.account-name,\s*\.account-version\s*\{\s*display:\s*none;/);
+  assert.match(themeCss, /\.account-name\s*\{[^}]*white-space:\s*nowrap;[^}]*text-overflow:\s*ellipsis;/);
   for (const css of [themeCss, foundationCss]) {
     for (const rule of css.matchAll(/\.navigation-item\[aria-current\][^{]*\{([^}]*)\}/g)) {
       assert.doesNotMatch(rule[1] ?? "", /border-left(?:-width|-color)?\s*:/);

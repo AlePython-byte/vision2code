@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { i18n } from "../src/features/preferences/i18n.ts";
 import { preferences } from "../src/features/preferences/preferences.ts";
@@ -27,6 +28,8 @@ function load(file: string, overrides: Record<string, unknown> = {}) {
     if (name.endsWith("/previewSync")) return { syncEditorToPreview: () => ({ dispose() {}, flush: async () => {}, isPending: () => false }) };
     if (name.endsWith("/PreviewPanel")) return { PreviewPanel: () => null };
     if (name.endsWith("/ProjectVault")) return { ProjectVault: () => React.createElement("main", { id: "project-vault" }) };
+    const local = requireLocalSource(file, name, require);
+    if (local) return local;
     return require(name);
   } });
   return exports;
@@ -69,33 +72,23 @@ test("the rail never highlights two items: with the library open only Library is
   assert.match(currentItems(renderShell({ open: false }))[0]!, /aria-current="page"/, "closing brings the current page back");
 });
 
-test("accountInitials derives up to two initials locally from the address", () => {
-  const { accountInitials } = load("workspace/ApplicationShell.tsx", shellOverrides);
-  assert.equal(accountInitials("jorgealejandroparrab@outlook.com"), "JO");
-  assert.equal(accountInitials("long.designer@example.com"), "LD");
-  assert.equal(accountInitials("ana_maria-lopez@x.co"), "AM");
-  assert.equal(accountInitials("x@y.z"), "X");
-  assert.equal(accountInitials("álvaro@x.es"), "ÁL");
-  assert.equal(accountInitials("@nothing"), "?");
-});
-
-test("the account is a round avatar plus the address on one line with the full value in the title", async () => {
+test("the account is a generated avatar plus one short label, the address only in the tooltip", async () => {
   await i18n.changeLanguage("es");
   const email = "jorgealejandroparrab@outlook.com";
   const html = renderShell({ email });
-  assert.match(html, /<span class="account-avatar" aria-hidden="true">JO<\/span>/);
-  assert.match(html, new RegExp(`<span class="account-email" title="${email.replace(/[.]/g, "\\.")}">${email.replace(/[.]/g, "\\.")}</span>`));
-  assert.match(html, new RegExp(`class="navigation-note account" title="${email.replace(/[.]/g, "\\.")}"`));
+  assert.match(html, /<svg class="generated-avatar generated-avatar-md avatar-palette-\d" viewBox="0 0 64 64" aria-hidden="true"/);
+  assert.match(html, /<span class="account-name">Cuenta<\/span>/);
+  assert.match(html, new RegExp(`class="navigation-note account" title="${email.replace(/[.]/g, "\.")}"`));
   assert.doesNotMatch(html, /<br\/?>[^<]*<span class="account/, "no manual line breaks inside the account block");
 
   const css = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
-  assert.match(css, /\.account-email \{[^}]*white-space: nowrap;[^}]*text-overflow: ellipsis;/);
-  assert.doesNotMatch(css, /line-clamp/, "no multi-line clamp is left for the address");
-  assert.match(css, /\.account-avatar \{[^}]*border-radius: 50%;/);
+  assert.match(css, /\.account-name \{[^}]*white-space: nowrap;[^}]*text-overflow: ellipsis;/);
+  assert.doesNotMatch(css, /line-clamp/, "no multi-line clamp is left for the label");
+  assert.match(css, /\.generated-avatar \{[^}]*border-radius: 50%;/);
   const compactStart = css.indexOf("@media (max-width: 760px) and (min-width: 561px)");
   const compact = css.slice(compactStart, css.indexOf("@media (max-width: 560px)", compactStart));
-  assert.match(compact, /\.account-email, \.account-version \{\s*display: none;/, "icon-only rails keep just the avatar");
-  assert.doesNotMatch(compact, /\.account-avatar\s*\{[^}]*display:\s*none/);
+  assert.match(compact, /\.account-name, \.account-version \{\s*display: none;/, "icon-only rails keep just the avatar");
+  assert.doesNotMatch(compact, /\.generated-avatar\s*\{[^}]*display:\s*none/);
 });
 
 test("theme and language are accessible radio groups with a single tab stop each", async () => {

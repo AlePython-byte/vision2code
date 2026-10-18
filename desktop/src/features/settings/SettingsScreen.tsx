@@ -2,8 +2,10 @@ import { useSyncExternalStore, useState } from "react";
 import { Sun, Moon, Languages, Palette, HardDrive, Laptop, RotateCcw, Check, TriangleAlert } from "lucide-react";
 import { preferences, type Theme, type Language } from "../preferences/preferences";
 import { useLabels } from "../preferences/useLabels";
+import type { AuthUser } from "../auth/authTypes.ts";
+import { GeneratedAvatar } from "../account/GeneratedAvatar";
 
-export function SettingsScreen({ sessionNotSaved = false }: { sessionNotSaved?: boolean } = {}) {
+export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessionNotSaved?: boolean; user?: AuthUser | null } = {}) {
   const { t } = useLabels();
   const state = useSyncExternalStore(preferences.subscribe, preferences.getSnapshot, preferences.getSnapshot);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -226,6 +228,25 @@ export function SettingsScreen({ sessionNotSaved = false }: { sessionNotSaved?: 
             )}
           </footer>
         </section>
+
+        {user && (
+          <section className="raised-panel settings-section" aria-labelledby="account-title">
+            <header className="frame-header">
+              <div>
+                <p className="eyebrow">{t("accountEyebrow")}</p>
+                <h2 id="account-title">{t("accountSection")}</h2>
+              </div>
+              <GeneratedAvatar seed={user.id} size="sm" />
+            </header>
+            <p className="settings-section-desc">{t("accountHelp")}</p>
+            <dl className="telemetry-grid">
+              <div className="telemetry-item">
+                <dt>{t("accountEmailLabel")}</dt>
+                <dd className="account-email-value">{user.email}</dd>
+              </div>
+            </dl>
+          </section>
+        )}
       </div>
     </main>
   );

@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { i18n } from "../src/features/preferences/i18n.ts";
 import { es, en } from "../src/features/preferences/resources.ts";
@@ -43,6 +44,8 @@ function loadComponent(file: string, overrides: Record<string, unknown> = {}) {
       if (name.includes("authProbe") || name.endsWith("/authProbe.ts") || name === "../auth/authProbe.ts") {
         return { probeBackendAuth: async () => ({ ok: true, status: 200, isUnauthorized: false, user: { id: "u-1" } }) };
       }
+      const local = requireLocalSource(file, name, require);
+      if (local) return local;
       return require(name);
     },
   });

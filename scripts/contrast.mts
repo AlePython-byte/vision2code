@@ -55,6 +55,13 @@ export const SESSION_NOTICE_PAIRS: readonly ContrastPair[] = [
   { label: "notice help line / notice fill", foreground: "--color-muted", background: "--color-tint", minimum: 4.5 },
 ];
 
+/** Generated avatars: the eyes keep 3:1 against the blob they sit on (non-text), and the blob is a visible step over its background. */
+export const AVATAR_PALETTES = 8;
+export const AVATAR_PAIRS: readonly ContrastPair[] = Array.from({ length: AVATAR_PALETTES }, (_, index) => [
+  { label: `avatar ${index + 1} eyes / blob`, foreground: `--avatar-${index + 1}-eyes`, background: `--avatar-${index + 1}-blob`, minimum: 3 },
+  { label: `avatar ${index + 1} blob / background`, foreground: `--avatar-${index + 1}-blob`, background: `--avatar-${index + 1}-bg`, minimum: 1.5 },
+]).flat();
+
 /** Fill against card has no WCAG minimum; the bar is that it must be a visible step, not a rule. */
 export const FIELD_FILL_STEP = { foreground: "--color-field", background: "--color-surface" } as const;
 
