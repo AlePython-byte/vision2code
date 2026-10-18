@@ -6,11 +6,19 @@ use tauri_plugin_dialog::DialogExt;
 mod export;
 mod preview;
 
-const KEYRING_SERVICE: &str = "vision2code";
+const RELEASE_IDENTIFIER: &str = "com.vision2code.desktop";
+/// The entry the released app has always used; kept so existing installs keep their session.
+const RELEASE_KEYRING_SERVICE: &str = "vision2code";
 const KEYRING_USER: &str = "vault_master_key";
 
-pub fn get_or_create_vault_master_key() -> Result<String, String> {
-    let entry = Entry::new(KEYRING_SERVICE, KEYRING_USER).map_err(|e| e.to_string())?;
+/// The keyring entry belongs to the app identifier, like the vault file (`app_local_data_dir`) and the WebView profile:
+/// `desktop:dev` runs with its own identifier (`tauri.dev.conf.json`) and so never reads or overwrites the installed app's key.
+fn keyring_service(identifier: &str) -> String {
+    if identifier == RELEASE_IDENTIFIER { RELEASE_KEYRING_SERVICE.to_string() } else { identifier.to_string() }
+}
+
+pub fn get_or_create_vault_master_key(service: &str) -> Result<String, String> {
+    let entry = Entry::new(service, KEYRING_USER).map_err(|e| e.to_string())?;
 
     match entry.get_password() {
         Ok(existing_key) if !existing_key.trim().is_empty() => {
@@ -51,7 +59,7 @@ fn get_vault_key(app: tauri::AppHandle) -> Result<String, String> {
         }
     }
 
-    get_or_create_vault_master_key()
+    get_or_create_vault_master_key(&keyring_service(&app.config().identifier))
 }
 
 #[tauri::command]
@@ -111,11 +119,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn the_keyring_entry_follows_the_identifier_and_the_release_keeps_its_legacy_name() {
+        assert_eq!(keyring_service("com.vision2code.desktop"), "vision2code", "installed apps keep their session");
+        assert_eq!(keyring_service("com.vision2code.desktop.dev"), "com.vision2code.desktop.dev");
+        assert_ne!(keyring_service("com.vision2code.desktop.dev"), keyring_service("com.vision2code.desktop"));
+    }
+
+    #[test]
     #[ignore = "uses the real OS credential store (absent on headless CI); run locally with `cargo test -- --ignored`"]
     fn test_keyring_retrieval_and_stability() {
-        let key1 = get_or_create_vault_master_key().expect("first key retrieval should succeed");
+        // A throwaway service name: this ignored test never touches the app's real entry.
+        let service = "vision2code.keyring-test";
+        let key1 = get_or_create_vault_master_key(service).expect("first key retrieval should succeed");
         assert_eq!(key1.len(), 64, "256-bit key hex should be 64 characters");
-        let key2 = get_or_create_vault_master_key().expect("second key retrieval should succeed");
+        let key2 = get_or_create_vault_master_key(service).expect("second key retrieval should succeed");
         assert_eq!(key1, key2, "keyring must return the same master key across calls");
     }
 }
