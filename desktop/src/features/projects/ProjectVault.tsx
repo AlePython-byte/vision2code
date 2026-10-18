@@ -11,8 +11,10 @@ import { projectAccent, projectState, relativeProjectDate, vaultTotals, visibleP
   type VaultSort, type VaultStateFilter } from "./vaultSelectors";
 import { NewProjectDialog } from "./NewProjectDialog";
 import { isVaultSearchShortcut } from "./vaultKeyboard";
+import { ProjectFidelityChip, SchemaThumbnail, ThumbnailSlot } from "./SchemaThumbnail";
+import type { ThumbnailModel } from "./thumbnailModel";
 
-export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters, hasLocalEdits, confirmDiscard, onManageProject }: {
+export function ProjectVault({ projects, session, toasts, onCapture, onEditor, now = () => new Date(), initialFilters, hasLocalEdits, confirmDiscard, onManageProject, thumbnails }: {
   projects: ProjectsModel;
   session: GenerationSessionModel;
   toasts: ToastModel;
@@ -25,6 +27,8 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
   confirmDiscard?: (trigger: HTMLElement | null) => Promise<boolean>;
   /** Opens the app-level rename/delete confirmation; the Vault never mutates projects itself. */
   onManageProject?: ((kind: ProjectManageKind, projectId: string, trigger: HTMLElement) => void) | undefined;
+  /** Thumbnails drawn from each project's latest generation; without it the cards show the placeholder. */
+  thumbnails?: ThumbnailModel | undefined;
 }) {
   const { t } = useLabels();
   const language = i18n.language.startsWith("en") ? "en" : "es";
@@ -118,11 +122,13 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
       {firstLoad && <><p className="eyebrow">{t("projectsLoading")}</p>
         <ul className="vault-grid vault-skeletons" aria-label={t("projectsLoading")}>
           {Array.from({ length: 6 }, (_, index) => <li key={index} className="vault-card raised-panel" aria-hidden="true">
-            <p className="eyebrow">{t("vaultLoadingModule")}</p><div className="vault-thumbnail"><span /><span /><span /></div>
+            <p className="eyebrow">{t("vaultLoadingModule")}</p><SchemaThumbnail state="loading" />
+            <span className="vault-skeleton-line" /><span className="vault-skeleton-line short" />
           </li>)}
         </ul>
       </>}
       {!firstLoad && state.projects.length === 0 && state.status !== "ERROR" && <div className="vault-message vault-empty">
+        <SchemaThumbnail state="empty" caption={t("thumbNoGenerations")} />
         <button type="button" className="upload-mark" aria-label={t("vaultCreateFirst")} onClick={(event) => showDialog(event.currentTarget)}><Plus aria-hidden="true" /></button>
         <h2>{t("vaultEmptyTitle")}</h2><p>{t("vaultEmptyHelp")}</p>
         <button type="button" className="action-button secondary-button" onClick={(event) => showDialog(event.currentTarget)}>{t("vaultCreateFirst")}</button>
@@ -148,7 +154,11 @@ export function ProjectVault({ projects, session, toasts, onCapture, onEditor, n
                   aria-label={t("vaultDeleteProject", { name: project.name })} title={t("vaultDeleteProject", { name: project.name })}
                   onClick={(event) => onManageProject("DELETE", project.id, event.currentTarget)}><Trash2 aria-hidden="true" /></button>
               </span>}</div>
-            <div className="vault-thumbnail" aria-hidden="true"><span /><span /><span /></div>
+            <div className="vault-card-media">
+              <ThumbnailSlot thumbnails={thumbnails} projectId={project.id} generationId={project.latestGenerationId}
+                emptyCaption={t("thumbNoGenerations")} unavailableCaption={t("thumbUnavailable")} />
+              <ProjectFidelityChip thumbnails={thumbnails} generationId={project.latestGenerationId} />
+            </div>
             <button type="button" className="vault-card-open" title={project.name} disabled={opening !== null}
               aria-label={t("vaultOpenProject", { name: project.name })} onClick={() => { void open(project.id); }}>
               <span>{project.name}</span><ArrowUpRight aria-hidden="true" />

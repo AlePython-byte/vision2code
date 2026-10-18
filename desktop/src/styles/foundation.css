@@ -43,6 +43,10 @@
   --avatar-6-bg: #f5efc8; --avatar-6-blob: #d4b82e; --avatar-6-eyes: #2e2605;
   --avatar-7-bg: #d3f1f6; --avatar-7-blob: #35b4cc; --avatar-7-eyes: #07262d;
   --avatar-8-bg: #e7f2cf; --avatar-8-blob: #8cb83c; --avatar-8-eyes: #1f2b08;
+  /* Thumbnails of UISchemas (projects/thumbnailBlocks.ts): a light source stays light and a dark one stays dark in both themes, */
+  /* so these are surfaces of the drawing, not of the app: paper / slate and the ink that sits on each. */
+  --thumb-paper: #f6f8fc; --thumb-paper-raised: #ffffff; --thumb-on-paper: #303641;
+  --thumb-slate: #3b4351; --thumb-slate-raised: #4d5767; --thumb-on-slate: #eef2f8;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -88,6 +92,9 @@
   --avatar-6-bg: #38330f; --avatar-6-blob: #ecd24a; --avatar-6-eyes: #241f04;
   --avatar-7-bg: #12323a; --avatar-7-blob: #4cc9e0; --avatar-7-eyes: #05222a;
   --avatar-8-bg: #2a3512; --avatar-8-blob: #a5d44e; --avatar-8-eyes: #17200a;
+  /* Thumbnails of UISchemas: see the light block. */
+  --thumb-paper: #e9edf5; --thumb-paper-raised: #f7f9fd; --thumb-on-paper: #1d2430;
+  --thumb-slate: #131a25; --thumb-slate-raised: #222c3b; --thumb-on-slate: #eef2f8;
 }
 /* Scrollbars: ONE style for every scroll container of the app (page, shell, dialogs, panels): thin, no arrow buttons,
    rounded thumb. It uses the ::-webkit-scrollbar family (WebView2 / Chromium / WebKit) on purpose: the standard

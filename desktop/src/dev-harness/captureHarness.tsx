@@ -10,10 +10,14 @@
  *        &analysis=success|pending|error  &theme=light|dark  &lang=es|en
  *        &email=<address, shown only as a tooltip and in Settings>  &uid=<user id: the avatar seed>  &name=<display name for the rail>
  *        &project=1 (preload a generated project for the Code view)
+ *        &projects=0|1|2|many (how many projects the fake backend lists, default 2)  &thumbs=ok|error|slow (generation detail answers)
  */
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import uiSchema from "../../../packages/contracts/tests/fixtures/simple-interface.json";
+import linearLanding from "../../tests/fixtures/ui-schemas/linear-landing.balanced.p11.v1.json";
+import tremorDashboard from "../../tests/fixtures/ui-schemas/tremor-dashboard.balanced.p11.v1.json";
+import codepenLogin from "../../tests/fixtures/ui-schemas/codepen-login.balanced.p11.v1.json";
 import { UISchemaSchema } from "@vision2code/contracts";
 import { createAuthModel, createUnconfiguredAuthProvider } from "../features/auth/index";
 import { generateReactProject } from "../features/generation/generateReactProject";
@@ -34,16 +38,42 @@ const uid = params.get("uid") ?? "harness";
 const displayName = params.get("name") ?? undefined;
 preferences.set({ theme: params.get("theme") === "dark" ? "dark" : "light", language: params.get("lang") === "en" ? "en" : "es" });
 
-const ids = ["6f1c2d3e-4a5b-4c6d-8e7f-0a1b2c3d4e5f", "7a2d3e4f-5b6c-4d7e-9f80-1b2c3d4e5f60"];
+const projectsParam = params.get("projects");
+const projectCount = projectsParam === "0" ? 0 : projectsParam === "1" ? 1 : projectsParam === "many" ? 14 : 2;
+const thumbs = params.get("thumbs") ?? "ok";
 const stamp = (minutesAgo: number) => new Date(Date.now() - minutesAgo * 60_000).toISOString();
-const projects = [
-  { id: ids[0], name: "Panel de ventas", createdAt: stamp(900), updatedAt: stamp(30), generationCount: 3, latestGenerationId: null },
-  { id: ids[1], name: "Landing de producto", createdAt: stamp(3000), updatedAt: stamp(600), generationCount: 1, latestGenerationId: null },
-];
-const generations = (projectId: string, count: number) => Array.from({ length: count }, (_, index) => ({
-  id: `00000000-0000-4000-8000-00000000000${index + 1}`, projectId, sourceImagePath: null, sourceImageName: `captura-${index + 1}.png`,
-  sourceImageMimeType: "image/png", generationTarget: "REACT_TAILWIND", fidelityMode: index === 0 ? "BALANCED" : "FAST", createdAt: stamp(20 + index * 90),
+const uuid = (kind: number, project: number, generation = 0) =>
+  `${kind.toString(16).padStart(8, "0")}-4a5b-4c6d-8e7f-${project.toString(16).padStart(6, "0")}${generation.toString(16).padStart(6, "0")}`;
+const names = ["Panel de ventas", "Landing de producto", "Inicio de sesión", "Tablero de métricas", "Página de precios", "Registro de usuarios", "Centro de ayuda"];
+const projects = Array.from({ length: projectCount }, (_, index) => ({
+  id: uuid(1, index),
+  name: index < names.length ? names[index]! : `${names[index % names.length]!} ${Math.floor(index / names.length) + 1}`,
+  createdAt: stamp(900 + index * 400), updatedAt: stamp(30 + index * 260),
+  generationCount: 1 + (index % 3), latestGenerationId: uuid(2, index, 0),
 }));
+const generationsOf = (projectId: string) => {
+  const index = projects.findIndex((project) => project.id === projectId);
+  if (index < 0) return [];
+  return Array.from({ length: projects[index]!.generationCount }, (_, generation) => ({
+    id: uuid(2, index, generation), projectId, sourceImagePath: null, sourceImageName: `captura-${generation + 1}.png`,
+    sourceImageMimeType: "image/png", generationTarget: "REACT_TAILWIND",
+    fidelityMode: (["BALANCED", "FAST", "PRECISE"] as const)[(index + generation) % 3], createdAt: stamp(20 + index * 260 + generation * 90),
+  }));
+};
+// A different real schema per generation, so thumbnails differ; the generated project is built once per schema.
+const detailSchemas = [linearLanding, tremorDashboard, codepenLogin, uiSchema] as unknown[];
+const generatedFor = new Map<number, ReturnType<typeof generateReactProject>>();
+function generationDetail(projectId: string, generationId: string) {
+  const all = generationsOf(projectId);
+  const position = all.findIndex((item) => item.id === generationId);
+  if (position < 0) return null;
+  const summary = all[position]!;
+  const index = projects.findIndex((project) => project.id === projectId);
+  const which = (index + position) % detailSchemas.length;
+  const schema = UISchemaSchema.parse(detailSchemas[which]);
+  if (!generatedFor.has(which)) generatedFor.set(which, generateReactProject(schema));
+  return { ...summary, uiSchema: schema, generatedProject: generatedFor.get(which)! };
+}
 
 const transport: typeof fetch = async (input, init) => {
   const url = String(input);
@@ -58,7 +88,18 @@ const transport: typeof fetch = async (input, init) => {
   }
   if (url.endsWith("/projects")) return Response.json(projects);
   const generationList = /\/projects\/([^/]+)\/generations$/.exec(url);
-  if (generationList) return Response.json(generations(generationList[1]!, generationList[1] === ids[0] ? 3 : 1));
+  if (generationList) return Response.json(generationsOf(generationList[1]!));
+  const generationOne = /\/projects\/([^/]+)\/generations\/([^/]+)$/.exec(url);
+  if (generationOne) {
+    if (thumbs === "error") return new Response("harness: detail unavailable", { status: 503 });
+    if (thumbs === "slow") {
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+      });
+    }
+    const detail = generationDetail(generationOne[1]!, generationOne[2]!);
+    return detail ? Response.json(detail) : new Response("harness: not found", { status: 404 });
+  }
   return new Response("harness: no backend", { status: 503 });
 };
 
@@ -91,7 +132,7 @@ function Harness() {
   return (
     <ApplicationShell onLogin={() => {}} user={{ id: uid, email, emailVerified: true, ...(displayName ? { displayName } : {}) }} services={services}
       libraryNav={<LibraryNavButton library={services.library} />}
-      libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel}
+      libraryDialog={({ openCode }) => <LibraryDialog library={services.library} projects={services.projectsModel} thumbnails={services.thumbnails}
         session={services.generationSession} openCode={openCode} hasLocalEdits={() => false}
         confirmDiscard={() => Promise.resolve(true)} />} />
   );
