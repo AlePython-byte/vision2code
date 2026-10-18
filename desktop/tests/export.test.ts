@@ -366,11 +366,11 @@ test("the webview gets no filesystem or dialog permission; only the validated co
   const capability = JSON.parse(read("../src-tauri/capabilities/default.json")) as { permissions: string[] };
   // Besides Stronghold, only the app's own commands (app manifest ACL); never fs:, dialog: or another plugin.
   assert.deepEqual(capability.permissions.filter((permission) => !permission.startsWith("stronghold:")),
-    ["allow-get-vault-key", "allow-get-vault-path", "allow-export-project"], "no fs:, dialog: or other new permission");
+    ["allow-get-vault-key", "allow-get-vault-path", "allow-export-project", "allow-lifecycle-log"], "no fs:, dialog: or other new permission");
   const config = read("../src-tauri/tauri.conf.json");
   assert.doesNotMatch(config, /"fs"|"scope"|assetProtocol/);
   const lib = read("../src-tauri/src/lib.rs");
-  assert.match(lib, /generate_handler!\[get_vault_key, get_vault_path, export_project\]/);
+  assert.match(lib, /generate_handler!\[get_vault_key, get_vault_path, export_project, lifecycle_log\]/);
   assert.match(lib, /\.plugin\(tauri_plugin_dialog::init\(\)\)/);
   assert.doesNotMatch(lib, /tauri_plugin_fs/, "the fs plugin is never registered");
   assert.doesNotMatch(lib, /fn export_project\([^)]*(path|dir|destination)\s*:/i, "the command takes no destination from the webview");

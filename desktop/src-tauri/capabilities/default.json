@@ -13,6 +13,7 @@
     "stronghold:allow-save",
     "allow-get-vault-key",
     "allow-get-vault-path",
-    "allow-export-project"
+    "allow-export-project",
+    "allow-lifecycle-log"
   ]
 }

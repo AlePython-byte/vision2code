@@ -14,7 +14,7 @@ const STRONGHOLD = [
   "stronghold:allow-remove-store-record",
   "stronghold:allow-save",
 ];
-const EXPECTED_COMMANDS = ["export_project", "get_vault_key", "get_vault_path"];
+const EXPECTED_COMMANDS = ["export_project", "get_vault_key", "get_vault_path", "lifecycle_log"];
 const allowOf = (command: string) => `allow-${command.replaceAll("_", "-")}`;
 
 const lib = read("src/lib.rs");
