@@ -38,6 +38,8 @@ npm run test:rust
 npm run desktop:build
 ```
 
+`desktop:build` produces a single Windows installer, NSIS, installed per user without administrator rights (`bundle.targets: ["nsis"]`, `installMode: currentUser`; no MSI). `desktop:dev` runs with its own identifier, `com.vision2code.desktop.dev` (`desktop/src-tauri/tauri.dev.conf.json`, merged with `--config`), so the development window never shares the vault, the WebView profile or the credential-store entry of the installed app; the release identifier stays `com.vision2code.desktop`. See `docs/packaged-build-checklist.md`.
+
 `build` compiles the contracts package, validates the desktop TypeScript configurations, and builds the frontend. The desktop `predev` and `pretypecheck` scripts build contracts automatically, including when invoked by Tauri. `check:rust` checks the native project and `test:rust` runs its Rust tests (export validation and writes in temporary folders). The keyring test touches the real OS credential store, so it is ignored by default and `cargo test` passes on a runner without one; run it locally with `cargo test --manifest-path desktop/src-tauri/Cargo.toml -- --ignored`. `desktop:build` also creates native release bundles and requires the platform packaging prerequisites. Desktop and contract tests use the built-in Node.js test runner and TypeScript stripping; no test framework is installed.
 
 The root `npm test` command runs the complete repository test suite: contracts, desktop, and server. Use `npm run server:test` to run only the backend suite.

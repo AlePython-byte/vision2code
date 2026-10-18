@@ -9,7 +9,7 @@
     "build": "npm run build --workspace @vision2code/desktop",
     "typecheck": "npm run typecheck --workspace @vision2code/contracts && npm run typecheck --workspace @vision2code/desktop",
     "test": "npm run test --workspace @vision2code/contracts && npm run test --workspace @vision2code/desktop && npm run server:test",
-    "desktop:dev": "npm run tauri --workspace @vision2code/desktop -- dev",
+    "desktop:dev": "npm run tauri --workspace @vision2code/desktop -- dev --config src-tauri/tauri.dev.conf.json",
     "desktop:build": "npm run tauri --workspace @vision2code/desktop -- build",
     "check:rust": "cargo check --manifest-path desktop/src-tauri/Cargo.toml",
     "test:rust": "cargo test --manifest-path desktop/src-tauri/Cargo.toml",

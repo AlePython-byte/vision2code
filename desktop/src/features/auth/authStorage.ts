@@ -9,6 +9,23 @@ export interface AuthStorage {
   setItem(key: string, value: string): Promise<void> | void;
   removeItem(key: string): Promise<void> | void;
   getStorageStatus?(): AuthStorageStatus;
+  /** True once it is known that the session will NOT survive closing the app (memory only). False while still deciding. */
+  isSessionEphemeral?(): boolean;
+  /** Notifies when `isSessionEphemeral()` may have changed. */
+  subscribeStorageStatus?(listener: () => void): () => void;
+}
+
+/** Observable view of `isSessionEphemeral` for the UI (framework-free: getSnapshot / subscribe). */
+export interface SessionPersistenceStore {
+  subscribe(listener: () => void): () => void;
+  getSnapshot(): boolean;
+}
+
+export function createSessionPersistenceStore(storage: AuthStorage): SessionPersistenceStore {
+  return {
+    subscribe: (listener) => storage.subscribeStorageStatus?.(listener) ?? (() => {}),
+    getSnapshot: () => storage.isSessionEphemeral?.() ?? false,
+  };
 }
 
 /**
@@ -20,6 +37,14 @@ export class MemoryAuthStorage implements AuthStorage {
 
   getStorageStatus(): AuthStorageStatus {
     return "MEMORY_FALLBACK";
+  }
+
+  isSessionEphemeral(): boolean {
+    return true;
+  }
+
+  subscribeStorageStatus(): () => void {
+    return () => {};
   }
 
   getItem(key: string): string | null {
