@@ -1,5 +1,6 @@
 import type { AuthStorage, AuthStorageStatus } from "./authStorage.ts";
 import { MemoryAuthStorage } from "./authStorage.ts";
+import { logLifecycle } from "../lifecycle/lifecycleLog.ts";
 
 /**
  * Checks whether the current runtime environment is inside an active Tauri window.
@@ -87,7 +88,12 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   private initPromise: Promise<void> | null = null;
   private initError: Error | null = null;
   private saveQueue: Promise<void> = Promise.resolve();
+  // Changes made in memory vs. changes a successful save has written: equal means vault.hold matches memory.
+  private mutations = 0;
+  private persistedMutations = 0;
   private settled = false;
+  // Between a sign-out and the next sign-in nothing is read or written (see `clearSession`).
+  private sealed = false;
   private readonly statusListeners = new Set<() => void>();
 
   constructor(options: StrongholdStorageOptions = {}) {
@@ -119,6 +125,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
       this.initPromise = (async () => {
         try {
           debugLog("[Stronghold] initialization started");
+          logLifecycle("vault:init:start");
 
           // 1. Resolve snapshot path via backend get_vault_path command (matches app_local_data_dir exactly)
           // or fallback to path plugin appLocalDataDir if available
@@ -170,6 +177,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
 
           this.storeInstance = client.getStore();
           debugLog("[AuthStorage] selected backend: stronghold");
+          logLifecycle("vault:init:done");
         } catch (err) {
           this.initError = err instanceof Error ? err : new Error(String(err));
           debugWarn(
@@ -177,6 +185,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
             this.initError.name ?? "Error"
           );
           debugLog("[AuthStorage] selected backend: memory");
+          logLifecycle("vault:init:fallback");
         } finally {
           this.markSettled();
         }
@@ -207,10 +216,15 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
       return;
     }
     const currentSave = this.saveQueue.then(async () => {
+      logLifecycle("vault:save:start");
+      const upTo = this.mutations;
       await this.strongholdInstance!.save();
+      this.persistedMutations = Math.max(this.persistedMutations, upTo);
+      logLifecycle("vault:save:done");
       debugLog("[Stronghold] snapshot save succeeded");
     });
     this.saveQueue = currentSave.catch((err) => {
+      logLifecycle("vault:save:error");
       debugError(
         "[Stronghold] snapshot save failed",
         err instanceof Error ? err.name : "Error"
@@ -219,9 +233,16 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     await currentSave;
   }
 
+  private hasUnsavedChanges(): boolean {
+    return this.mutations > this.persistedMutations;
+  }
+
   async getItem(key: string): Promise<string | null> {
     debugLog("[Stronghold] getItem called");
     await this.ensureInitialized();
+    if (this.sealed) {
+      return null;
+    }
 
     if (!this.storeInstance) {
       const val = await this.memoryFallback.getItem(key);
@@ -246,6 +267,11 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
   async setItem(key: string, value: string): Promise<void> {
     debugLog("[Stronghold] setItem called");
     await this.ensureInitialized();
+    if (this.sealed) {
+      // A write that lands after sign-out (e.g. a token refresh already in flight) must not bring the session back.
+      logLifecycle("vault:write:blocked");
+      return;
+    }
 
     if (!this.storeInstance) {
       this.memoryFallback.setItem(key, value);
@@ -255,6 +281,7 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     try {
       const data = Array.from(new TextEncoder().encode(value));
       await this.storeInstance.insert(key, data);
+      this.mutations += 1;
       await this.flushSave();
     } catch (err) {
       this.memoryFallback.setItem(key, value);
@@ -273,10 +300,20 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
     }
 
     try {
-      await this.storeInstance.remove(key);
-      await this.flushSave();
+      logLifecycle("vault:remove:start");
+      const previous = await this.storeInstance.remove(key);
+      if (previous) {
+        this.mutations += 1;
+      }
+      // Each save rewrites the whole snapshot (about 2 s measured in the packaged app): removing a key that was not
+      // there, with the disk already matching memory, has nothing to persist. The SDK removes several such keys.
+      if (this.hasUnsavedChanges()) {
+        await this.flushSave();
+      }
+      logLifecycle("vault:remove:done");
       debugLog("[Stronghold] removeItem succeeded");
     } catch (err) {
+      logLifecycle("vault:remove:error");
       this.memoryFallback.removeItem(key);
       debugError(
         "[Stronghold] removeItem failed",
@@ -284,6 +321,46 @@ export class TauriStrongholdAuthStorage implements AuthStorage {
       );
       throw err;
     }
+  }
+
+  async clearSession(keys: readonly string[]): Promise<void> {
+    // Sealed before any await: from here on nothing reads or rewrites the session, whatever the vault answers.
+    this.sealed = true;
+    logLifecycle("vault:clear:start");
+    for (const key of keys) {
+      this.memoryFallback.removeItem(key);
+    }
+    await this.ensureInitialized();
+    if (!this.storeInstance) {
+      logLifecycle("vault:clear:done");
+      return;
+    }
+
+    try {
+      for (const key of keys) {
+        if (await this.storeInstance.remove(key)) {
+          this.mutations += 1;
+        }
+      }
+      // Removals already queued (e.g. by the SDK) must reach the disk first; then save whatever is still unsaved,
+      // including what an earlier failed save left behind. Nothing unsaved means vault.hold already lacks the session.
+      await this.saveQueue;
+      if (this.hasUnsavedChanges()) {
+        await this.flushSave();
+      }
+      logLifecycle("vault:clear:done");
+    } catch (err) {
+      logLifecycle("vault:clear:error");
+      debugError(
+        "[Stronghold] clearSession failed",
+        err instanceof Error ? err.name : "Error"
+      );
+      throw err;
+    }
+  }
+
+  allowSessionWrites(): void {
+    this.sealed = false;
   }
 
   /**

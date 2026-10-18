@@ -4,6 +4,7 @@ use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 mod export;
+mod lifecycle;
 mod preview;
 
 const RELEASE_IDENTIFIER: &str = "com.vision2code.desktop";
@@ -94,24 +95,56 @@ async fn export_project(
     job.await.unwrap_or(export::ExportResult::Failed { code: export::ExportErrorCode::IoError })
 }
 
+/// Webview side of the optional lifecycle log (`VISION2CODE_DEBUG_LIFECYCLE=1`): only names from a closed list are
+/// accepted, and it is a no-op when the log is off. Async, so the file write never runs on the main thread.
+#[tauri::command]
+async fn lifecycle_log(state: tauri::State<'_, lifecycle::Lifecycle>, event: String) -> Result<(), String> {
+    state.log_client(&event)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         // The live preview's own origin, with its own CSP (see preview.rs).
         .register_uri_scheme_protocol(preview::SCHEME, |_ctx, request| preview::respond(&request))
         .setup(|app| {
+            let debug_lifecycle = lifecycle::enabled_from(std::env::var(lifecycle::ENV).ok().as_deref());
+            let log = lifecycle::Lifecycle::new(debug_lifecycle, app.path().app_local_data_dir().ok());
+            log.log(&format!("app:start version={}", app.package_info().version));
+            app.manage(log);
             let salt_path = app
                 .path()
                 .app_local_data_dir()
                 .expect("could not resolve app local data path")
                 .join("salt.txt");
             app.handle().plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
+            if let Some(log) = app.try_state::<lifecycle::Lifecycle>() {
+                log.log("plugin:stronghold:registered");
+            }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_vault_key, get_vault_path, export_project])
-        .run(tauri::generate_context!())
-        .expect("error while running Vision2Code");
+        // Observation only: nothing here prevents or delays closing.
+        .on_window_event(|window, event| {
+            let Some(log) = window.try_state::<lifecycle::Lifecycle>() else { return };
+            match event {
+                tauri::WindowEvent::CloseRequested { .. } => log.log(&format!("window:close-requested label={}", window.label())),
+                tauri::WindowEvent::Destroyed => log.log(&format!("window:destroyed label={}", window.label())),
+                _ => {}
+            }
+        })
+        .invoke_handler(tauri::generate_handler![get_vault_key, get_vault_path, export_project, lifecycle_log])
+        .build(tauri::generate_context!())
+        .expect("error while building Vision2Code");
+    app.run(|handle, event| {
+        let Some(log) = handle.try_state::<lifecycle::Lifecycle>() else { return };
+        match event {
+            tauri::RunEvent::Ready => log.log("app:ready"),
+            tauri::RunEvent::ExitRequested { code, .. } => log.log(&format!("app:exit-requested code={code:?}")),
+            tauri::RunEvent::Exit => log.log("app:exit"),
+            _ => {}
+        }
+    });
 }
 
 #[cfg(test)]

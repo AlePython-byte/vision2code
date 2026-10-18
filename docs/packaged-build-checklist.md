@@ -93,7 +93,8 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 
 ### Persistencia de sesión
 - [x] Cerrar la app con la sesión iniciada y volver a abrirla. **Esperado:** entra directamente, sin pedir credenciales.
-- [ ] Cerrar sesión, cerrar y abrir. **Esperado:** pantalla de acceso.
+- [ ] **Salir → cerrar → abrir.** Con la sesión iniciada, pulsar **Salir** en la barra lateral. **Esperado:** aparece "Cerrando sesión…" (medido el 2026-10-17 en un build release desechable: unos 2 s con red, porque guardar la bóveda tarda ese tiempo; unos 4–5 s si Supabase no contesta) y después la pantalla de acceso sin ningún error. Cerrar la app con la X en cuanto se vea la pantalla de acceso, esperar a que no quede ningún `desktop.exe` y volver a abrirla. **Esperado:** "Restaurando sesión…" un momento y luego la **pantalla de acceso**, nunca el Archivo de proyectos. Si en lugar de eso aparece "Has cerrado sesión, pero no se pudo borrar la sesión guardada en este equipo…", la bóveda no se pudo reescribir: anotarlo y capturar el registro del apartado 10.
+- [ ] Tras el paso anterior, volver a iniciar sesión, cerrar y abrir. **Esperado:** entra directamente (la sesión nueva sí se guarda).
 
 ### Captura y análisis
 - [x] Ir a **Captura** y arrastrar una imagen PNG, JPEG o WEBP de menos de 10 MB. **Esperado:** vista previa con nombre, dimensiones, tamaño y formato; insignia **LISTA**.
@@ -147,9 +148,40 @@ Después de cualquier cambio en el CSP, la vista previa o los comandos nativos, 
 - **La bóveda:** `vault.hold` en `%LOCALAPPDATA%\com.vision2code.desktop\` (Stronghold con Argon2 y `salt.txt`). Solo guarda la sesión de Supabase: los proyectos y generaciones están en el servidor, y los borradores del editor nunca se guardan.
 - **Si falla el keyring, o la bóveda está dañada o se cifró con otra clave:** la app sigue funcionando con un almacenamiento en memoria y lo avisa: una insignia de advertencia sobre el avatar del carril y, en **Ajustes**, el aviso "Tu sesión no se guardará al cerrar la app". Hay que volver a iniciar sesión en cada arranque.
 - **Cómo se llega a eso:** el caso típico es borrar la entrada del Administrador de credenciales y conservar `vault.hold`. Se resuelve borrando `vault.hold`; la app crea una nueva.
+- **Cerrar sesión ("Salir"):** la app no da la sesión por cerrada hasta que la ha borrado de `vault.hold` y la bóveda está guardada en disco; mientras tanto muestra "Cerrando sesión…". Primero pide a Supabase que revoque la sesión (`POST /logout`) y le espera como mucho 2,5 s; con o sin respuesta, borra después la copia local y espera a que la bóveda esté guardada (un guardado de `vault.hold` tarda 1,5–2 s). Solo guarda si hay algo que guardar. Desde ese momento y hasta el siguiente inicio de sesión, la bóveda ignora cualquier escritura tardía (por ejemplo, un refresco de token que ya estaba en curso). Si la bóveda no se puede reescribir, la sesión se borra igualmente de la memoria y la pantalla de acceso lo avisa.
 - **Pérdida de datos al reinstalar o actualizar:** como mucho se pierde la sesión, nunca proyectos ni generaciones. El modo desarrollo ya no comparte esos datos con la app instalada (identificador y entrada del keyring propios).
 
-## 10. Sin servidor o sin red
+## 10. Si la app no se cierra: registro de ciclo de vida
+
+Hay un registro opcional del ciclo de vida, desactivado por defecto. Sirve para caracterizar el caso "pulsé Salir, cerré la app y siguió viva".
+
+**Qué guarda:** una línea por evento en `%LOCALAPPDATA%\com.vision2code.desktop\lifecycle.log`. Al pasar de 256 KiB lo rota a `lifecycle.log.1`. Cada línea lleva milisegundos desde 1970, tiempo desde el arranque, PID, hilo y nombre del evento. **No guarda datos personales:** la app solo acepta una lista cerrada de nombres de evento (`desktop/src-tauri/src/lifecycle.rs`), así que no puede escribir correos, rutas ni tokens.
+
+**Cómo capturarlo la próxima vez que ocurra:**
+1. Cierra Vision2Code. En el Administrador de tareas no debe quedar ningún `desktop.exe`.
+2. Abre PowerShell y arranca la app con el registro activado. La variable solo vale para esa ventana de PowerShell:
+   ```powershell
+   $env:VISION2CODE_DEBUG_LIFECYCLE = "1"
+   & "$env:LOCALAPPDATA\Vision2Code\desktop.exe"
+   ```
+3. Usa la app como siempre: inicia sesión, pulsa **Salir** y cierra con la X.
+4. Si la ventana o el proceso siguen vivos pasados 30 segundos, ejecuta esto en la misma PowerShell y guarda la salida:
+   ```powershell
+   Get-Process desktop, msedgewebview2 -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime, Responding, MainWindowTitle
+   ```
+5. Envía el archivo `%LOCALAPPDATA%\com.vision2code.desktop\lifecycle.log` y la salida del paso 4. Anota también la hora aproximada a la que pulsaste **Salir** y la X.
+
+**Cómo leerlo:**
+- **Un cierre normal** muestra `window:close-requested`, `window:destroyed`, `app:exit-requested` y `app:exit` en menos de unos 100 ms. Medido el 2026-10-17: el proceso termina, con todos sus `msedgewebview2.exe`, en 1,0–1,6 s.
+- **No aparece `window:close-requested` tras pulsar la X:** el hilo principal no atendió el cierre. Mira el último evento anterior; por ejemplo, un `client:vault:init:start` sin `done` apunta al keyring o a Stronghold.
+- **Aparece `close-requested` pero no `destroyed`:** el cierre se atascó dentro de la ventana o de WebView2.
+- **Está `app:exit` pero el proceso sigue vivo:** el atasco es posterior a la salida. La salida del paso 4 dirá si es `desktop.exe` o WebView2.
+- **`client:signout:start` sin `client:signout:done`:** el cierre de sesión quedó pendiente (red de Supabase o escritura de la bóveda: `client:vault:remove:*`, `client:vault:save:*`).
+- **`client:vault:clear:start` → `client:vault:clear:done`:** la sesión se borró de la bóveda y se guardó en disco. **`client:vault:clear:error`:** no se pudo guardar (la app lo avisa). **`client:vault:write:blocked`:** una escritura tardía de la sesión llegó después de "Salir" y se descartó.
+
+Nota: "Salir" en la barra lateral **cierra la sesión, no la aplicación**; la ventana sigue abierta con la pantalla de acceso, y eso es lo esperado.
+
+## 11. Sin servidor o sin red
 
 | Situación | Qué ve el usuario | Qué funciona |
 | --- | --- | --- |
