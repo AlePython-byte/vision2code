@@ -6,14 +6,13 @@ Guía para compilar, instalar y probar la versión **instalada** de Vision2Code 
 
 | Artefacto | Ruta (relativa a `desktop/src-tauri/target/release/`) | Tamaño verificado |
 | --- | --- | --- |
-| Instalador NSIS (recomendado) | `bundle/nsis/Vision2Code_0.1.0_x64-setup.exe` | 5,4 MB |
-| Instalador MSI | `bundle/msi/Vision2Code_0.1.0_x64_en-US.msi` | 6,3 MB |
+| Instalador NSIS (único) | `bundle/nsis/Vision2Code_0.1.0_x64-setup.exe` | 5,4 MB |
 | Ejecutable sin instalar | `desktop.exe` | 10,0 MB |
 
 - **Configuración del paquete:**
   - Identificador `com.vision2code.desktop`, nombre `Vision2Code`, versión `0.1.0`.
   - Ventana de 1280 × 820, mínimo 720 × 540.
-  - `targets: "all"`, que en Windows genera MSI y NSIS.
+  - `targets: ["nsis"]`: un único instalador, con `installMode: currentUser` (por usuario, sin administrador). Ya no se genera MSI.
 - **DevTools:** desactivadas en release (el crate `tauri` no tiene la feature `devtools`).
 - **Firma:** ninguno de los tres archivos está firmado (*verificado*).
 - **Ignorados por git:** `target/` y `desktop/dist` (*verificado*).
@@ -24,7 +23,7 @@ Prerrequisitos:
 - Node.js 22.12+ (se verificó con 24.21.0) y npm.
 - Rust estable con toolchain MSVC (se verificó con 1.98.1) y Microsoft C++ Build Tools ("Desktop development with C++").
 - WebView2 Runtime (en Windows 11 viene de serie; se verificó con 155.0.4283.60).
-- **Red la primera vez:** Tauri descarga WiX 3.14 y NSIS 3.11 desde GitHub y los guarda en caché.
+- **Red la primera vez:** Tauri descarga NSIS 3.11 desde GitHub y los guarda en caché.
 - `desktop/.env` con las variables públicas del apartado 3. Se incrustan al compilar: cambiarlas exige recompilar.
 
 Desde la raíz del repositorio:
@@ -71,11 +70,11 @@ El servidor escucha solo en `127.0.0.1`. Por eso **el backend tiene que correr e
 
 ## 5. Instalar
 
-- **NSIS (recomendado):** ejecuta `Vision2Code_0.1.0_x64-setup.exe`. Como no está firmado, Windows SmartScreen muestra "Windows protegió su PC". Pulsa **Más información → Ejecutar de todas formas**. Se instala por usuario, sin permisos de administrador.
-- **MSI:** ejecuta el `.msi`. El aviso de UAC muestra "Editor: desconocido".
+- Ejecuta `Vision2Code_0.1.0_x64-setup.exe`. Como no está firmado, Windows SmartScreen muestra "Windows protegió su PC". Pulsa **Más información → Ejecutar de todas formas**. Se instala **por usuario**, sin permisos de administrador (no aparece el aviso de UAC).
 - **Datos que crea la app:**
   - `%LOCALAPPDATA%\com.vision2code.desktop\` guarda `vault.hold` (sesión cifrada), `salt.txt` y `EBWebView\` (perfil de WebView2, con tema e idioma).
   - El Administrador de credenciales de Windows guarda la entrada `vision2code` / `vault_master_key` (clave de la bóveda).
+  - **El modo desarrollo usa otros datos:** `npm run desktop:dev` arranca con el identificador `com.vision2code.desktop.dev` (`desktop/src-tauri/tauri.dev.conf.json`), así que su bóveda, su perfil de WebView2 y su entrada del keyring (`com.vision2code.desktop.dev` / `vault_master_key`) son distintos de los de la app instalada. Tras este cambio, la sesión de desarrollo anterior (que vivía en la carpeta del identificador de producción) deja de verse: hay que iniciar sesión una vez en el modo desarrollo.
 
 ## 6. Checklist de la app instalada
 
@@ -114,6 +113,10 @@ Marca cada casilla y anota lo observado si no coincide con lo esperado.
 - [ ] En **Ajustes**, cambiar a modo oscuro e inglés; cerrar y abrir. **Esperado:** se conservan el tema y el idioma.
 - [ ] En la pantalla de acceso, cambiar tema e idioma con los controles segmentados (también con las flechas del teclado). **Esperado:** se aplican al momento y persisten.
 
+### Aviso de sesión no guardada
+- [ ] Con el keyring funcionando (caso normal). **Esperado:** no aparece ninguna insignia sobre el avatar ni aviso en Ajustes.
+- [ ] (Opcional, para provocarlo) Cerrar la app, borrar la entrada `vision2code` del Administrador de credenciales y dejar `vault.hold`; abrir y entrar. **Esperado:** insignia de advertencia sobre el avatar y, en Ajustes, "Tu sesión no se guardará al cerrar la app". Después, borrar `vault.hold` para recuperar la persistencia.
+
 ### Desinstalar y reinstalar
 - [ ] Desinstalar desde **Configuración → Aplicaciones**, dejando sin marcar "eliminar datos de la aplicación" en NSIS. **Esperado:** se elimina el programa; `%LOCALAPPDATA%\com.vision2code.desktop\` se conserva.
 - [ ] Reinstalar y abrir. **Esperado:** entra con la sesión anterior, y tema e idioma se conservan.
@@ -133,18 +136,18 @@ Después de cualquier cambio en el CSP, la vista previa o los comandos nativos, 
 
 | Severidad | Problema | Detalle |
 | --- | --- | --- |
-| Importante | Instaladores sin firmar | Aviso de SmartScreen y editor desconocido. |
+| Importante | Instalador sin firmar | Aviso de SmartScreen y editor desconocido. |
 | Importante | La API apunta a `localhost:3000` y el servidor solo escucha en `127.0.0.1` | El backend debe ejecutarse en la misma máquina que la app. |
-| Importante | La sesión puede dejar de guardarse sin aviso | Si falla el Administrador de credenciales o la bóveda no se puede abrir, la app pasa a memoria sin decir nada. Hay que iniciar sesión en cada arranque (apartado 9). |
+| Importante | La sesión puede dejar de guardarse sin aviso | Si falla el Administrador de credenciales o la bóveda no se puede abrir, la app pasa a memoria y avisa. Hay que iniciar sesión en cada arranque (apartado 9). |
 | Menor | Se puede depurar el WebView2 de la versión instalada | Con la variable `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=<n>` se adjunta un depurador. Solo afecta a la propia máquina. |
 
 ## 9. Sesión: dónde vive y qué puede fallar
 
 - **La clave:** el comando nativo `get_vault_key` lee la entrada `vision2code` / `vault_master_key` del Administrador de credenciales de Windows. Si no existe, la genera (256 bits aleatorios) y la guarda.
 - **La bóveda:** `vault.hold` en `%LOCALAPPDATA%\com.vision2code.desktop\` (Stronghold con Argon2 y `salt.txt`). Solo guarda la sesión de Supabase: los proyectos y generaciones están en el servidor, y los borradores del editor nunca se guardan.
-- **Si falla el keyring, o la bóveda está dañada o se cifró con otra clave:** la app sigue funcionando con un almacenamiento en memoria y no muestra ningún mensaje. Hay que volver a iniciar sesión en cada arranque.
+- **Si falla el keyring, o la bóveda está dañada o se cifró con otra clave:** la app sigue funcionando con un almacenamiento en memoria y lo avisa: una insignia de advertencia sobre el avatar del carril y, en **Ajustes**, el aviso "Tu sesión no se guardará al cerrar la app". Hay que volver a iniciar sesión en cada arranque.
 - **Cómo se llega a eso:** el caso típico es borrar la entrada del Administrador de credenciales y conservar `vault.hold`. Se resuelve borrando `vault.hold`; la app crea una nueva.
-- **Pérdida de datos al reinstalar o actualizar:** como mucho se pierde la sesión, nunca proyectos ni generaciones. Hay que tener en cuenta que el identificador `com.vision2code.desktop` y la entrada del keyring son los mismos que usa `npm run desktop:dev`, así que el modo desarrollo y la app instalada comparten sesión y datos locales.
+- **Pérdida de datos al reinstalar o actualizar:** como mucho se pierde la sesión, nunca proyectos ni generaciones. El modo desarrollo ya no comparte esos datos con la app instalada (identificador y entrada del keyring propios).
 
 ## 10. Sin servidor o sin red
 
