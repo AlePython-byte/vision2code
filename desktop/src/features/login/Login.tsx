@@ -38,13 +38,13 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
   const [localError, setLocalError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Restoring session state: do not flash login form before restore completes
-  if (authState.status === "RESTORING") {
+  // 1. Restoring or removing the stored session: do not flash the login form before that completes
+  if (authState.status === "RESTORING" || authState.status === "SIGNING_OUT") {
     return (
       <main className="auth-restoring-shell" role="status" aria-live="polite">
         <div className="auth-restoring-card raised-panel">
           <div className="auth-spinner" aria-hidden="true" />
-          <p className="eyebrow">{t("restoringSession")}</p>
+          <p className="eyebrow">{t(authState.status === "SIGNING_OUT" ? "signingOut" : "restoringSession")}</p>
         </div>
       </main>
     );

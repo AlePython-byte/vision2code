@@ -10,6 +10,8 @@ export type AuthErrorCode =
   | "SESSION_EXPIRED"
   | "VALIDATION_FAILED"
   | "RATE_LIMITED"
+  /** Signed out, but the vault could not be rewritten: the session may still be restored on the next start. */
+  | "SIGN_OUT_NOT_PERSISTED"
   | "UNKNOWN";
 
 /**

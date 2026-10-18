@@ -78,6 +78,8 @@ export type AuthStatus =
   | "UNAUTHENTICATED"
   | "AUTHENTICATING"
   | "AUTHENTICATED"
+  /** The workspace is gone and the stored session is being removed; the login appears once it is off the disk. */
+  | "SIGNING_OUT"
   | "AWAITING_EMAIL_CONFIRMATION"
   | "ERROR";
 

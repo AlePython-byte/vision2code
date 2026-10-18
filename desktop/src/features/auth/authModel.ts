@@ -22,7 +22,8 @@ export interface AuthModel {
  * Follows the observable store pattern used across Vision2Code (getSnapshot, subscribe).
  *
  * Guarantees:
- * 1. Deterministic transitions: RESTORING -> AUTHENTICATED / UNAUTHENTICATED; AUTHENTICATING -> AUTHENTICATED / ERROR.
+ * 1. Deterministic transitions: RESTORING -> AUTHENTICATED / UNAUTHENTICATED; AUTHENTICATING -> AUTHENTICATED / ERROR;
+ *    sign-out / expiry -> SIGNING_OUT -> UNAUTHENTICATED once the stored session is removed.
  * 2. Protection against stale asynchronous calls via generation/revision and AbortController.
  * 3. Never logs or persists passwords.
  * 4. Never exposes tokens, secrets, or raw provider errors in state snapshots.
@@ -62,6 +63,28 @@ export function createAuthModel(
     controller = new AbortController();
     activeOperationId += 1;
     return { id: activeOperationId, signal: controller.signal };
+  }
+
+  // Sign-out and expiry: the workspace unmounts at once (SIGNING_OUT has no user), but the session counts as closed
+  // only once the provider has removed it from persistent storage. Other sign-out errors stay non-fatal; a failure
+  // to persist the removal is reported, since the session could come back on the next start.
+  async function endSession(error: AuthErrorCode | null): Promise<void> {
+    const op = beginOperation();
+    update({ status: "SIGNING_OUT", user: null, error: null });
+
+    let failure: AuthErrorCode | null = null;
+    try {
+      await provider.signOut(op.signal);
+    } catch (err) {
+      if (toAuthDomainError(err).code === "SIGN_OUT_NOT_PERSISTED") failure = "SIGN_OUT_NOT_PERSISTED";
+    } finally {
+      if (op.id === activeOperationId) {
+        controller = null;
+      }
+    }
+    if (op.id === activeOperationId) {
+      update({ status: "UNAUTHENTICATED", user: null, error: failure ?? error });
+    }
   }
 
   const model: AuthModel = {
@@ -173,35 +196,11 @@ export function createAuthModel(
     },
 
     async signOut(): Promise<void> {
-      const op = beginOperation();
-      // On sign out, immediately reset user and transition to UNAUTHENTICATED
-      update({ status: "UNAUTHENTICATED", user: null, error: null });
-
-      try {
-        await provider.signOut(op.signal);
-      } catch {
-        // Sign-out errors do not prevent local unauthentication
-      } finally {
-        if (op.id === activeOperationId) {
-          controller = null;
-        }
-      }
+      await endSession(null);
     },
 
     async expireSession(error: AuthErrorCode = "SESSION_EXPIRED"): Promise<void> {
-      const op = beginOperation();
-      // Invalidate active session and transition to UNAUTHENTICATED with error banner
-      update({ status: "UNAUTHENTICATED", user: null, error });
-
-      try {
-        await provider.signOut(op.signal);
-      } catch {
-        // Sign-out errors do not prevent local session expiration
-      } finally {
-        if (op.id === activeOperationId) {
-          controller = null;
-        }
-      }
+      await endSession(error);
     },
 
     clearError(): void {

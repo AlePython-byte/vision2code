@@ -1107,7 +1107,8 @@ test("39. logout save/remove is durable before signOut completes", async () => {
               return {
                 async get() { return isRemoved ? null : new TextEncoder().encode("session"); },
                 async insert() {},
-                async remove() { isRemoved = true; return null; },
+                // Like the real plugin: returns the removed value (the store held a session).
+                async remove() { const had = !isRemoved; isRemoved = true; return had ? new TextEncoder().encode("session") : null; },
               };
             },
           };
@@ -1118,7 +1119,8 @@ test("39. logout save/remove is durable before signOut completes", async () => {
               return {
                 async get() { return isRemoved ? null : new TextEncoder().encode("session"); },
                 async insert() {},
-                async remove() { isRemoved = true; return null; },
+                // Like the real plugin: returns the removed value (the store held a session).
+                async remove() { const had = !isRemoved; isRemoved = true; return had ? new TextEncoder().encode("session") : null; },
               };
             },
           };

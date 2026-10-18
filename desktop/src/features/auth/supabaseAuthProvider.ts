@@ -2,7 +2,9 @@ import type { SupabaseClient, User, Session, AuthError } from "@supabase/supabas
 import type { AuthProvider } from "./authProvider.ts";
 import type { AuthSession, AuthUser, SignUpResult, SignInInput, SignUpInput } from "./authTypes.ts";
 import { AuthDomainError, toAuthDomainError } from "./authErrors.ts";
-import { getSupabaseClient } from "./supabaseClient.ts";
+import { getSupabaseClient, readSupabaseConfig, supabaseAuthStorageKey } from "./supabaseClient.ts";
+import type { AuthStorage } from "./authStorage.ts";
+import { getDefaultAuthStorage } from "./tauriStrongholdStorage.ts";
 
 /**
  * Safely maps a Supabase User object into an immutable domain AuthUser.
@@ -144,12 +146,33 @@ export function mapSupabaseError(error: AuthError | Error | unknown): AuthDomain
   return toAuthDomainError(error);
 }
 
+/** Where the client persists its session, so sign-out can clear it without waiting for the network. */
+export interface SupabaseSessionStore {
+  readonly storage: AuthStorage;
+  readonly storageKey: string;
+  /** How long sign-out waits for POST /logout before clearing the local copy anyway (default 2500 ms). */
+  readonly remoteSignOutWaitMs?: number | undefined;
+}
+
+const REMOTE_SIGN_OUT_WAIT_MS = 2500;
+
+function defaultSessionStore(): SupabaseSessionStore | null {
+  const config = readSupabaseConfig();
+  return config ? { storage: getDefaultAuthStorage(), storageKey: supabaseAuthStorageKey(config.url) } : null;
+}
+
+/** Every key the SDK keeps for one session (auth-js `_removeSession`; PKCE is not used by this app). */
+function sessionKeys(storageKey: string): readonly string[] {
+  return [storageKey, `${storageKey}-user`, `${storageKey}-code-verifier`];
+}
+
 /**
  * Creates an AuthProvider backed by the official Supabase JavaScript SDK.
  * Supports dependency injection for testing.
  */
 export function createSupabaseAuthProvider(
-  client: SupabaseClient | null = getSupabaseClient()
+  client: SupabaseClient | null = getSupabaseClient(),
+  session: SupabaseSessionStore | null = defaultSessionStore()
 ): AuthProvider {
   function requireClient(): SupabaseClient {
     if (!client) {
@@ -201,6 +224,7 @@ export function createSupabaseAuthProvider(
       if (signal?.aborted) {
         throw new AuthDomainError("UNKNOWN", "Sign in aborted");
       }
+      session?.storage.allowSessionWrites?.();
 
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -220,12 +244,12 @@ export function createSupabaseAuthProvider(
           throw new AuthDomainError("UNKNOWN", "Incomplete session returned by provider");
         }
 
-        const session = mapSupabaseSession(data.session);
-        if (!session) {
+        const mapped = mapSupabaseSession(data.session);
+        if (!mapped) {
           throw new AuthDomainError("UNKNOWN", "Invalid session structure");
         }
 
-        return session;
+        return mapped;
       } catch (err) {
         throw mapSupabaseError(err);
       }
@@ -236,6 +260,7 @@ export function createSupabaseAuthProvider(
       if (signal?.aborted) {
         throw new AuthDomainError("UNKNOWN", "Sign up aborted");
       }
+      session?.storage.allowSessionWrites?.();
 
       try {
         const { data, error } = await supabase.auth.signUp({
@@ -256,12 +281,12 @@ export function createSupabaseAuthProvider(
         }
 
         const user = mapSupabaseUser(data.user, input.email);
-        const session = mapSupabaseSession(data.session);
-        const requiresEmailConfirmation = session === null;
+        const mapped = mapSupabaseSession(data.session);
+        const requiresEmailConfirmation = mapped === null;
 
         return Object.freeze({
           user,
-          session,
+          session: mapped,
           requiresEmailConfirmation,
         });
       } catch (err) {
@@ -277,10 +302,31 @@ export function createSupabaseAuthProvider(
         return;
       }
 
+      // POST /logout revokes the session on the server, but the SDK removes its local copy only once that request
+      // answers (never, if it hangs). Give it a bounded wait, then clear the local copy ourselves: the session must be
+      // off the disk before sign-out resolves, whatever the network does. Server errors stay non-fatal.
+      const remote = Promise.resolve()
+        .then(() => client.auth.signOut())
+        .then(() => undefined, () => undefined);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const waited = new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, session?.remoteSignOutWaitMs ?? REMOTE_SIGN_OUT_WAIT_MS);
+      });
+      await Promise.race([remote, waited]);
+      clearTimeout(timer);
+
+      if (!session) {
+        return;
+      }
+      const keys = sessionKeys(session.storageKey);
       try {
-        await client.auth.signOut();
+        if (session.storage.clearSession) {
+          await session.storage.clearSession(keys);
+        } else {
+          for (const key of keys) await session.storage.removeItem(key);
+        }
       } catch {
-        // Sign-out errors do not prevent local unauthentication
+        throw new AuthDomainError("SIGN_OUT_NOT_PERSISTED", "The stored session could not be removed");
       }
     },
 

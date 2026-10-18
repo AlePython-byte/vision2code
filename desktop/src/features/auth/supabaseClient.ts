@@ -45,6 +45,14 @@ export function readSupabaseConfig(): SupabaseConfig | null {
   return { url, publishableKey };
 }
 
+/**
+ * Storage key of the persisted session: the SDK default (`sb-<first host label>-auth-token`), passed explicitly so
+ * sign-out can clear exactly what the client wrote and sessions stored by earlier versions are still found.
+ */
+export function supabaseAuthStorageKey(url: string): string {
+  return `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
+}
+
 let cachedClient: SupabaseClient | null = null;
 
 /**
@@ -67,6 +75,7 @@ export function getSupabaseClient(
         autoRefreshToken: true,
         detectSessionInUrl: false,
         storage,
+        storageKey: supabaseAuthStorageKey(configOverride.url),
       },
     });
   }
@@ -89,6 +98,7 @@ export function getSupabaseClient(
       autoRefreshToken: true,
       detectSessionInUrl: false,
       storage,
+      storageKey: supabaseAuthStorageKey(config.url),
     },
   });
 

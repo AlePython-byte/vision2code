@@ -741,3 +741,28 @@ test("32. a successful sign-in still validates the session against the backend a
   assert.equal(model.getSnapshot().status, "UNAUTHENTICATED");
   assert.equal(model.getSnapshot().error, "SESSION_EXPIRED");
 });
+
+test("33. while the stored session is removed the login shows 'Cerrando sesión…', then a clear error if it could not be", async () => {
+  let finishSignOut!: () => void;
+  const provider = createMockProvider({
+    async restoreSession() { return { user: { id: "usr_out", email: "user@example.com", emailVerified: true } }; },
+    signOut: () => new Promise<void>((_resolve, reject) => {
+      finishSignOut = () => reject(new AuthDomainError("SIGN_OUT_NOT_PERSISTED"));
+    }),
+  });
+  const model = createAuthModel(provider, { autoRestore: false });
+  await model.restoreSession();
+  const { Login } = loadComponent("login/Login.tsx");
+
+  const done = model.signOut();
+  const signingOut = renderToStaticMarkup(React.createElement(Login, { authModel: model }));
+  assert.ok(signingOut.includes("auth-restoring-shell"));
+  assert.ok(signingOut.includes(es.signingOut));
+  assert.equal(signingOut.includes("login-email"), false, "no form until the session is off the disk");
+
+  finishSignOut();
+  await done;
+  const after = renderToStaticMarkup(React.createElement(Login, { authModel: model }));
+  assert.ok(after.includes(es.authErrorSIGN_OUT_NOT_PERSISTED));
+  assert.ok(en.signingOut && en.authErrorSIGN_OUT_NOT_PERSISTED);
+});

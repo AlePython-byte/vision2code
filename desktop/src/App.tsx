@@ -19,6 +19,7 @@ import {
   getDefaultAuthStorage,
   type AuthModel,
 } from "./features/auth/index";
+import { logLifecycle } from "./features/lifecycle/lifecycleLog";
 import "./features/preferences/i18n";
 import "./styles/theme.css";
 
@@ -45,6 +46,13 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
       if (model.getSnapshot().status === "AUTHENTICATED") void model.expireSession("SESSION_EXPIRED");
     },
   }));
+
+  // Optional lifecycle log (VISION2CODE_DEBUG_LIFECYCLE=1): marks when the page goes away, to compare with window close.
+  useEffect(() => {
+    const onHide = () => logLifecycle("page:hide");
+    window.addEventListener("pagehide", onHide);
+    return () => window.removeEventListener("pagehide", onHide);
+  }, []);
 
   // Load projects on sign-in; clear every user-scoped state on sign-out or expiration.
   useEffect(() => bindWorkspaceToAuth(model, services), [model, services]);
@@ -102,7 +110,8 @@ export default function App({ authModel }: { authModel?: AuthModel }) {
             confirmDiscard={(trigger) => services.discardGuard.request(trigger)} />}
           onLogin={() => {
             if (authState.status === "AUTHENTICATED") {
-              void model.signOut();
+              logLifecycle("signout:start");
+              void model.signOut().then(() => logLifecycle("signout:done"), () => logLifecycle("signout:error"));
             }
           }}
         />
