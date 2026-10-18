@@ -81,40 +81,40 @@ El servidor escucha solo en `127.0.0.1`. Por eso **el backend tiene que correr e
 Marca cada casilla y anota lo observado si no coincide con lo esperado.
 
 ### Primer arranque
-- [ ] Abrir Vision2Code desde el menú Inicio. **Esperado:** ventana de 1280 × 820 titulada "Vision2Code" con la pantalla de acceso, en español y tema claro.
-- [ ] Reducir la ventana todo lo posible. **Esperado:** no baja de 720 × 540.
-- [ ] Pulsar F12 y abrir el menú del clic derecho. **Esperado:** no se abren las herramientas de desarrollo y el menú no ofrece "Inspeccionar". El menú básico de WebView2 puede seguir apareciendo.
+- [X ] Abrir Vision2Code desde el menú Inicio. **Esperado:** ventana de 1280 × 820 titulada "Vision2Code" con la pantalla de acceso, en español y tema claro.
+- [X] Reducir la ventana todo lo posible. **Esperado:** no baja de 720 × 540.
+- [x ] Pulsar F12 y abrir el menú del clic derecho. **Esperado:** no se abren las herramientas de desarrollo y el menú no ofrece "Inspeccionar". El menú básico de WebView2 puede seguir apareciendo.
 
 ### Registro y acceso
-- [ ] Pestaña **Crear cuenta** con un correo nuevo. **Esperado:** mensaje "Revisa tu correo"; la cuenta queda pendiente de confirmación.
-- [ ] Iniciar sesión con la cuenta de la demo, ya confirmada. **Esperado:** se abre el Archivo de proyectos con la lista de proyectos.
-- [ ] Iniciar sesión con una contraseña incorrecta. **Esperado:** "El correo o la contraseña no son correctos."
-- [ ] Con el backend apagado, iniciar sesión. **Esperado:** entra igualmente (el acceso solo depende de Supabase), pero los proyectos muestran "No se pudieron cargar tus proyectos." con un botón para reintentar.
+- [x ] Pestaña **Crear cuenta** con un correo nuevo. **Esperado:** mensaje "Revisa tu correo"; la cuenta queda pendiente de confirmación.
+- [x] Iniciar sesión con la cuenta de la demo, ya confirmada. **Esperado:** se abre el Archivo de proyectos con la lista de proyectos.
+- [x] Iniciar sesión con una contraseña incorrecta. **Esperado:** "El correo o la contraseña no son correctos."
+- [x] Con el backend apagado, iniciar sesión. **Esperado:** entra igualmente (el acceso solo depende de Supabase), pero los proyectos muestran "No se pudieron cargar tus proyectos." con un botón para reintentar.
 
 ### Persistencia de sesión
-- [ ] Cerrar la app con la sesión iniciada y volver a abrirla. **Esperado:** entra directamente, sin pedir credenciales.
+- [x] Cerrar la app con la sesión iniciada y volver a abrirla. **Esperado:** entra directamente, sin pedir credenciales.
 - [ ] Cerrar sesión, cerrar y abrir. **Esperado:** pantalla de acceso.
 
 ### Captura y análisis
-- [ ] Ir a **Captura** y arrastrar una imagen PNG, JPEG o WEBP de menos de 10 MB. **Esperado:** vista previa con nombre, dimensiones, tamaño y formato; insignia **LISTA**.
-- [ ] Analizar en **Rápido**. **Esperado:** "Analizando…" con "hasta 2 minutos", y después "Interfaz analizada correctamente."
-- [ ] Analizar en **Equilibrado**. **Esperado:** lo mismo, con "hasta 3 minutos".
-- [ ] Analizar en **Preciso**. **Esperado:** lo mismo, con "hasta 5 minutos".
-- [ ] Analizar con el backend apagado. **Esperado:** "No se pudo conectar con el servicio de análisis…" y botón **Reintentar análisis**, sin cerrar la sesión.
-- [ ] **Generar y abrir código**. **Esperado:** se abre Código con el editor, los archivos y la vista previa en vivo con la interfaz generada dibujada. Si alguna vez no arranca, el panel muestra "La vista previa no pudo iniciarse" con **Reintentar**, nunca un lienzo vacío marcado como "Activa".
-- [ ] Con un proyecto seleccionado antes de analizar. **Esperado:** aviso "Guardado en la nube."; la generación aparece en **Biblioteca** y en el historial.
+- [x] Ir a **Captura** y arrastrar una imagen PNG, JPEG o WEBP de menos de 10 MB. **Esperado:** vista previa con nombre, dimensiones, tamaño y formato; insignia **LISTA**.
+- [x] Analizar en **Rápido**. **Esperado:** "Analizando…" con "hasta 2 minutos", y después "Interfaz analizada correctamente."
+- [x] Analizar en **Equilibrado**. **Esperado:** lo mismo, con "hasta 3 minutos".
+- [x] Analizar en **Preciso**. **Esperado:** lo mismo, con "hasta 5 minutos".
+- [x] Analizar con el backend apagado. **Esperado:** "No se pudo conectar con el servicio de análisis…" y botón **Reintentar análisis**, sin cerrar la sesión.
+- [x] **Generar y abrir código**. **Esperado:** se abre Código con el editor, los archivos y la vista previa en vivo con la interfaz generada dibujada. Si alguna vez no arranca, el panel muestra "La vista previa no pudo iniciarse" con **Reintentar**, nunca un lienzo vacío marcado como "Activa".
+- [x] Con un proyecto seleccionado antes de analizar. **Esperado:** aviso "Guardado en la nube."; la generación aparece en **Biblioteca** y en el historial.
 
 ### Exportar
-- [ ] En Código, pulsar **Exportar** y elegir una carpeta en el diálogo nativo de Windows. **Esperado:** se crea una subcarpeta nueva (con sufijo `-2`, `-3` si ya existe) y aparece un aviso con el nombre de la carpeta. No necesita el backend.
-- [ ] Dentro de la carpeta exportada, ejecutar `npm install` y `npm run dev`. **Esperado:** el proyecto arranca.
-- [ ] Cancelar el diálogo. **Esperado:** no se crea nada.
+- [x] En Código, pulsar **Exportar** y elegir una carpeta en el diálogo nativo de Windows. **Esperado:** se crea una subcarpeta nueva (con sufijo `-2`, `-3` si ya existe) y aparece un aviso con el nombre de la carpeta. No necesita el backend.
+- [x] Dentro de la carpeta exportada, ejecutar `npm install` y `npm run dev`. **Esperado:** el proyecto arranca.
+- [x] Cancelar el diálogo. **Esperado:** no se crea nada.
 
 ### Tema e idioma
-- [ ] En **Ajustes**, cambiar a modo oscuro e inglés; cerrar y abrir. **Esperado:** se conservan el tema y el idioma.
-- [ ] En la pantalla de acceso, cambiar tema e idioma con los controles segmentados (también con las flechas del teclado). **Esperado:** se aplican al momento y persisten.
+- [x] En **Ajustes**, cambiar a modo oscuro e inglés; cerrar y abrir. **Esperado:** se conservan el tema y el idioma.
+- [x] En la pantalla de acceso, cambiar tema e idioma con los controles segmentados (también con las flechas del teclado). **Esperado:** se aplican al momento y persisten.
 
 ### Aviso de sesión no guardada
-- [ ] Con el keyring funcionando (caso normal). **Esperado:** no aparece ninguna insignia sobre el avatar ni aviso en Ajustes.
+- [x] Con el keyring funcionando (caso normal). **Esperado:** no aparece ninguna insignia sobre el avatar ni aviso en Ajustes.
 - [ ] (Opcional, para provocarlo) Cerrar la app, borrar la entrada `vision2code` del Administrador de credenciales y dejar `vault.hold`; abrir y entrar. **Esperado:** insignia de advertencia sobre el avatar y, en Ajustes, "Tu sesión no se guardará al cerrar la app". Después, borrar `vault.hold` para recuperar la persistencia.
 
 ### Desinstalar y reinstalar
