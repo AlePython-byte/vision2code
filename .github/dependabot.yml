@@ -8,8 +8,8 @@ updates:
       - "/server"
       - "/packages/contracts"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
     # Frozen by docs/engineering-rules.md §5.2 ("Do not upgrade Prisma or Monaco").
@@ -19,6 +19,9 @@ updates:
       - dependency-name: "@prisma/client"
       - dependency-name: "monaco-editor"
       - dependency-name: "@monaco-editor/react"
+      # Major bumps (typescript 7, @types/node 26, ...) break the CI and are taken by hand, deliberately.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-patch:
         update-types: ["minor", "patch"]
@@ -26,10 +29,14 @@ updates:
   - package-ecosystem: cargo
     directory: "/desktop/src-tauri"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
+    # Major bumps are taken by hand, deliberately.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       cargo-minor-patch:
         update-types: ["minor", "patch"]
@@ -37,8 +44,8 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "ci"
     groups:
