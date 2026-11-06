@@ -476,7 +476,7 @@ test("rail labels are short and never break mid-word; full names stay in aria-la
   const spanish = shellHtml("es", { onLogin() {}, user });
   assert.match(spanish, /<small>Ajustes<\/small>/);
   assert.match(spanish, /<small>Cerrar sesión<\/small>/);
-  assert.match(spanish, /aria-label="Configuración"/);
+  assert.match(spanish, /aria-label="Ajustes"/);
   assert.match(spanish, /aria-label="Cerrar sesión"/);
   const english = shellHtml("en", { onLogin() {}, user });
   assert.match(english, /<small>Settings<\/small>/);
