@@ -50,6 +50,7 @@ The root `npm test` command runs the complete repository test suite: contracts, 
 package.json                     Private npm workspace and root commands
 package-lock.json                Single npm dependency lockfile
 docs/engineering-rules.md        Shared architecture rules and working conventions
+docs/information-architecture-and-design-system.md  Information architecture and design system (Spanish)
 desktop/
   src/
     App.tsx                      Composition: auth model, workspace services, login or shell
@@ -453,6 +454,8 @@ Known limitation: there are no idempotency keys, so retrying a save after a resp
 `desktop/src/features/feedback/` renders save, restore, and vault outcomes as floating capsules in a fixed viewport outside the document flow. `toastModel.ts` is a React-independent queue (at most three visible, persistent toasts are never evicted for transient ones, timers come from an injected scheduler). `generationToasts.ts` binds generation session state to the queue, so domain models never import toast code. Messages are i18n keys, so a language switch applies to toasts already on screen.
 
 ## UI foundation, preferences, and login shell
+
+For the site map, labelling, navigation, search, atomic components and the design tokens, see [Information architecture and design system](docs/information-architecture-and-design-system.md) (in Spanish).
 
 The login screen is described in [Authentication](#authentication). Email and password fields are never copied to application state or storage beyond the controlled form values needed to submit them. Password visibility is accessible and reversible.
 
