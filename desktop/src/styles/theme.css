@@ -91,6 +91,7 @@
   .generated-avatar { display: block; flex-shrink: 0; border-radius: 50%; box-shadow: var(--shadow-control); }
   .generated-avatar-md { width: 38px; height: 38px; }
   .generated-avatar-sm { width: 28px; height: 28px; }
+  .generated-avatar-lg { width: 88px; height: 88px; }
   .generated-avatar .avatar-bg { fill: var(--avatar-bg); }
   .generated-avatar .avatar-blob { fill: var(--avatar-blob); }
   .generated-avatar .avatar-eyes-fill { fill: var(--avatar-eyes); }
@@ -166,7 +167,20 @@
   .screenshot-preview { min-width: 0; }
   /* The image fills whatever height the area gets and keeps its proportions (object-fit: contain). */
   .screenshot-image-area { position: relative; min-width: 0; min-height: 220px; }
-  .screenshot-image-area img { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: contain; }
+  .screenshot-zoom { position: absolute; inset: 0; display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: zoom-in; border-radius: inherit; }
+  .screenshot-zoom img { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: contain; }
+  .screenshot-zoom:focus-visible { outline: 3px solid var(--color-primary); outline-offset: -3px; }
+  .screenshot-zoom-hint { position: absolute; right: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-line); box-shadow: var(--shadow-control); font: 600 11px var(--font-display); opacity: 0; transition: opacity var(--motion-fast); pointer-events: none; }
+  .screenshot-zoom-hint svg { width: 14px; height: 14px; }
+  .screenshot-zoom:hover .screenshot-zoom-hint, .screenshot-zoom:focus-visible .screenshot-zoom-hint { opacity: 1; }
+  .image-viewer-scrim { z-index: 60; animation: image-viewer-in 140ms ease-out; }
+  .image-viewer { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 12px; width: min(1100px, 100%); max-height: calc(100dvh - 32px); padding: 16px 18px; }
+  .image-viewer-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .image-viewer-header h2 { margin: 0; font-size: 17px; }
+  .image-viewer-close { min-height: 44px; }
+  .image-viewer-stage { min-height: 0; display: grid; place-items: center; overflow: auto; background: var(--color-tint); border-radius: var(--radius-sm); box-shadow: var(--shadow-inset); padding: 10px; }
+  .image-viewer-stage img { display: block; max-width: 100%; max-height: calc(100dvh - 200px); object-fit: contain; }
+  .image-viewer-name { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   /* Narrow reference panel: the name takes its own line, the three facts share the next one. */
   .screenshot-metadata { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 0 14px 12px; color: var(--color-muted); font: 10px var(--font-mono); white-space: nowrap; }
   .screenshot-metadata > div { flex-shrink: 0; }
@@ -250,7 +264,7 @@
   .fidelity-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .fidelity-badge { padding: 2px 7px; border-radius: 6px; background: var(--color-primary-subtle); color: var(--color-accent); font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
   .fidelity-segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 10px; padding: 3px; box-shadow: var(--shadow-inset); }
-  .fidelity-segment { cursor: pointer; border: 0; background: transparent; color: var(--color-muted); font-size: 11px; font-weight: 500; padding: 5px 3px; border-radius: 7px; text-align: center; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); user-select: none; }
+  .fidelity-segment { cursor: pointer; border: 0; background: transparent; color: var(--color-muted); font-size: 11px; font-weight: 500; padding: 5px 3px; min-height: 32px; border-radius: 7px; text-align: center; transition: background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); user-select: none; }
   .fidelity-segment:hover:not(:disabled):not(.active) { color: var(--color-ink); background: var(--color-surface-hover); }
   .fidelity-segment.active, .fidelity-segment[aria-checked="true"] { background: var(--color-primary); color: #ffffff; font-weight: 600; box-shadow: 0 2px 8px rgba(118, 98, 245, 0.4); }
   .fidelity-segment:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
@@ -262,7 +276,7 @@
   .analysis-feedback[data-state="ANALYZING"] { border-left: 3px solid var(--color-cyan); }
   .analysis-feedback[data-state="ERROR"] { border-left: 3px solid var(--color-error); }
   .request-reference { margin-top: 8px; font: 9px var(--font-mono); color: var(--color-muted); overflow-wrap: anywhere; }
-  .settings-workspace { max-width: 1100px; }
+  .settings-workspace { width: 100%; max-width: 920px; margin-inline: auto; }
   .settings-grid { display: grid; gap: 24px; }
   .settings-section { display: flex; flex-direction: column; gap: 14px; }
   .settings-section-desc { color: var(--color-muted); font-size: 12px; line-height: 1.6; margin: 0; }
@@ -291,7 +305,9 @@
   .telemetry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 4px 0 0; }
   .telemetry-item { background: var(--color-tint); border: 1px solid var(--color-line); box-shadow: var(--shadow-inset); border-radius: var(--radius-sm); padding: 12px 14px; }
   .telemetry-item dt { font: 9px var(--font-mono); color: var(--color-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
-  .telemetry-item dd { margin: 0; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+  .telemetry-item dd { margin: 0; display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--color-ink); }
+  .account-identity { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .account-identity .telemetry-grid { flex: 1 1 240px; margin: 0; }
   .account-email-value { overflow-wrap: anywhere; }
   .settings-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--color-line); flex-wrap: wrap; }
   .settings-feedback { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-green); font-family: var(--font-mono); }
@@ -592,7 +608,9 @@
   .screenshot-input .empty-workspace { flex: 0 1 clamp(230px, 34vh, 340px); min-height: 0; }
   .screenshot-input .screenshot-controls, .screenshot-input .screenshot-feedback { flex-shrink: 0; }
   /* Room for focus rings: an overflow container would otherwise clip them. */
-  .profile-body { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 4px 6px; margin: -4px -6px; }
+  .profile-body { flex: 0 1 auto; min-height: 0; overflow-y: auto; padding: 4px 6px; margin: -4px -6px; }
+  /* The panel is as tall as its content (never taller than the row), so the actions follow the project card without a gap. */
+  .capture-grid > .profile-panel { align-self: start; max-height: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   :where(:root) { --motion-fast: 0ms; }
@@ -606,4 +624,9 @@
     transition: none !important;
     transform: none !important;
   }
+}
+@keyframes image-viewer-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .image-viewer-scrim { animation: none; }
+  .screenshot-zoom-hint { transition: none; }
 }

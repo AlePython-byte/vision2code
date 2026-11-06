@@ -134,6 +134,9 @@
   .schema-thumb-sm { width: 96px; }
   .schema-thumb { display: block; width: 100%; height: 100%; }
   .thumb-backdrop { fill: var(--color-tint); }
+  /* The page may be shorter than the box: the backdrop takes the page's own surface so no empty strip shows below it. */
+  .thumb-backdrop.thumb-tone-light { fill: var(--thumb-paper); }
+  .thumb-backdrop.thumb-tone-deep { fill: var(--thumb-slate); }
   /* A light source stays light and a dark one dark in both themes (--thumb-* tokens, foundation.css). */
   .thumb-page.thumb-tone-light { fill: var(--thumb-paper); }
   .thumb-page.thumb-tone-deep { fill: var(--thumb-slate); }
