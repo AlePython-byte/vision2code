@@ -74,6 +74,16 @@ export const THUMBNAIL_PAIRS: readonly ContrastPair[] = [
   { label: "thumbnail button label / button", foreground: "--color-surface", background: "--color-primary", minimum: 3 },
 ];
 
+/**
+ * Running text on the surfaces it sits on (4.5:1, WCAG 1.4.3). `--color-accent` is used as text on the surface, the page canvas, the tint
+ * (current step of the capture strip) and `--color-primary-subtle` (active rail item, file, badges).
+ */
+export const TEXT_PAIRS: readonly ContrastPair[] = (["ink", "muted", "accent"] as const).flatMap((text) =>
+  (["surface", "canvas", "tint"] as const).map((surface) => ({
+    label: `text ${text} / ${surface}`, foreground: `--color-${text}`, background: `--color-${surface}`, minimum: 4.5,
+  })),
+).concat([{ label: "text accent / primary-subtle", foreground: "--color-accent", background: "--color-primary-subtle", minimum: 4.5 }]);
+
 /** Fill against card has no WCAG minimum; the bar is that it must be a visible step, not a rule. */
 export const FIELD_FILL_STEP = { foreground: "--color-field", background: "--color-surface" } as const;
 
