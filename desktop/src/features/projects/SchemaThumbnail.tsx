@@ -34,11 +34,13 @@ export function SchemaThumbnail({ model, size = "md", state = "ready", caption }
 }) {
   const real = state === "ready" && model && !model.empty ? model : null;
   const shown = real ?? PLACEHOLDER_THUMBNAIL;
+  const page = shown.blocks.find((block) => block.kind === "page");
+  const pageTone = page && (page.tone === "light" || page.tone === "deep") ? page.tone : null;
   const viewState = real ? "ready" : state === "ready" ? "empty" : state;
   return (
     <div className={`schema-thumb-frame schema-thumb-${size}`} data-state={viewState} aria-hidden="true">
       <svg className="schema-thumb" viewBox={`0 0 ${THUMB_WIDTH} ${THUMB_HEIGHT}`} focusable="false">
-        <rect className="thumb-backdrop" width={THUMB_WIDTH} height={THUMB_HEIGHT} />
+        <rect className={`thumb-backdrop${pageTone ? ` thumb-tone-${pageTone}` : ""}`} width={THUMB_WIDTH} height={THUMB_HEIGHT} />
         {shown.blocks.map((block, index) => <Block key={index} block={block} />)}
       </svg>
       {!real && viewState !== "loading" && caption && <span className="schema-thumb-caption">{caption}</span>}
