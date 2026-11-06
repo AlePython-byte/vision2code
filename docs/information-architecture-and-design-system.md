@@ -95,7 +95,6 @@ Convenciones observadas:
 - Los nombres de archivo y los datos técnicos van en IBM Plex Mono; los títulos, en Sora.
 
 **Inconsistencias conocidas** (existen en el código, no se han resuelto):
-- El destino se llama "Ajustes" a la vista (`navSettings`) y la pantalla también (`settingsTitle`), pero en español el `aria-label` y el tooltip de la barra dicen "Configuración" (`settings`); en inglés coinciden ("Settings").
 - En el código se habla de "vault" (`ProjectVault`, `vaultTitle`), pero al usuario se le dice "archivo" y "Proyectos"; la versión inglesa del eyebrow dice "Project vault / Index" y la del título "Your interface archive".
 - "Proyectos" y "Biblioteca" muestran los mismos proyectos con propósitos distintos (administrar vs. reabrir una generación); la diferencia no se explica en pantalla.
 - Algunos eyebrows son ambientación, no información ("Acceso / Estación 01", "Entrada / Captura A").
@@ -223,7 +222,7 @@ Sombras (neumórficas, dependen del tema):
 | `--color-primary-action` | Fondo de la acción primaria | `#6d58e8` | `#6d58e8` |
 | `--color-primary-hover` | Acción primaria al pasar el puntero | `#6350d8` | `#6350d8` |
 | `--color-primary-subtle` | Fondo del elemento activo | `#e2ddff` | `#332e51` |
-| `--color-accent` | Texto y bordes de énfasis sobre superficie | `#6550dc` | `#b3a6ff` |
+| `--color-accent` | Texto y bordes de énfasis sobre superficie | `#5f4bcf` | `#b3a6ff` |
 | `--color-green` | Éxito | `#247b56` | `#6bd4a3` |
 | `--color-error` | Error | `#a73245` | `#ff98a7` |
 | `--color-warning` | Aviso | `#80560b` | `#edc777` |
@@ -280,7 +279,7 @@ Otro ejemplo, de semántico a componente: `--color-primary-action` (`#6d58e8`) l
 | Miniatura: tinta / hoja (clara y oscura) | 4,5:1 | 11,42 – 12,14:1 / 6,50 – 8,87:1 | 13,28 – 14,79:1 / 12,53 – 15,55:1 |
 | Miniatura: botón / hoja; etiqueta / botón | 3:1 | 4,08:1; 3,83:1 | 3,70:1; 3,29:1 |
 
-**Textos principales.** El informe no incluye `--color-ink`, `--color-muted` ni `--color-accent` sobre las superficies de la app. Para este documento se calcularon con un script temporal, fuera del repositorio, con la fórmula de luminancia relativa de WCAG 2.x y los valores hex de `foundation.css`. Como comprobación, el mismo cálculo reproduce tres cifras del informe oficial: tinta sobre `--color-surface` (10,70 y 12,60, "chip de fidelidad"), tinta sobre `--color-tint` (9,48 y 14,10, frase del aviso) y texto atenuado sobre `--color-tint` (4,64 y 8,21, línea de ayuda del aviso).
+**Textos principales.** `npm run report:contrast` cubre `--color-ink`, `--color-muted` y `--color-accent` sobre `--color-surface`, `--color-canvas` y `--color-tint`, además de `--color-accent` sobre `--color-primary-subtle` (`TEXT_PAIRS` en `scripts/contrast.mts`). Los valores siguientes son la salida real de ese informe.
 
 | Texto | Fondo | Claro | Oscuro |
 | --- | --- | --- | --- |
@@ -290,13 +289,14 @@ Otro ejemplo, de semántico a componente: `--color-primary-action` (`#6d58e8`) l
 | `--color-muted` | `--color-surface` | 5,24:1 | 7,33:1 |
 | `--color-muted` | `--color-canvas` | 5,05:1 | 8,69:1 |
 | `--color-muted` | `--color-tint` | 4,64:1 | 8,21:1 |
-| `--color-accent` | `--color-surface` | 4,96:1 | 6,67:1 |
-| `--color-accent` | `--color-canvas` | 4,77:1 | 7,91:1 |
-| `--color-accent` | `--color-tint` | **4,39:1** | 7,47:1 |
+| `--color-accent` | `--color-surface` | 5,45:1 | 6,67:1 |
+| `--color-accent` | `--color-canvas` | 5,25:1 | 7,91:1 |
+| `--color-accent` | `--color-tint` | 4,83:1 | 7,47:1 |
+| `--color-accent` | `--color-primary-subtle` | 4,72:1 | 5,95:1 |
 
-Todos superan 4,5:1 (AA para texto normal) **salvo `--color-accent` sobre `--color-tint` en el tema claro (4,39:1)**. Esa combinación se usa en la etapa actual de la tira de Captura (`.workflow-strip [data-current="true"]`, texto de 11 px en negrita), que por tanto no llega a AA en claro. Es un hallazgo abierto: la 016E no lo corrigió.
+Todos superan 4,5:1 (AA para texto normal). **Resuelto:** en el tema claro, `--color-accent` medía 4,39:1 sobre `--color-tint` y 4,29:1 sobre `--color-primary-subtle`, por debajo de AA, y la etapa actual de la tira de Captura (texto de 11 px en negrita) lo usa. Se oscureció el token de acento en claro de `#6550dc` a `#5f4bcf` (mismo tono violeta, solo en claro; el oscuro no cambió). Los pares de `--color-primary` y de la marca no se tocaron.
 
-Límite: sigue sin haber un informe automático de todas las combinaciones de la interfaz; estos valores son un cálculo puntual, no una prueba del repositorio.
+Límite: el informe cubre los textos principales de la tabla y los pares de formularios, scrollbars, avatares, miniaturas y aviso, pero no todas las combinaciones de la interfaz.
 
 **Otros mecanismos verificados en el código:**
 
@@ -337,7 +337,7 @@ Límite: sigue sin haber un informe automático de todas las combinaciones de la
 
 - **Tokens sin estratificar:** no hay capa de paleta cruda ni prefijos por nivel; algunos nombres se definen dos veces (`@theme` y `foundation.css`), y gana el de `foundation.css`. El espaciado es en su mayoría literal.
 - **Clasificación atómica retroactiva:** `SegmentedRadioGroup` está duplicado (`PreferenceControls.tsx` y una copia local en `PreviewPanel.tsx`), y muchos átomos son clases CSS sin componente.
-- **Etiquetado:** las inconsistencias de la sección 2.2 siguen abiertas (tooltip "Configuración", vault/archivo, Proyectos/Biblioteca). La 016E reescribió los textos de Ajustes en lenguaje llano, pero otros eyebrows conservan el tono de "laboratorio".
+- **Etiquetado:** las inconsistencias de la sección 2.2 siguen abiertas (vault/archivo, Proyectos/Biblioteca). La 016E reescribió los textos de Ajustes en lenguaje llano, pero otros eyebrows conservan el tono de "laboratorio".
 - **Búsqueda:** solo en Proyectos y solo por nombre; sin búsqueda en Biblioteca, en el registro ni entre generaciones.
 - **Navegación:** la tira de etapas de Captura no es navegable; a 560 px o menos la barra se vuelve horizontal, pero ese ancho está por debajo del mínimo de la ventana de escritorio y solo se ve en el navegador.
 - **Contraste:** el informe automático cubre pares concretos, no toda la interfaz; el contraste de los textos principales no está en el script.
