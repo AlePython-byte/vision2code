@@ -82,10 +82,6 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
                 </div>
               </div>
               <p className="setting-card-desc">{t("lightThemeDesc")}</p>
-              <div className="setting-spec-tag">
-                <span className="theme-swatch light-swatch" aria-hidden="true" />
-                <span>#E8EDF2 · #7662F5</span>
-              </div>
             </button>
 
             <button
@@ -109,10 +105,6 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
                 </div>
               </div>
               <p className="setting-card-desc">{t("darkThemeDesc")}</p>
-              <div className="setting-spec-tag">
-                <span className="theme-swatch dark-swatch" aria-hidden="true" />
-                <span>#171D27 · #7662F5</span>
-              </div>
             </button>
           </div>
         </section>
@@ -149,9 +141,6 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
                 </div>
               </div>
               <p className="setting-card-desc">{t("spanishLanguageDesc")}</p>
-              <div className="setting-spec-tag">
-                <span>es-ES · i18next</span>
-              </div>
             </button>
 
             <button
@@ -175,9 +164,6 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
                 </div>
               </div>
               <p className="setting-card-desc">{t("englishLanguageDesc")}</p>
-              <div className="setting-spec-tag">
-                <span>en-US · i18next</span>
-              </div>
             </button>
           </div>
         </section>
@@ -188,7 +174,7 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
               <p className="eyebrow">{t("telemetryEyebrow")}</p>
               <h2 id="telemetry-title">{t("telemetrySection")}</h2>
             </div>
-            <span className="panel-badge"><span className="status-dot green" /> ONLINE</span>
+            <span className="panel-badge"><span className="status-dot green" /> {t("settingsBadge")}</span>
           </header>
           <p className="settings-section-desc">{t("telemetryHelp")}</p>
 
@@ -199,7 +185,7 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
             </div>
             <div className="telemetry-item">
               <dt>{t("activeLanguageLabel")}</dt>
-              <dd><Languages aria-hidden="true" /> {state.language === "es" ? "Español (es-ES)" : "English (en-US)"}</dd>
+              <dd><Languages aria-hidden="true" /> {state.language === "es" ? "Español" : "English"}</dd>
             </div>
             <div className="telemetry-item">
               <dt>{t("persistenceLabel")}</dt>
@@ -236,15 +222,17 @@ export function SettingsScreen({ sessionNotSaved = false, user = null }: { sessi
                 <p className="eyebrow">{t("accountEyebrow")}</p>
                 <h2 id="account-title">{t("accountSection")}</h2>
               </div>
-              <GeneratedAvatar seed={user.id} size="sm" />
             </header>
             <p className="settings-section-desc">{t("accountHelp")}</p>
-            <dl className="telemetry-grid">
+            <div className="account-identity">
+              <GeneratedAvatar seed={user.id} size="lg" />
+              <dl className="telemetry-grid">
               <div className="telemetry-item">
                 <dt>{t("accountEmailLabel")}</dt>
                 <dd className="account-email-value">{user.email}</dd>
               </div>
-            </dl>
+              </dl>
+            </div>
           </section>
         )}
       </div>

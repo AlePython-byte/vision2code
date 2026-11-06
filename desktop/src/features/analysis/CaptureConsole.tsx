@@ -66,7 +66,7 @@ export function CaptureConsole({
         <ScreenshotInput controller={input} />
         <section className="profile-panel raised-panel" aria-labelledby="profile-title">
           {/* Scrolls on its own when the window is short; the footer below never scrolls away. */}
-          <div className="profile-body">
+          <div className="profile-body" role="group" aria-labelledby="profile-title">
             <header className="panel-heading">
               <p className="eyebrow">{t("profileEyebrow")}</p>
               <h2 id="profile-title">{t("profileTitle")}</h2>
@@ -81,7 +81,8 @@ export function CaptureConsole({
             <p className="input-help">{t("profileHelp")}</p>
             {projectTarget?.render(state.context ? state.context.targetProjectId : undefined)}
           </div>
-          <div className="profile-footer">
+          {/* Both parts keep an explicit role: below 851px the panel is display: contents and may lose its own landmark. */}
+          <div className="profile-footer" role="group" aria-label={t("profileActionsLabel")}>
             <div className="analysis-actions">
               {succeeded ? <>
                 <button type="button" className="action-button primary-action"
