@@ -203,3 +203,15 @@ Nota: "Cerrar sesión" en la barra lateral **cierra la sesión, no la aplicació
 | Backend apagado, con internet | Acceso correcto. Proyectos: "No se pudieron cargar tus proyectos." Análisis: "No se pudo conectar con el servicio de análisis…". Biblioteca: "No se pudieron cargar las generaciones de este proyecto.". Guardar: "Código generado, pero no se pudo guardar en la nube." con **Reintentar**. | Captura, tema, idioma, editor y exportación de lo que ya está abierto. |
 | Sin red | En el acceso: "No se pudo conectar con el servicio de autenticación. Comprueba tu conexión." Con una sesión guardada aún válida se entra igualmente; si caducó, aparece ese mensaje. | Lo mismo que en la fila anterior. |
 | OpenAI no disponible | "El servicio de análisis no está disponible temporalmente." Ningún error de red o 5xx cierra la sesión; solo un 401 la cierra. | Todo lo que no es análisis. |
+
+## 12. Pulido visual y accesibilidad (tarea 016E)
+
+Con la app instalada (`desktop.exe` del build de release), en claro y oscuro, en ES y EN, a 720 × 540 y en pantalla grande:
+
+- **Visor de la imagen de referencia:** en Captura, elige una imagen y haz clic en su vista previa. Debe abrirse el visor con la imagen completa (la imagen se carga desde `blob:`; el CSP del paquete lo permite, pero solo el build lo prueba). `Tab` se queda en "Cerrar", `Esc` cierra y el foco vuelve a la vista previa; con "reducir animaciones" activado en Windows no hay fundido.
+- **Captura sin hueco:** con y sin imagen, el botón "Analizar captura" queda justo debajo de la tarjeta del proyecto, sin un espacio vacío entre ambos. Repite a 720 × 540 (una columna, pie fijo abajo) y comprueba con el lector de pantalla (Narrador) que se anuncian los grupos "Perfil de generación" y "Acciones del análisis".
+- **Código:** con una página generada más corta que el lienzo, el lienzo no muestra una franja blanca debajo de la página. El fondo sale del elemento raíz generado; ábrelo con 2 o 3 proyectos distintos.
+- **Ajustes:** textos sencillos en ES y EN (sin "telemetría", "calibración" ni códigos de color), contenido centrado y limitado a unos 920 px en pantalla grande.
+- **Cuenta:** el avatar es grande, siempre con dos ojos y una boca; es el mismo cada vez que entras con la misma cuenta y distinto con otra.
+- **Miniaturas:** en Proyectos y Biblioteca no queda una franja gris vacía al pie de la miniatura, en ambos temas.
+- **Fuentes y contraste:** las fuentes empaquetadas (Sora, Space Grotesk, IBM Plex Mono) se ven igual que en desarrollo; `npm run report:contrast` termina sin errores.
