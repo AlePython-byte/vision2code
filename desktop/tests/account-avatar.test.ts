@@ -163,17 +163,17 @@ test("the avatar seed is the user id: same id and another address give the same 
   const shell = readFileSync(new URL("../src/features/workspace/ApplicationShell.tsx", import.meta.url), "utf8");
   assert.match(shell, /<GeneratedAvatar seed=\{user\.id\} size="md" \/>/);
   const settings = readFileSync(new URL("../src/features/settings/SettingsScreen.tsx", import.meta.url), "utf8");
-  assert.match(settings, /<GeneratedAvatar seed=\{user\.id\} size="sm" \/>/);
+  assert.match(settings, /<GeneratedAvatar seed=\{user\.id\} size="lg" \/>/);
   for (const source of [shell, settings]) assert.doesNotMatch(source, /seed=\{[^}]*email/i);
 });
 
-test("Settings > Account shows the address in a row, with the small avatar; without a user there is no account section", async () => {
+test("Settings > Account shows the address in a row, with the large avatar; without a user there is no account section", async () => {
   await i18n.changeLanguage("es");
   const { SettingsScreen } = load("settings/SettingsScreen.tsx");
   const withUser = renderToStaticMarkup(React.createElement(SettingsScreen, { user: { id: ID_A, email: "designer@example.com", emailVerified: true } }));
   assert.match(withUser, /<h2 id="account-title">Cuenta<\/h2>/);
   assert.match(withUser, /<dt>Correo electrónico<\/dt><dd class="account-email-value">designer@example\.com<\/dd>/);
-  assert.match(withUser, /generated-avatar-sm/);
+  assert.match(withUser, /generated-avatar-lg/);
   const without = renderToStaticMarkup(React.createElement(SettingsScreen));
   assert.doesNotMatch(without, /account-title|generated-avatar/);
   assert.equal(en.accountEmailLabel, "Email");
