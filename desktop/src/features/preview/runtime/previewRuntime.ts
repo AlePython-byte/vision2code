@@ -308,6 +308,23 @@ export const PREVIEW_RUNTIME_SOURCE = `
     window.__updateFit__ = updateFit;
   }
 
+  // The generated page is usually shorter than the canvas (at least 1024 px tall): the canvas below it takes the page's own
+  // background (its root element's) instead of the default white, so no white strip shows under the page.
+  function initPageBackground(rootEl) {
+    function sync() {
+      var first = rootEl.firstElementChild;
+      if (!first || typeof window.getComputedStyle !== 'function') return;
+      var bg = window.getComputedStyle(first).backgroundColor;
+      if (!bg || bg === 'transparent' || bg.split(' ').join('').slice(-3) === ',0)') return;
+      var canvas = document.getElementById('preview-scaled-canvas');
+      if (canvas) canvas.style.backgroundColor = bg;
+    }
+    sync();
+    if (typeof MutationObserver !== 'undefined') {
+      new MutationObserver(sync).observe(rootEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+    }
+  }
+
   window.__mountApp__ = function(entryPath) {
     try {
       var canonicalEntry = normalizePath(entryPath);
@@ -316,6 +333,7 @@ export const PREVIEW_RUNTIME_SOURCE = `
       var rootEl = document.getElementById('root');
       if (!rootEl) throw new Error('Missing root container in preview document');
       ReactDOM.createRoot(rootEl).render(React.createElement(App, null));
+      initPageBackground(rootEl);
       initFitToViewport();
     } catch (err) {
       var container = document.getElementById('root');
