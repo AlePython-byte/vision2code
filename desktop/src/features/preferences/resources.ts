@@ -211,7 +211,7 @@ export const es = {
   "demoLabel": "Modo de demostración · Sin autenticación",
   "loginScreen": "Ver pantalla de acceso",
   "labStatus": "Laboratorio de interfaces / Versión 0.1.0",
-  "settings": "Configuración",
+  "settings": "Ajustes",
   "settingsEyebrow": "Preferencias",
   "settingsTitle": "Ajustes",
   "settingsIntro": "Elige cómo se ve la app y en qué idioma la usas.",
