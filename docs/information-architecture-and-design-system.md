@@ -1,6 +1,6 @@
 # Vision2Code: Arquitectura de Información y Design System
 
-Documento del taller de Arquitectura de Información y Design Systems. Describe **lo que existe hoy en el repositorio** (rama `docs/ia-design-system`, basada en `main`); cada pantalla, componente y token citado se verificó con búsqueda en el código. Cuando el documento y el código discrepan, manda el código (ver `docs/engineering-rules.md`).
+Documento del taller de Arquitectura de Información y Design Systems. Describe la aplicación **tras la tarea 016E** (pulido visual y accesibilidad, rama `feat/ui-polish-016e`); cada pantalla, componente, clave de texto y token citado se verificó con `git grep` sobre esa rama. Mientras 016E no esté fusionada en `main`, el código de esa rama es la referencia. Cuando el documento y el código discrepan, manda el código (ver `docs/engineering-rules.md`).
 
 ## 1. Introducción
 
@@ -35,11 +35,12 @@ flowchart TD
         P --> PM["Diálogos: Renombrar / Eliminar"]
         C --> CF["Fidelidad: Rápido · Equilibrado · Preciso"]
         C --> CP["Selector de proyecto (ProjectChip)"]
+        C --> CV["Visor de la imagen de referencia<br/>(diálogo modal)"]
         E --> EV["Vista previa en vivo"]
         E --> EF["Explorador de archivos"]
         E --> EH["Registro de generaciones"]
         E --> EX["Exportar"]
-        A --> AA["Modo visual · Idioma del entorno<br/>Diagnóstico y calibración · Cuenta"]
+        A --> AA["Aspecto · Idioma<br/>Tu configuración · Cuenta"]
     end
     X -->|"UNAUTHENTICATED"| L
     D(["Diálogo: descartar cambios"]) -.-> P
@@ -49,7 +50,7 @@ flowchart TD
 
 Notas verificadas:
 - La marca "V" de la barra lateral lleva a Captura (`brand-mark`).
-- Todos los diálogos son modales (`role="dialog"`, `aria-modal`) con el foco atrapado: `DiscardDialog`, `LibraryDialog`, `NewProjectDialog` y `ProjectManageDialog`.
+- Todos los diálogos son modales (`role="dialog"`, `aria-modal`) con el foco atrapado: `DiscardDialog`, `LibraryDialog`, `NewProjectDialog`, `ProjectManageDialog` y, desde 016E, el visor `ImageViewer` de Captura (se monta con `createPortal` en `document.body`).
 - Un enlace "Saltar al espacio de trabajo" (`skip-link`) apunta al `main` de la vista actual.
 - Los estados de autenticación que el Login distingue son `RESTORING`, `UNAUTHENTICATED`, `AUTHENTICATING`, `AWAITING_EMAIL_CONFIRMATION`, `AUTHENTICATED` y `SIGNING_OUT`. El shell se desmonta al cerrar sesión (no se oculta).
 
@@ -75,6 +76,7 @@ Las etiquetas viven en `desktop/src/features/preferences/resources.ts` (ES y EN 
 | Generación | Generación {{number}} | Generation {{number}} | `historyGeneration` |
 | Fidelidad (visual) | Rápido · Equilibrado · Preciso | Fast · Balanced · Precise | `fidelityFast`, `fidelityBalanced`, `fidelityPrecise` |
 | Captura / imagen de entrada | Captura · Imagen de referencia | Capture · Reference image | `capture`, `screenshotTitle` |
+| Ampliar la imagen | Ampliar · Cerrar | Enlarge · Close | `enlargeHint`, `imageViewerClose` |
 | Perfil de generación | Perfil de generación | Generation profile | `profileTitle` |
 | Editor de código | Código · Espacio de código | Code · Code workspace | `code`, `editorTitle` |
 | Vista previa | Vista previa en vivo | Live preview | `previewTitle` |
@@ -83,7 +85,8 @@ Las etiquetas viven en `desktop/src/features/preferences/resources.ts` (ES y EN 
 | Generación vigente | Actual | Current | `historyCurrent` |
 | Registro de generaciones | Registro de generaciones | Generation log | `historyTitle` |
 | Exportación | Exportar | Export | `export` |
-| Ajustes | Ajustes | Settings | `navSettings` |
+| Ajustes | Ajustes | Settings | `navSettings`, `settingsTitle` |
+| Secciones de Ajustes | Aspecto · Idioma · Tu configuración · Cuenta | Look · Language · Your setup · Account | `appearanceSection`, `languageSection`, `telemetrySection`, `accountSection` |
 | Acceso | Iniciar sesión · Crear cuenta · Cerrar sesión | Sign in · Create account · Sign out | `signIn`, `register`, `signOut` |
 
 Convenciones observadas:
@@ -92,10 +95,10 @@ Convenciones observadas:
 - Los nombres de archivo y los datos técnicos van en IBM Plex Mono; los títulos, en Sora.
 
 **Inconsistencias conocidas** (existen en el código, no se han resuelto):
-- El destino de Ajustes se llama "Ajustes" a la vista (`navSettings`), pero su `aria-label` y tooltip dicen "Configuración" (`settings`); el título de la pantalla es "Configuración del entorno" (`settingsTitle`).
+- El destino se llama "Ajustes" a la vista (`navSettings`) y la pantalla también (`settingsTitle`), pero en español el `aria-label` y el tooltip de la barra dicen "Configuración" (`settings`); en inglés coinciden ("Settings").
 - En el código se habla de "vault" (`ProjectVault`, `vaultTitle`), pero al usuario se le dice "archivo" y "Proyectos"; la versión inglesa del eyebrow dice "Project vault / Index" y la del título "Your interface archive".
 - "Proyectos" y "Biblioteca" muestran los mismos proyectos con propósitos distintos (administrar vs. reabrir una generación); la diferencia no se explica en pantalla.
-- Algunos eyebrows son ambientación, no información ("Acceso / Estación 01", "Preferencias / Sistema 02").
+- Algunos eyebrows son ambientación, no información ("Acceso / Estación 01", "Entrada / Captura A").
 
 ### 2.3 Sistema de navegación
 
@@ -115,7 +118,7 @@ Convenciones observadas:
 | Pantalla | Mecanismo |
 | --- | --- |
 | Todas | Encabezado `workspace-heading`: eyebrow + `h1` + introducción, y acciones propias a la derecha (por ejemplo "Nuevo proyecto"). |
-| Captura | Tira de etapas (`ol`, informativa); `ProjectChip` para cambiar el proyecto de destino (lleva a Proyectos). |
+| Captura | Tira de etapas (`ol`, informativa); `ProjectChip` para cambiar el proyecto de destino (lleva a Proyectos); la vista previa de la imagen de referencia es un botón que abre el visor `ImageViewer`; el panel de perfil expone dos grupos con nombre ("Perfil de generación" y "Acciones del análisis", `profileActionsLabel`). |
 | Código | `CodeContext`: identidad del proyecto (botón que abre la Biblioteca de ese proyecto), chips de estado ("Editado", "Restaurado…") y la llave del **Registro de generaciones** (`GenerationHistoryTray`, `aria-expanded`). `FileExplorer` (botones con `aria-current`) y barra de la vista previa (dispositivo y zoom como `radiogroup`). |
 | Acceso | Pestañas `role="tablist"`: Iniciar sesión / Crear cuenta. |
 | Biblioteca | Diálogo modal con un panel desplegable por proyecto; Esc o el botón de cerrar lo cierran y el foco vuelve al botón de origen. |
@@ -141,6 +144,8 @@ flowchart LR
     B -->|"Abrir proyecto"| C
     B -->|"Abrir última"| F
     C --> D["Elegir imagen<br/>PNG, JPEG o WEBP, máx. 10 MB"]
+    D -.->|"clic en la vista previa"| D2["Ampliar imagen<br/>(visor modal)"]
+    D2 -.-> D
     D --> E["Elegir fidelidad<br/>y proyecto de destino"]
     E --> G["Analizar captura"]
     G -->|"éxito"| H["Generar"]
@@ -165,11 +170,11 @@ El código está organizado **por funcionalidad** (`desktop/src/features/<área>
 
 | Nivel | Elementos reales |
 | --- | --- |
-| **Átomos** | Clases: `.action-button`, `.primary-action`, `.secondary-button`, `.ghost-button`, `.danger-action`, `.text-button`, `.eyebrow`, `.panel-badge`, `.workspace-badge`, `.status-dot`, `.result-chip`, `.upload-mark`, `.raised-panel` (tarjeta elevada). Componentes: `GeneratedAvatar` (avatar generado, 8 paletas), `FidelityChip`, iconos de `lucide-react`. |
-| **Moléculas** | `SegmentedRadioGroup` (`PreferenceControls.tsx`; `PreviewPanel.tsx` tiene su propia copia local) y `PreferenceControls`; `VisualFidelitySelector` (dial + segmentos); `ScreenshotPreview`; `FileExplorer`; `ProjectChip`; `LibraryNavButton`; `ExportButton`; `SchemaThumbnail`, `ThumbnailSlot` y `ProjectFidelityChip`; `ToastViewport` (cápsulas `toast-capsule`); `PreviewNotStarted`. |
-| **Organismos** | `CaptureConsole` (tira de etapas + `ScreenshotInput` + panel de perfil); `ScreenshotInput`; `ProjectVault` (barra de búsqueda + rejilla de tarjetas); `EditorWorkspace` (explorador + Monaco `CodeEditor`); `PreviewPanel`; `CodeContext`; `GenerationHistoryTray`; `SettingsScreen`; `Login`; diálogos `LibraryDialog`, `NewProjectDialog`, `DiscardDialog`, `RenameProjectDialog`, `DeleteProjectDialog` (host: `ProjectManageDialog`). |
+| **Átomos** | Clases: `.action-button`, `.primary-action`, `.secondary-button`, `.ghost-button`, `.danger-action`, `.text-button`, `.eyebrow`, `.panel-badge`, `.workspace-badge`, `.status-dot`, `.result-chip`, `.upload-mark`, `.raised-panel` (tarjeta elevada). Componentes: `GeneratedAvatar` (avatar generado: 8 paletas, 5 pares de ojos, 5 bocas, tamaños `sm`, `md` y `lg`), `FidelityChip`, iconos de `lucide-react`. |
+| **Moléculas** | `SegmentedRadioGroup` (`PreferenceControls.tsx`; `PreviewPanel.tsx` tiene su propia copia local) y `PreferenceControls`; `VisualFidelitySelector` (dial + segmentos); `ScreenshotPreview` (botón que abre el visor); `FileExplorer`; `ProjectChip`; `LibraryNavButton`; `ExportButton`; `SchemaThumbnail`, `ThumbnailSlot` y `ProjectFidelityChip`; `ToastViewport` (cápsulas `toast-capsule`); `PreviewNotStarted`. |
+| **Organismos** | `CaptureConsole` (tira de etapas + `ScreenshotInput` + panel de perfil); `ScreenshotInput`; `ProjectVault` (barra de búsqueda + rejilla de tarjetas); `EditorWorkspace` (explorador + Monaco `CodeEditor`); `PreviewPanel`; `CodeContext`; `GenerationHistoryTray`; `SettingsScreen`; `Login`; diálogos `ImageViewer`, `LibraryDialog`, `NewProjectDialog`, `DiscardDialog`, `RenameProjectDialog`, `DeleteProjectDialog` (host: `ProjectManageDialog`). |
 | **Templates** | `ApplicationShell`: rejilla de barra lateral + `shell-content` (vista + `app-footer`); el layout `login-shell` del `Login`; el patrón de página `workspace` + `workspace-heading` compartido por las vistas. |
-| **Páginas** | Acceso (`Login`), Captura (`Workspace`), Proyectos (`ProjectVault`), Código (`EditorWorkspace` dentro de `main#code-workspace`), Ajustes (`SettingsScreen`). La Biblioteca es un diálogo, no una página. |
+| **Páginas** | Acceso (`Login`), Captura (`Workspace`), Proyectos (`ProjectVault`), Código (`EditorWorkspace` dentro de `main#code-workspace`), Ajustes (`SettingsScreen`, con ancho máximo de 920 px y centrada: `.settings-workspace`). La Biblioteca es un diálogo, no una página. |
 
 Fuera del sistema visual de producción: `features/fidelity/SchemaInspector.tsx`, una herramienta **solo de desarrollo** que no llega a `dist/` (se comprueba con `npm run check:dist-dev-only`).
 
@@ -232,10 +237,10 @@ Sombras (neumórficas, dependen del tema):
 | Barras de desplazamiento | `--color-scrollbar-track` / `-thumb` / `-thumb-hover` | `#dde4ed` / `#6d7d94` / `#566579` | `#1a222f` / `#74869f` / `#9bacc2` |
 | Botón primario deshabilitado | `--color-disabled-bg` / `--color-disabled-fg` | `#d6d1f4` / `#40368f` | `#3a3568` / `#e1dcff` |
 | Botón primario (sombras) | `--shadow-btn-primary`, `-hover`, `-active` | ver `foundation.css` | ver `foundation.css` |
-| Avatar generado | `--avatar-1-bg` … `--avatar-8-bg`, `--avatar-N-blob`, `--avatar-N-eyes` (8 paletas × 3) | p. ej. paleta 2: `#d9f1ea` / `#3fb592` / `#0f2a22` | p. ej. paleta 2: `#14332b` / `#4fd1a8` / `#08201a` |
+| Avatar generado | `--avatar-1-bg` … `--avatar-8-bg`, `--avatar-N-blob`, `--avatar-N-eyes` (8 paletas × 3; el color `eyes` pinta también la boca) | p. ej. paleta 2: `#d9f1ea` / `#3fb592` / `#0f2a22` | p. ej. paleta 2: `#14332b` / `#4fd1a8` / `#08201a` |
 | Miniaturas de UISchema | `--thumb-paper`, `--thumb-paper-raised`, `--thumb-on-paper`, `--thumb-slate`, `--thumb-slate-raised`, `--thumb-on-slate` | `#f6f8fc`, `#ffffff`, `#303641`, `#3b4351`, `#4d5767`, `#eef2f8` | `#e9edf5`, `#f7f9fd`, `#1d2430`, `#131a25`, `#222c3b`, `#eef2f8` |
 
-Las miniaturas pintan "la hoja" del diseño, no la interfaz: una fuente clara se queda clara y una oscura se queda oscura en ambos temas (por eso tienen su propia familia de tokens).
+Las miniaturas pintan "la hoja" del diseño, no la interfaz: una fuente clara se queda clara y una oscura se queda oscura en ambos temas (por eso tienen su propia familia de tokens). Desde 016E el fondo del SVG (`.thumb-backdrop`) toma el tono de la página dibujada (`--thumb-paper` o `--thumb-slate`), de modo que una página más corta que la caja de 8:5 ya no deja una franja gris al pie.
 
 #### Cómo se pasa de un nivel a otro: ejemplo del avatar
 
@@ -245,10 +250,11 @@ flowchart LR
     A --> U["Uso en el trazo<br/>.generated-avatar .avatar-blob {<br/>fill: var(--avatar-blob) }"]
 ```
 
-1. `avatarSpec(seed)` elige un número de paleta a partir del id de usuario (`avatarSpec.ts`).
+1. `avatarSpec(seed)` elige a partir del id de usuario la paleta, el par de ojos (`dots`, `wide`, `sleepy`, `tall`, `happy`; siempre dos ojos) y la boca (`smile`, `grin`, `flat`, `oh`, `smirk`). La boca se calcula después del blob, así que añadirla no cambió la paleta ni el blob de nadie (`avatarSpec.ts`).
 2. `GeneratedAvatar` añade la clase `avatar-palette-<n>` al `<svg>`.
 3. Esa clase (en `theme.css`) copia `--avatar-<n>-bg/-blob/-eyes` a tres variables locales: `--avatar-bg`, `--avatar-blob` y `--avatar-eyes`.
-4. Las formas del SVG usan solo las variables locales. Cambiar de tema cambia `--avatar-<n>-*` y el avatar se repinta sin tocar el componente.
+4. Las formas del SVG (blob, ojos y boca) usan solo las variables locales. Cambiar de tema cambia `--avatar-<n>-*` y el avatar se repinta sin tocar el componente.
+5. El tamaño sale de `.generated-avatar-sm`, `-md` y `-lg` (28, 38 y 88 px). En Ajustes > Cuenta se usa `lg`; la regla genérica de iconos de Ajustes (`.settings-workspace svg:not(.generated-avatar)` en `foundation.css`) excluye al avatar para no encogerlo a 18 px.
 
 Otro ejemplo, de semántico a componente: `--color-primary-action` (`#6d58e8`) lo consume `.primary-action` en `foundation.css`; cuando el botón está deshabilitado la misma regla lo sustituye por `--color-disabled-bg` y `--color-disabled-fg`, para que la etiqueta no se lave con `opacity`.
 
@@ -267,25 +273,41 @@ Otro ejemplo, de semántico a componente: `--color-primary-action` (`#6d58e8`) l
 | Aviso de sesión: frase / fondo | 4,5:1 | 9,48:1 | 14,10:1 |
 | Aviso de sesión: línea de ayuda / fondo | 4,5:1 | 4,64:1 | 8,21:1 |
 | Aviso de sesión: icono / fondo | 3:1 | 5,04:1 | 9,92:1 |
-| Avatar: ojos / blob (8 paletas) | 3:1 | 5,06 – 7,66:1 | 7,30 – 10,91:1 |
+| Avatar: ojos y boca / blob (8 paletas) | 3:1 | 5,06 – 7,66:1 | 7,30 – 10,91:1 |
 | Avatar: blob / fondo (8 paletas) | 1,5:1 | 1,69 – 2,54:1 | 5,64 – 8,42:1 |
 | Miniatura: pie / píldora | 4,5:1 | 4,64:1 | 8,21:1 |
 | Chip de fidelidad / su relleno | 4,5:1 | 10,70:1 | 12,60:1 |
 | Miniatura: tinta / hoja (clara y oscura) | 4,5:1 | 11,42 – 12,14:1 / 6,50 – 8,87:1 | 13,28 – 14,79:1 / 12,53 – 15,55:1 |
 | Miniatura: botón / hoja; etiqueta / botón | 3:1 | 4,08:1; 3,83:1 | 3,70:1; 3,29:1 |
 
-Límite: el informe cubre estos pares, no todas las combinaciones de la interfaz (por ejemplo, `--color-ink` y `--color-muted` sobre `--color-surface` no están en el script).
+**Textos principales.** El informe no incluye `--color-ink`, `--color-muted` ni `--color-accent` sobre las superficies de la app. Para este documento se calcularon con un script temporal, fuera del repositorio, con la fórmula de luminancia relativa de WCAG 2.x y los valores hex de `foundation.css`. Como comprobación, el mismo cálculo reproduce tres cifras del informe oficial: tinta sobre `--color-surface` (10,70 y 12,60, "chip de fidelidad"), tinta sobre `--color-tint` (9,48 y 14,10, frase del aviso) y texto atenuado sobre `--color-tint` (4,64 y 8,21, línea de ayuda del aviso).
+
+| Texto | Fondo | Claro | Oscuro |
+| --- | --- | --- | --- |
+| `--color-ink` | `--color-surface` | 10,70:1 | 12,60:1 |
+| `--color-ink` | `--color-canvas` | 10,31:1 | 14,92:1 |
+| `--color-ink` | `--color-tint` | 9,48:1 | 14,10:1 |
+| `--color-muted` | `--color-surface` | 5,24:1 | 7,33:1 |
+| `--color-muted` | `--color-canvas` | 5,05:1 | 8,69:1 |
+| `--color-muted` | `--color-tint` | 4,64:1 | 8,21:1 |
+| `--color-accent` | `--color-surface` | 4,96:1 | 6,67:1 |
+| `--color-accent` | `--color-canvas` | 4,77:1 | 7,91:1 |
+| `--color-accent` | `--color-tint` | **4,39:1** | 7,47:1 |
+
+Todos superan 4,5:1 (AA para texto normal) **salvo `--color-accent` sobre `--color-tint` en el tema claro (4,39:1)**. Esa combinación se usa en la etapa actual de la tira de Captura (`.workflow-strip [data-current="true"]`, texto de 11 px en negrita), que por tanto no llega a AA en claro. Es un hallazgo abierto: la 016E no lo corrigió.
+
+Límite: sigue sin haber un informe automático de todas las combinaciones de la interfaz; estos valores son un cálculo puntual, no una prueba del repositorio.
 
 **Otros mecanismos verificados en el código:**
 
 | Aspecto | Qué hay |
 | --- | --- |
 | Foco visible | Regla global `:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 4px; }` (`theme.css`), con variantes propias para la marca, la barra lateral, el explorador y los segmentos. |
-| Teclado | `skip-link` al contenido; grupos de opciones como `radiogroup` con tabulación itinerante y flechas/Inicio/Fin (`SegmentedRadioGroup`, `VisualFidelitySelector`, barra de la vista previa); diálogos con foco atrapado, Esc para cerrar y devolución del foco al origen. |
+| Teclado | `skip-link` al contenido; grupos de opciones como `radiogroup` con tabulación itinerante y flechas/Inicio/Fin (`SegmentedRadioGroup`, `VisualFidelitySelector`, barra de la vista previa); diálogos (incluido el visor de imagen) con foco atrapado, Esc para cerrar y devolución del foco al origen. |
 | Reducir movimiento | `@media (prefers-reduced-motion: reduce)` pone `--motion-fast: 0ms`, reduce transiciones y animaciones a 0,01 ms y detiene el spinner y el dial. La vista previa y el vault tienen además sus propias reglas. |
 | Lectores de pantalla | Iconos decorativos con `aria-hidden`, regiones `aria-live` para estados (análisis, resultados de búsqueda, toasts con `role="status"`/`"alert"`), nombres accesibles en botones de solo icono, avatar decorativo. |
 | Tamaño mínimo de ventana | 720 × 540 px (`minWidth` / `minHeight` en `desktop/src-tauri/tauri.conf.json`); la ventana inicial es 1280 × 820. |
-| Objetivos táctiles | En el carril compacto, 44 × 44 px. No se ha auditado el resto de objetivos. |
+| Objetivos táctiles | En el carril compacto, 44 × 44 px; los segmentos de fidelidad miden al menos 32 px de alto desde 016E (`.fidelity-segment`) y el botón de cerrar del visor 44 px. No se ha auditado el resto de objetivos. |
 
 ### 3.4 Tema claro / oscuro e idioma ES / EN
 
@@ -293,7 +315,7 @@ Límite: el informe cubre estos pares, no todas las combinaciones de la interfaz
 
 **Idioma.** `resources.ts` exporta `es` y `en` (el tipo obliga a que `en` tenga las mismas claves que `es`); `i18next` los carga en el propio paquete, sin servicio remoto. Los textos se piden con `useLabels().t(...)`; los mensajes de error que llegan de modelos sin interfaz se traducen al pintarlos, así que los ya visibles cambian de idioma al instante. La traducción nativa de los menús de Monaco no se cambia.
 
-**Dónde se cambia.** En el Login con `PreferenceControls` (dos grupos segmentados) y en Ajustes (secciones "Modo visual" e "Idioma del entorno", más "Restablecer valores predeterminados").
+**Dónde se cambia.** En el Login con `PreferenceControls` (dos grupos segmentados) y en Ajustes (secciones "Aspecto" e "Idioma", más "Restablecer valores predeterminados"; sus textos son llanos y no muestran códigos de color).
 
 ## 4. Decisiones de diseño y límites conocidos
 
@@ -306,6 +328,8 @@ Límite: el informe cubre estos pares, no todas las combinaciones de la interfaz
 | Fuentes empaquetadas (Fontsource), sin fuentes remotas | La app de escritorio debe funcionar sin red y con un CSP cerrado. |
 | Avatar generado a partir del id de usuario, no del correo | Privacidad: el correo no aparece como texto visible en la barra lateral. |
 | Miniaturas pintadas desde el UISchema con tokens propios | Una vista rápida de cada generación sin guardar capturas. |
+| Visor de la imagen como diálogo modal con un único control (Cerrar) | Ver la referencia a tamaño completo sin salir de Captura; con un solo botón, atrapar el foco es trivial. |
+| Fondo de la vista previa tomado de la raíz generada | La franja blanca bajo la página era el fondo por defecto del lienzo del documento de la vista previa; `previewRuntime.ts` copia el color de fondo del elemento raíz al lienzo (`initPageBackground`). |
 | Biblioteca como diálogo, no como vista | Permite reabrir una generación desde cualquier pantalla sin perder la posición. |
 | Vista inicial "Proyectos" con sesión | Es el punto de retorno natural; "Captura" es la vista inicial solo sin servicios de usuario. |
 
@@ -313,11 +337,12 @@ Límite: el informe cubre estos pares, no todas las combinaciones de la interfaz
 
 - **Tokens sin estratificar:** no hay capa de paleta cruda ni prefijos por nivel; algunos nombres se definen dos veces (`@theme` y `foundation.css`), y gana el de `foundation.css`. El espaciado es en su mayoría literal.
 - **Clasificación atómica retroactiva:** `SegmentedRadioGroup` está duplicado (`PreferenceControls.tsx` y una copia local en `PreviewPanel.tsx`), y muchos átomos son clases CSS sin componente.
-- **Textos de Ajustes:** en esta rama usan vocabulario técnico ("Diagnóstico y calibración", "Telemetría de consola"), que no coincide con el tono del resto de la app.
-- **Etiquetado:** las inconsistencias de la sección 2.2 siguen abiertas (Ajustes/Configuración, vault/archivo, Proyectos/Biblioteca).
+- **Etiquetado:** las inconsistencias de la sección 2.2 siguen abiertas (tooltip "Configuración", vault/archivo, Proyectos/Biblioteca). La 016E reescribió los textos de Ajustes en lenguaje llano, pero otros eyebrows conservan el tono de "laboratorio".
 - **Búsqueda:** solo en Proyectos y solo por nombre; sin búsqueda en Biblioteca, en el registro ni entre generaciones.
 - **Navegación:** la tira de etapas de Captura no es navegable; a 560 px o menos la barra se vuelve horizontal, pero ese ancho está por debajo del mínimo de la ventana de escritorio y solo se ve en el navegador.
 - **Contraste:** el informe automático cubre pares concretos, no toda la interfaz; el contraste de los textos principales no está en el script.
 - **Accesibilidad no auditada:** no se ha probado con un lector de pantalla real ni auditado el tamaño de los objetivos táctiles fuera del carril compacto.
+- **Visor de imagen:** solo muestra la imagen completa; no hay zoom ni arrastre, y la carga desde `blob:` solo está probada en el navegador, no en la app empaquetada (ver `docs/packaged-build-checklist.md`).
+- **Fondo de la vista previa:** si el elemento raíz generado es transparente, el lienzo conserva el blanco por defecto.
 - **Verificación visual:** este documento se basa en el código; las pantallas no se volvieron a capturar para redactarlo.
 - **Idiomas:** solo ES y EN; la traducción nativa de Monaco no cambia.
