@@ -9,9 +9,9 @@ import ts from "typescript";
 import { requireLocalSource } from "./source-loader.ts";
 import * as lucide from "lucide-react";
 import { i18n } from "../src/features/preferences/i18n.ts";
-import { preferences } from "../src/features/preferences/preferences.ts";
 import { en, es } from "../src/features/preferences/resources.ts";
-import { FIELD_FILL_STEP, FIELD_PAIRS, ratioFor, readThemeTokens } from "../../scripts/contrast.mts";
+import { preferences } from "../src/features/preferences/preferences.ts";
+import { FIELD_FILL_STEP, FIELD_PAIRS, TEXT_PAIRS, ratioFor, readThemeTokens } from "../../scripts/contrast.mts";
 
 function load(file: string, overrides: Record<string, unknown> = {}) {
   const source = readFileSync(new URL("../src/features/" + file, import.meta.url), "utf8");
@@ -225,4 +225,25 @@ test("form fields keep 3:1 between their border and the card and the fill, in bo
   assert.match(css, /\.login-panel input \{[^}]*background: var\(--color-field\);[^}]*border: 1px solid var\(--color-field-border\);/);
   const vault = readFileSync(new URL("../src/features/projects/vault.css", import.meta.url), "utf8");
   assert.match(vault, /\.vault-dialog input \{[^}]*border: 1px solid var\(--color-field-border\);[^}]*background: var\(--color-field\);/);
+});
+
+test("running text keeps 4.5:1 on every surface it sits on, in both themes, and the capture strip's current step uses accent on tint (WCAG 1.4.3)", () => {
+  const css = readFileSync(new URL("../src/styles/foundation.css", import.meta.url), "utf8");
+  const themes = readThemeTokens(css);
+  assert.ok(TEXT_PAIRS.some((pair) => pair.foreground === "--color-accent" && pair.background === "--color-tint"));
+  for (const theme of ["light", "dark"] as const) {
+    for (const pair of TEXT_PAIRS) {
+      const ratio = ratioFor(themes[theme], pair.foreground, pair.background);
+      assert.ok(ratio >= pair.minimum, `${theme}: ${pair.label} is ${ratio.toFixed(2)}:1, needs ${pair.minimum}:1`);
+    }
+  }
+  const theme = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
+  assert.match(theme, /\.workflow-strip \[data-current="true"\] \{ color: var\(--color-accent\);[^}]*background: var\(--color-tint\);/);
+  assert.equal(css.match(/--color-accent: (#[0-9a-f]{6});/)?.[1], theme.match(/--color-accent: (#[0-9a-f]{6});/)?.[1], "theme.css and foundation.css agree on the light accent");
+});
+
+test("the Settings rail entry says Ajustes / Settings in its label and tooltip, like its visible text", () => {
+  assert.equal(es.settings, "Ajustes");
+  assert.equal(es.settings, es.navSettings);
+  assert.equal(en.settings, en.navSettings);
 });

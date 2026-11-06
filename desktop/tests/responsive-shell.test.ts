@@ -71,7 +71,7 @@ test("shell navigation contains semantic landmarks, brand mark, and accessible d
   // Primary destinations with accessible title/labels
   assert.match(html, /title="Captura"/);
   assert.match(html, /title="Código"/);
-  assert.match(html, /title="Configuración"/);
+  assert.match(html, /title="Ajustes"/);
   // Login destination
   assert.match(html, /aria-label="Ver pantalla de acceso"/);
   // Active state for initial capture view

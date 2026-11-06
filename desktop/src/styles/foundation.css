@@ -4,7 +4,7 @@
   --color-primary-action: #6d58e8;
   --color-primary-hover: #6350d8;
   --color-primary-subtle: #e2ddff;
-  --color-accent: #6550dc;
+  --color-accent: #5f4bcf;
   --color-canvas: #e8edf2;
   --color-surface: #edf1f6;
   --color-surface-hover: #f8faff;
@@ -111,7 +111,7 @@
 }
 @layer foundation {
   .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-color: var(--color-highlight); }
-  .action-button svg, .navigation-item svg, .preference-controls svg, .login-panel svg, .file-explorer svg, .settings-workspace svg, .setting-card svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.8; }
+  .action-button svg, .navigation-item svg, .preference-controls svg, .login-panel svg, .file-explorer svg, .settings-workspace svg:not(.generated-avatar), .setting-card svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.8; }
   .action-button svg { width: 16px; height: 16px; }
   .navigation-item svg { width: 20px; height: 20px; }
   .setting-card-icon svg { width: 20px; height: 20px; }

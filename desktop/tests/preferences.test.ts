@@ -143,18 +143,18 @@ test("settings screen renders appearance, language, telemetry and reset controls
   const { SettingsScreen } = loadComponent("settings/SettingsScreen.tsx");
   const html = renderToStaticMarkup(React.createElement(SettingsScreen));
   assert.match(html, /id="settings-workspace"/);
-  assert.match(html, /Configuración del entorno/);
-  assert.match(html, /Modo visual/);
-  assert.match(html, /Idioma del entorno/);
-  assert.match(html, /Telemetría de consola/);
+  assert.match(html, />Ajustes</);
+  assert.match(html, /Aspecto/);
+  assert.match(html, /Idioma de la app/);
+  assert.match(html, /Tu configuración/);
   assert.match(html, /Modo claro/);
   assert.match(html, /Modo oscuro/);
   assert.match(html, /Español/);
   assert.match(html, /English/);
-  assert.match(html, /aria-label="Selección de modo visual"/);
-  assert.match(html, /aria-label="Selección de idioma de la consola"/);
+  assert.match(html, /aria-label="Elegir el aspecto de la app"/);
+  assert.match(html, /aria-label="Elegir el idioma de la app"/);
   assert.match(html, /Restablecer valores predeterminados/);
-  assert.match(html, /ONLINE/);
+  assert.doesNotMatch(html, /ONLINE/, "no hard-coded English status");
 });
 
 test("settings screen controls switch theme and language immediately and support reset", () => {

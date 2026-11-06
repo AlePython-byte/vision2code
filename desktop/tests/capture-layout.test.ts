@@ -48,7 +48,7 @@ function render(state: object) {
 
 /** The footer runs from its opening tag to the end of the profile panel. */
 function footerOf(html: string) {
-  const start = html.indexOf('<div class="profile-footer">');
+  const start = html.indexOf('<div class="profile-footer"');
   assert.ok(start >= 0, "the profile panel has a footer");
   return html.slice(start, html.indexOf("</section>", start));
 }

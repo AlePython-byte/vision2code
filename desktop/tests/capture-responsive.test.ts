@@ -190,7 +190,7 @@ test("the reference image is the compact side of the row (a third) with a bounde
   const wide = mediaBlock(theme, "(min-width: 851px)");
   assert.match(wide, /\.screenshot-input \{ align-self: start; max-height: 100%; \}/, "as tall as its content, never taller than the row");
   assert.match(wide, /\.screenshot-input \.screenshot-image-area \{ flex: 0 1 clamp\(170px, 34vh, 360px\); min-height: 96px; \}/, "bounded preview height");
-  assert.match(theme, /\.screenshot-image-area img \{[^}]*object-fit: contain;/, "the preview keeps its proportions");
+  assert.match(theme, /\.screenshot-zoom img \{[^}]*object-fit: contain;/, "the preview keeps its proportions");
   // Narrow panel: the name takes a line of its own and the facts share the next one; one column goes back to a single row.
   assert.match(theme, /\.screenshot-filename \{ flex: 1 1 100%;/);
   const narrow = mediaBlock(theme, "(max-width: 850px)");

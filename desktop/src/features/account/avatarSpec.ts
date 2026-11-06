@@ -5,8 +5,11 @@
  */
 
 export const AVATAR_PALETTE_COUNT = 8;
-export const AVATAR_EYE_VARIANTS = ["dots", "wide", "sleepy", "wink", "happy"] as const;
+export const AVATAR_EYE_VARIANTS = ["dots", "wide", "sleepy", "tall", "happy"] as const;
 export type AvatarEyes = (typeof AVATAR_EYE_VARIANTS)[number];
+/** Every face has exactly two eyes (each eye variant draws a pair) and one of these mouths. */
+export const AVATAR_MOUTH_VARIANTS = ["smile", "grin", "flat", "oh", "smirk"] as const;
+export type AvatarMouth = (typeof AVATAR_MOUTH_VARIANTS)[number];
 
 export interface AvatarSpec {
   /** Index into the palettes declared as `--avatar-<n>-*` tokens in foundation.css (0-based here, 1-based there). */
@@ -14,6 +17,7 @@ export interface AvatarSpec {
   /** Closed SVG path of the blob, in a 64 x 64 view box. */
   readonly blobPath: string;
   readonly eyes: AvatarEyes;
+  readonly mouth: AvatarMouth;
 }
 
 /** 32-bit FNV-1a over the UTF-16 code units of the seed. */
@@ -74,5 +78,7 @@ export function avatarSpec(seed: string): AvatarSpec {
     const radius = BASE_RADIUS * (0.82 + random() * 0.3);
     points.push([CENTER + Math.cos(angle) * radius, CENTER + Math.sin(angle) * radius]);
   }
-  return Object.freeze({ palette, blobPath: smoothClosedPath(points), eyes });
+  // Drawn after the blob so adding the mouth did not change anybody's palette, eyes or blob.
+  const mouth = AVATAR_MOUTH_VARIANTS[Math.floor(random() * AVATAR_MOUTH_VARIANTS.length)]!;
+  return Object.freeze({ palette, blobPath: smoothClosedPath(points), eyes, mouth });
 }
