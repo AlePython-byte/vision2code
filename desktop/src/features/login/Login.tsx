@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PreferenceControls } from "../preferences/PreferenceControls";
 import { useLabels } from "../preferences/useLabels";
+import { BrandMark } from "../brand/BrandMark";
 import type { AuthModel } from "../auth/authModel.ts";
 import { probeBackendAuth } from "../auth/authProbe.ts";
 
@@ -140,7 +141,7 @@ export function Login({ authModel, onDemo, onAuthSuccess }: LoginProps) {
       <header className="login-topbar">
         <span className="login-brand">
           <span className="brand-mark" aria-hidden="true">
-            V
+            <BrandMark />
           </span>
           Vision2Code
         </span>

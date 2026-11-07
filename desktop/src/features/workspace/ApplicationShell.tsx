@@ -13,6 +13,7 @@ import type { GeneratedProject } from "../generation/generatedProject";
 import type { CompletedGenerationArtifact } from "../generation/generationArtifact";
 import type { AuthUser } from "../auth/authTypes.ts";
 import { GeneratedAvatar } from "../account/GeneratedAvatar";
+import { BrandMark } from "../brand/BrandMark";
 import type { WorkspaceServices } from "./workspaceServices";
 const never = () => () => {};
 const closed = () => false;
@@ -82,7 +83,7 @@ export function ApplicationShell({
     <div className="application-shell">
       <a className="skip-link" href={view === "projects" ? "#project-vault" : view === "capture" ? "#workspace" : view === "editor" ? "#code-workspace" : "#settings-workspace"}>{t("skip")}</a>
       <nav className="navigation" aria-label={t("navigation")}>
-        <button type="button" className="brand-mark" aria-label={t("brandLabel")} onClick={() => setView("capture")}>V</button>
+        <button type="button" className="brand-mark" aria-label={t("brandLabel")} onClick={() => setView("capture")}><BrandMark /></button>
         <div className="navigation-links">
           <button className="navigation-item" onClick={() => setView("capture")} aria-current={current("capture")} aria-label={t("capture")} title={t("capture")}><ScanLine aria-hidden="true" /><small>{t("capture")}</small></button>
           <button className="navigation-item" onClick={() => setView("editor")} aria-current={current("editor")} aria-label={t("code")} title={t("code")}><Code2 aria-hidden="true" /><small>{t("code")}</small></button>
