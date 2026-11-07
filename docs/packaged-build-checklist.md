@@ -215,3 +215,14 @@ Con la app instalada (`desktop.exe` del build de release), en claro y oscuro, en
 - **Cuenta:** el avatar es grande, siempre con dos ojos y una boca; es el mismo cada vez que entras con la misma cuenta y distinto con otra.
 - **Miniaturas:** en Proyectos y Biblioteca no queda una franja gris vacía al pie de la miniatura, en ambos temas.
 - **Fuentes y contraste:** las fuentes empaquetadas (Sora, Space Grotesk, IBM Plex Mono) se ven igual que en desarrollo; `npm run report:contrast` termina sin errores.
+
+## 13. Identidad de marca (logo e iconos)
+
+La fuente única es `desktop/src-tauri/icons/source/logo.svg` (visor de captura con `</>`, violeta de la marca). Los iconos se regeneran con `npx tauri icon desktop/src-tauri/icons/source/logo.svg` desde `desktop/` (borra después `icons/android` e `icons/ios`, que la app no usa). `desktop/public/logo.svg` es el favicon y debe ser idéntico a la fuente (lo comprueba `brand-identity.test.ts`). El icono de la ventana, el del instalador y el de "Aplicaciones instaladas" solo se prueban de verdad con el build de release:
+
+- **Barra de tareas y ventana:** con `desktop.exe` abierto, el icono es el visor violeta (no el de Tauri amarillo y turquesa), nítido también con el icono pequeño de la barra de tareas y al hacer Alt+Tab.
+- **Instalador (NSIS):** el ejecutable `Vision2Code_*_x64-setup.exe` y la ventana del asistente muestran el icono nuevo.
+- **Aplicaciones instaladas:** tras instalar, "Configuración > Aplicaciones > Aplicaciones instaladas" muestra el icono nuevo junto a Vision2Code, y el acceso directo del menú Inicio también.
+- **Login:** el símbolo aparece junto al nombre "Vision2Code", en claro y oscuro, a 720 × 540 y en pantalla grande.
+- **Barra lateral:** el símbolo aparece arriba y sigue visible, sin recortes, en el carril compacto (≤ 850 px de ancho).
+- Si el icono sigue siendo el antiguo, es la caché de iconos de Windows: reinicia el Explorador o desinstala y reinstala antes de darlo por fallido.
