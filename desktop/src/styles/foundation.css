@@ -116,6 +116,7 @@
   .navigation-item svg { width: 20px; height: 20px; }
   .setting-card-icon svg { width: 20px; height: 20px; }
   .brand-mark { background: var(--color-primary); color: #fff; }
+  .brand-mark .brand-mark-symbol { width: 70%; height: 70%; display: block; }
   .primary-action { background: var(--color-primary-action); color: #fff; }
   .primary-action:hover:not(:disabled) { background: var(--color-primary-hover); }
   .action-button:disabled { opacity: .55; }

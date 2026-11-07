@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <title>Vision2Code</title>
+  <rect width="64" height="64" rx="15" fill="#6d58e8"/>
+  <g stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 23V11H23M41 11H53V23M11 41V53H23M41 53H53V41"/>
+    <path d="M24 25L17 32L24 39M40 25L47 32L40 39M35 24L29 40"/>
+  </g>
+</svg>
