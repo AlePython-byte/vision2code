@@ -17,6 +17,7 @@
     "measure:layout": "npm run build --workspace @vision2code/contracts && node --experimental-strip-types scripts/measure-layout.mts",
     "report:contrast": "node --experimental-strip-types scripts/report-contrast.mts",
     "check:dist-dev-only": "node --experimental-strip-types scripts/check-dev-tools-not-in-dist.mts",
+    "probe:preview-ipc": "node --experimental-strip-types scripts/probe-preview-ipc.mts",
     "verify:export-scaffold": "npm run build --workspace @vision2code/contracts && node --experimental-strip-types scripts/verify-export-scaffold.mts",
     "server:dev": "npm run dev --workspace @vision2code/server",
     "server:build": "npm run build --workspace @vision2code/server",
