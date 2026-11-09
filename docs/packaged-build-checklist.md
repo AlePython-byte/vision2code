@@ -42,18 +42,19 @@ El primer build tardó unos 12 minutos (714 s), de los que el perfil `release` c
 
 | Servicio | De dónde sale la dirección | Valor en el build verificado |
 | --- | --- | --- |
-| API propia (NestJS) | `VITE_API_BASE_URL` al compilar; si falta, `http://localhost:3000/api/v1` | **`http://localhost:3000/api/v1`** (la variable no estaba definida) |
+| API propia (NestJS) | `VITE_API_BASE_URL` al compilar: `desktop/.env.production` (versionado) la fija en Render para `desktop:build`; `desktop:dev`, `npm run dev` y los tests no lo leen y usan `http://localhost:3000/api/v1` | **`https://vision2code-api.onrender.com/api/v1`** en el instalador |
 | Supabase Auth | `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` al compilar | El proyecto de `desktop/.env`, que coincide con el origen permitido en el CSP |
 | OpenAI y PostgreSQL | Solo los usa el servidor | — |
 
 El CSP del paquete solo permite conectarse a:
 - `http://localhost:3000` y `http://127.0.0.1:3000`;
+- `https://vision2code-api.onrender.com` (origen exacto de la API alojada);
 - un único `https://<proyecto>.supabase.co`;
 - la IPC de Tauri.
 
 Apuntar la app a otro backend u otro proyecto de Supabase exige cambiar la variable **y** el CSP de `desktop/src-tauri/tauri.conf.json`, y recompilar.
 
-El servidor escucha solo en `127.0.0.1`. Por eso **el backend tiene que correr en la misma máquina que la app instalada**. Su CORS ya admite el origen de la app empaquetada (`http://tauri.localhost`).
+Con el servidor de Render (`docs/deployment.md`) el instalador ya no necesita un backend local. Si compilas con una `VITE_API_BASE_URL` local, ese servidor escucha solo en `127.0.0.1` y **tiene que correr en la misma máquina que la app instalada**. Su CORS ya admite el origen de la app empaquetada (`http://tauri.localhost`).
 
 ## 4. Qué tiene que estar levantado para la demo
 
@@ -226,3 +227,15 @@ La fuente única es `desktop/src-tauri/icons/source/logo.svg` (visor de captura 
 - **Login:** el símbolo aparece junto al nombre "Vision2Code", en claro y oscuro, a 720 × 540 y en pantalla grande.
 - **Barra lateral:** el símbolo aparece arriba y sigue visible, sin recortes, en el carril compacto (≤ 850 px de ancho).
 - Si el icono sigue siendo el antiguo, es la caché de iconos de Windows: reinicia el Explorador o desinstala y reinstala antes de darlo por fallido.
+
+## 14. Servidor de producción (Render)
+
+El instalador usa `https://vision2code-api.onrender.com/api/v1` (`desktop/.env.production`) y su CSP lo permite. Solo se comprueba con el instalador, no con `tauri dev` ni `npm run dev` (regla 8 de `docs/engineering-rules.md`). Compila con `npm run desktop:build` en una máquina que tenga `desktop/.env` con las variables de Supabase, instala y comprueba:
+
+- **Dirección usada:** un análisis o la lista de proyectos llega a Render (en Render > Logs aparece la petición `/api/v1/...`); no hay errores de CSP ni "No se pudo conectar" con red disponible.
+- **Acceso contra Supabase:** registro o inicio de sesión correcto; cerrar y abrir la app conserva la sesión; la sonda `/auth/me` no cierra la sesión.
+- **Proyectos visibles:** los proyectos creados antes aparecen en Proyectos y Biblioteca con miniaturas; crear, renombrar y borrar uno funciona.
+- **Análisis real:** una captura se analiza, genera código y se guarda en el proyecto; el modo Rápido responde sin error de CORS.
+- **Primer intento tras servicio dormido:** deja el servicio sin tráfico unos 15 minutos y abre la app. La primera petición puede tardar de 30 a 60 s. Comprueba que sigue cargando sin cerrar la sesión; si falla con "no está disponible temporalmente", reintentar funciona. Para una demo, calienta antes el servicio (`docs/deployment.md`, sección 5).
+- **Sin red:** con el Wi-Fi apagado salen los mensajes de la sección 11 y la sesión no se cierra.
+- **Vista previa:** sigue sin red (`connect-src 'none'`); su CSP no cambió.
