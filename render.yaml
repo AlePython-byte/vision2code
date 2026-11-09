@@ -1,0 +1,29 @@
+# Render Blueprint for the Vision2Code API (free plan). Values are NEVER stored here:
+# `sync: false` variables are asked for in the Render dashboard. See docs/deployment.md.
+services:
+  - type: web
+    name: vision2code-api
+    runtime: node
+    plan: free
+    region: oregon
+    # Build from the repository root (npm workspaces). --include=dev because tsc and prisma are devDependencies.
+    buildCommand: npm ci --include=dev && npm run build --workspace @vision2code/server
+    # `prisma migrate deploy` runs before the server starts (the free plan has no pre-deploy command).
+    startCommand: npm run start:prod --workspace @vision2code/server
+    healthCheckPath: /api/v1/health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.21.0
+      - key: SUPABASE_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
