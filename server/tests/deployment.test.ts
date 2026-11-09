@@ -54,7 +54,7 @@ describe("CORS from the environment", () => {
 });
 
 describe("server process", () => {
-  it("starts on the PORT it is given and answers /api/v1/health without authentication", async () => {
+  it("starts on the PORT it is given and answers /api/v1/health without authentication", { timeout: 25_000 }, async () => {
     const port = await new Promise<number>((resolve, reject) => {
       const probe = createServer();
       probe.once("error", reject);
@@ -64,14 +64,32 @@ describe("server process", () => {
       });
     });
     const entry = fileURLToPath(new URL("../src/main.js", import.meta.url));
-    // Minimal environment: nothing from the developer's shell or .env leaks into the child.
-    const child = spawn(process.execPath, [entry], {
-      env: { PATH: process.env.PATH ?? "", PORT: String(port), SUPABASE_URL: "https://example.supabase.co", NODE_ENV: "test" },
-      stdio: "ignore",
-    });
+    // Hermetic environment: only what Node needs to run plus harmless placeholders. Nothing from the
+    // developer's shell, CI or a .env file leaks in. DATABASE_URL/DIRECT_URL are deliberately absent:
+    // PrismaService connects at startup only when DATABASE_URL is set, so a placeholder address would make
+    // the server try a real connection and abort (see the next test); /health must not need a database.
+    const environment: Record<string, string> = {
+      PATH: process.env.PATH ?? "",
+      PORT: String(port),
+      NODE_ENV: "test",
+      SUPABASE_URL: "https://example.supabase.co",
+      OPENAI_API_KEY: "test-key",
+    };
+    if (process.platform === "win32" && process.env.SystemRoot) environment.SystemRoot = process.env.SystemRoot;
+    const child = spawn(process.execPath, [entry], { env: environment, stdio: ["ignore", "pipe", "pipe"] });
+    let output = "";
+    const collect = (chunk: Buffer) => { output = (output + chunk.toString("utf8")).slice(-4000); };
+    child.stdout.on("data", collect);
+    child.stderr.on("data", collect);
+    let exit: string | undefined;
+    child.once("exit", (code, signal) => { exit = `code=${code} signal=${signal}`; });
+    const ansi = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
+    const diagnostics = () => `child ${exit ?? "still running"}; output tail:
+${output.replace(ansi, "").slice(-1500)}`;
     try {
+      const deadline = Date.now() + 20_000;
       let status = 0;
-      for (let attempt = 0; attempt < 60 && status !== 200; attempt++) {
+      while (status !== 200 && exit === undefined && Date.now() < deadline) {
         try {
           const response = await fetch(`http://127.0.0.1:${port}/api/v1/health`, { signal: AbortSignal.timeout(1000) });
           await response.arrayBuffer();
@@ -80,7 +98,7 @@ describe("server process", () => {
           await new Promise((resolve) => setTimeout(resolve, 250));
         }
       }
-      assert.equal(status, 200);
+      assert.equal(status, 200, diagnostics());
     } finally {
       child.kill();
     }
