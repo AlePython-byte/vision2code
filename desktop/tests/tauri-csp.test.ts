@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { DEFAULT_API_BASE_URL } from "../src/features/api/apiBaseUrl.ts";
+import { DEFAULT_API_BASE_URL, resolveApiBaseUrl } from "../src/features/api/apiBaseUrl.ts";
+
+// The hosted API (Render). Deliberate, exact origin: the packaged installer reads it from desktop/.env.production.
+const PRODUCTION_API_ORIGIN = "https://vision2code-api.onrender.com";
 
 const config = JSON.parse(readFileSync(new URL("../src-tauri/tauri.conf.json", import.meta.url), "utf8")) as {
   app: { security: { csp?: unknown; devCsp?: unknown } };
@@ -37,8 +40,30 @@ test("connect-src allows exactly one explicit HTTPS Supabase project origin for 
   assert.equal(supabase.length, 1, `expected one https://<project-ref>.supabase.co origin, got ${connect.join(" ")}`);
 });
 
+test("connect-src lists the production API origin exactly once, without wildcards", () => {
+  assert.equal(connect.filter((source) => source === PRODUCTION_API_ORIGIN).length, 1);
+  assert.ok(!connect.some((source) => source.includes("*")));
+});
+
+test("the packaged build defaults to the production API and dev keeps the local one", () => {
+  const lines = readFileSync(new URL("../.env.production", import.meta.url), "utf8")
+    .split(/\r?\n/).filter((line) => line.trim() && !line.trim().startsWith("#"));
+  assert.equal(lines.length, 1, ".env.production must hold only the public API URL");
+  const [name, value] = lines[0]!.split("=");
+  assert.equal(name, "VITE_API_BASE_URL");
+  assert.equal(resolveApiBaseUrl(value), `${PRODUCTION_API_ORIGIN}/api/v1`);
+  assert.ok(connect.includes(new URL(resolveApiBaseUrl(value)).origin), "the production API origin must be allowed by the CSP");
+  // desktop:dev and the tests never load .env.production (Vite reads it only in production mode); the fallback stays local.
+  assert.equal(DEFAULT_API_BASE_URL, "http://localhost:3000/api/v1");
+});
+
+test("the production env file is versioned: the root .gitignore re-includes it", () => {
+  const ignore = readFileSync(new URL("../../.gitignore", import.meta.url), "utf8");
+  assert.ok(ignore.split(/\r?\n/).includes("!desktop/.env.production"));
+});
+
 test("connect-src stays closed: no wildcard, bare scheme, or arbitrary host", () => {
-  const allowed = [/^ipc:$/, /^http:\/\/ipc\.localhost$/, /^http:\/\/(localhost|127\.0\.0\.1):3000$/, /^https:\/\/[a-z0-9-]+\.supabase\.co$/];
+  const allowed = [/^ipc:$/, /^http:\/\/ipc\.localhost$/, /^http:\/\/(localhost|127\.0\.0\.1):3000$/, /^https:\/\/vision2code-api\.onrender\.com$/, /^https:\/\/[a-z0-9-]+\.supabase\.co$/];
   for (const source of connect) {
     assert.ok(allowed.some((pattern) => pattern.test(source)), `unexpected connect-src source: ${source}`);
   }
