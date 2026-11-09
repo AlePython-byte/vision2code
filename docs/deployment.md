@@ -62,7 +62,23 @@ El plan gratuito duerme el servicio tras ~15 minutos sin tráfico; la primera pe
 Además, la cuota de análisis (160 unidades/h por usuario) vive en la memoria del proceso: se reinicia cuando el servicio
 duerme o se redespliega, y no se comparte entre instancias (el plan gratuito usa una sola).
 
-## 6. Rollback
+## 6. Conectar el instalador de escritorio
+
+El instalador (`npm run desktop:build`) lee `desktop/.env.production`, que contiene solo la URL pública
+`VITE_API_BASE_URL=https://vision2code-api.onrender.com/api/v1`. `npm run dev`, `npm run desktop:dev` y los tests no
+cargan ese archivo y siguen usando `http://localhost:3000/api/v1`. Las variables de Supabase siguen en `desktop/.env` (local, ignorado).
+
+Para cambiar la URL de producción hay que modificar **tres cosas juntas** y recompilar el instalador:
+
+1. `VITE_API_BASE_URL` en `desktop/.env.production` (con `/api/v1` al final).
+2. El origen exacto (sin comodines) en `connect-src` de `desktop/src-tauri/tauri.conf.json`.
+3. `PRODUCTION_API_ORIGIN` y el patrón permitido en `desktop/tests/tauri-csp.test.ts`.
+
+Los orígenes de Tauri ya están fijos en el CORS del servidor. La comprobación real se hace con el instalador:
+`docs/packaged-build-checklist.md`, sección 14. Antes de una demo, calienta el servicio como en la sección 5
+(abre `/api/v1/health` hasta recibir 200).
+
+## 7. Rollback
 
 - **Código**: Render > servicio > **Events/Deploys** > elige un despliegue anterior en estado *Live* > **Rollback**.
   `autoDeploy` está en `false`: nada se despliega sin que lo pidas (Manual Deploy).

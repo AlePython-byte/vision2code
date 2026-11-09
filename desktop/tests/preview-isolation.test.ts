@@ -29,8 +29,8 @@ test("the app's CSP stays strict: no inline or eval script, connect-src unchange
   const scripts = app.get("script-src") ?? app.get("default-src") ?? [];
   assert.ok(!scripts.includes("'unsafe-inline'") && !scripts.includes("'unsafe-eval'"), "script-src gains nothing");
   assert.deepEqual(app.get("default-src"), ["'self'"]);
-  assert.deepEqual(app.get("connect-src"), ["ipc:", "http://ipc.localhost", "http://localhost:3000", "http://127.0.0.1:3000", "https://xynjksbysfbdowifssoz.supabase.co"],
-    "no network origin was added");
+  assert.deepEqual(app.get("connect-src"), ["ipc:", "http://ipc.localhost", "http://localhost:3000", "http://127.0.0.1:3000", "https://vision2code-api.onrender.com", "https://xynjksbysfbdowifssoz.supabase.co"],
+    "no network origin was added beyond the hosted API (deliberate, see docs/deployment.md section 6)");
   assert.deepEqual(app.get("frame-src"), [`http://${PREVIEW_SCHEME}.localhost`, `${PREVIEW_SCHEME}://localhost`],
     "the preview origin, as Windows/Android and macOS/Linux spell it; nothing else can be framed");
   assert.deepEqual(app.get("img-src"), ["'self'", "blob:", "data:", "asset:", "http://asset.localhost"], "data: for Monaco's decorations");
