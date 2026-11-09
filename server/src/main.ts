@@ -31,10 +31,10 @@ async function bootstrap(): Promise<void> {
   }
   validateAnalysisConfiguration();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  configureApplication(app);
+  configureApplication(app, configuration.corsOrigins);
   app.enableShutdownHooks();
-  await app.listen(configuration.port, "127.0.0.1");
-  Logger.log(`API listening at http://localhost:${configuration.port}/api/v1`, "Bootstrap");
+  await app.listen(configuration.port, configuration.host);
+  Logger.log(`API listening at http://${configuration.host}:${configuration.port}/api/v1`, "Bootstrap");
 }
 
 bootstrap().catch((error: unknown) => {
