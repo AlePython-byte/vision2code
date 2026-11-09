@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "npm run build && npm run start",
     "prebuild": "npm run build --workspace @vision2code/contracts",
-    "build": "tsc --project tsconfig.json",
+    "build": "prisma generate && tsc --project tsconfig.json",
     "start": "node --env-file-if-exists=.env dist/main.js",
+    "start:prod": "prisma migrate deploy && node dist/main.js",
     "test": "npm run build && tsc --project tsconfig.test.json && node --test dist/tests/*.test.js",
     "test:db": "node --env-file-if-exists=.env --experimental-strip-types scripts/smoke-test-db.ts"
   },
